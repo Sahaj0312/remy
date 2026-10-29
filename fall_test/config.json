@@ -1,0 +1,57 @@
+{
+  "clip_fps": 5,
+  "clip_max_width": 640,
+  "score": {
+    "drop_window_s": 0.6,
+    "drop_speed_min": 0.25,
+    "drop_min": 0.12,
+    "pre_window_s": 1.0,
+    "post_window_s": 1.0,
+    "ar_tall_min": 1.2,
+    "ar_wide_max": 1.0,
+    "low_hold_s": 3.0,
+    "low_hold_frac": 0.8,
+    "low_ar_max": 1.0,
+    "low_cy_margin": 0.08,
+    "allow_clip_end": true,
+    "min_post_s": 0.2,
+    "max_gap_s": 1.0,
+    "min_coverage": 0.3
+  },
+  "spark": {
+    "model": "muse-spark-1.3",
+    "n_frames": 6,
+    "offsets_s": [
+      -1.5,
+      -0.5,
+      "mid",
+      0.0,
+      1.5,
+      3.0
+    ],
+    "reasoning_effort": "low",
+    "max_output_tokens": 400,
+    "jpeg_quality": 80
+  },
+  "yolo": {
+    "model": "yolo11n-pose.pt",
+    "conf": 0.25,
+    "imgsz": 640,
+    "kp_conf": 0.5
+  },
+  "_comment": {
+    "drop_speed_min": "centroid downward speed in frame-heights per second, measured over drop_window_s",
+    "drop_min": "total centroid drop across the merged event, fraction of frame height",
+    "ar_*": "box aspect ratio = height/width. tall >= ar_tall_min before, wide <= ar_wide_max after",
+    "low_hold_s": "seconds the person must stay low after the drop ends; clips that end early use the available tail if >= min_post_s and allow_clip_end",
+    "low_*": "a frame counts as low if ar <= low_ar_max OR cy >= post-drop cy - low_cy_margin",
+    "spark.offsets_s": "frame times relative to drop end; 'mid' = midpoint of the drop",
+    "tracking": "link detections / merge broken ids when boxes overlap (IoU or half of overlap-over-smaller-box) within max_gap_s",
+    "min_post_s": "when the clip ends before low_hold_s, accept the tail if it is at least this long (dataset clips are trimmed right after impact)"
+  },
+  "tracking": {
+    "max_gap_s": 1.0,
+    "min_link_score": 0.15,
+    "dup_max_overlap": 0.5
+  }
+}

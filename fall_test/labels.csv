@@ -1,0 +1,41 @@
+clip,label,source,src_file,description
+urfall_fall-01,fall,urfall,fall-01-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-04,fall,urfall,fall-04-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-07,fall,urfall,fall-07-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-10,fall,urfall,fall-10-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-13,fall,urfall,fall-13-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-16,fall,urfall,fall-16-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-19,fall,urfall,fall-19-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-22,fall,urfall,fall-22-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-25,fall,urfall,fall-25-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_fall-28,fall,urfall,fall-28-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
+urfall_adl-01,adl,urfall,adl-01-cam0-rgb.zip,"ADL, no lying frames in dataset labels (walking/sitting type)"
+urfall_adl-07,adl,urfall,adl-07-cam0-rgb.zip,"ADL, no lying frames; low min height/width ratio 0.62 (crouch/bend/sit)"
+urfall_adl-08,adl,urfall,adl-08-cam0-rgb.zip,"ADL, no lying frames; low min height/width ratio 0.75 (crouch/bend/sit)"
+urfall_adl-10,adl,urfall,adl-10-cam0-rgb.zip,ADL with lying frames (lying down on bed/sofa)
+urfall_adl-20,adl,urfall,adl-20-cam0-rgb.zip,"ADL, no lying frames; low min height/width ratio 0.65 (crouch/bend/sit)"
+urfall_adl-21,adl,urfall,adl-21-cam0-rgb.zip,"ADL with lying frames, very wide pose (lying down)"
+urfall_adl-22,adl,urfall,adl-22-cam0-rgb.zip,"ADL with lying frames, very wide pose (lying down)"
+urfall_adl-30,adl,urfall,adl-30-cam0-rgb.zip,ADL with many lying frames (lying down)
+urfall_adl-35,adl,urfall,adl-35-cam0-rgb.zip,ADL with lying frames (lying down)
+urfall_adl-38,adl,urfall,adl-38-cam0-rgb.zip,ADL with many lying frames (lying down)
+gmdcsa_S1_Fall_05,fall,gmdcsa24,gm_S1_Fall_05.mp4,Walking to falling. Right side fall
+gmdcsa_S1_Fall_09,fall,gmdcsa24,gm_S1_Fall_09.mp4,"Standing to falling. Forward fall, head not fully visible"
+gmdcsa_S1_Fall_12,fall,gmdcsa24,gm_S1_Fall_12.mp4,Standing to falling. Backward fall
+gmdcsa_S1_Fall_15,fall,gmdcsa24,gm_S1_Fall_15.mp4,Sitting on chair (side view) to right side fall
+gmdcsa_S2_Fall_02,fall,gmdcsa24,gm_S2_Fall_02.mp4,Right side fall on the ground after walking
+gmdcsa_S2_Fall_04,fall,gmdcsa24,gm_S2_Fall_04.mp4,Looking out window then backward fall
+gmdcsa_S2_Fall_08,fall,gmdcsa24,gm_S2_Fall_08.mp4,"Reading while sitting on the ground, then falling backward"
+gmdcsa_S2_Fall_11,fall,gmdcsa24,gm_S2_Fall_11.mp4,Falling from bed to ground (night)
+gmdcsa_S3_Fall_05,fall,gmdcsa24,gm_S3_Fall_05.mp4,Falling slowly from standing position to the floor
+gmdcsa_S4_Fall_10,fall,gmdcsa24,gm_S4_Fall_10.mp4,Reading while sitting on chair then forward fall to ground
+gmdcsa_S1_ADL_01,adl,gmdcsa24,gm_S1_ADL_01.mp4,Sitting on the bed to sleeping on right side on the bed
+gmdcsa_S2_ADL_03,adl,gmdcsa24,gm_S2_ADL_03.mp4,Walking; dusting the bed with a pillow; sleeping on the bed
+gmdcsa_S2_ADL_08,adl,gmdcsa24,gm_S2_ADL_08.mp4,"Exercising: stretching thigh, touching the ground (pyramid pose)"
+gmdcsa_S2_ADL_12,adl,gmdcsa24,gm_S2_ADL_12.mp4,Going to bed and sleeping belly down
+gmdcsa_S2_ADL_22,adl,gmdcsa24,gm_S2_ADL_22.mp4,Exercising (push-ups) and sitting (night)
+gmdcsa_S3_ADL_08,adl,gmdcsa24,gm_S3_ADL_08.mp4,Sitting to sleeping on the floor
+gmdcsa_S3_ADL_09,adl,gmdcsa24,gm_S3_ADL_09.mp4,Sleeping on the floor to sitting then standing
+gmdcsa_S4_ADL_05,adl,gmdcsa24,gm_S4_ADL_05.mp4,"Push-ups, view 1 (lights off)"
+gmdcsa_S4_ADL_10,adl,gmdcsa24,gm_S4_ADL_10.mp4,Walking then sleeping on the bed (lights off)
+gmdcsa_S4_ADL_15,adl,gmdcsa24,gm_S4_ADL_15.mp4,Sitting to sleeping on the bed
