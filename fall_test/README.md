@@ -29,3 +29,7 @@ Pricing used for estimates (dev.meta.ai/docs/pricing-rate-limits, 2026-10-29): S
 ## Data sources
 - UR Fall Detection Dataset (Kwolek & Kępski 2014), CC BY-NC-SA 4.0 — https://fenix.ur.edu.pl/mkepski/ds/uf.html
 - GMDCSA24 (Alam et al. 2024), MIT — https://github.com/ekramalam/GMDCSA24-A-Dataset-for-Human-Fall-Detection-in-Videos
+
+## Results (2026-10-29)
+See `REPORT.md` for the per-clip table, metrics, latency and cost. Annotated GIFs are written to `out/gifs/`
+and are not committed (they are frames from the datasets). Total API spend for the full run was about $0.52.
