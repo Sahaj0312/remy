@@ -4,7 +4,7 @@
  "scorer": "v2",
  "coverage": 0.319,
  "n_frames": 119,
- "flag": false,
+ "flag": true,
  "hold": "unknown",
  "events": [
   {
@@ -22,10 +22,10 @@
    "hold": "unknown",
    "getup_t": null,
    "no_getup_observed_s": 1.7,
-   "drop_ok": false,
+   "drop_ok": true,
    "shape_ok": true,
-   "flag": false,
-   "soft_score": 0.871
+   "flag": true,
+   "soft_score": 0.875
   },
   {
    "start_i": 100,
@@ -42,10 +42,10 @@
    "hold": "unknown",
    "getup_t": null,
    "no_getup_observed_s": 1.4,
-   "drop_ok": false,
+   "drop_ok": true,
    "shape_ok": true,
-   "flag": false,
-   "soft_score": 0.855
+   "flag": true,
+   "soft_score": 0.875
   }
  ],
  "best": {
@@ -63,10 +63,10 @@
   "hold": "unknown",
   "getup_t": null,
   "no_getup_observed_s": 1.7,
-  "drop_ok": false,
+  "drop_ok": true,
   "shape_ok": true,
-  "flag": false,
-  "soft_score": 0.871
+  "flag": true,
+  "soft_score": 0.875
  },
  "summary": {
   "cy_min": 0.844,
@@ -94,9 +94,9 @@
    "soft_score": null
   },
   "5": {
-   "flag": false,
+   "flag": true,
    "coverage": 0.319,
-   "soft_score": 0.871
+   "soft_score": 0.875
   },
   "6": {
    "flag": false,

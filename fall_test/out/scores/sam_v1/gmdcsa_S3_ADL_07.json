@@ -1,0 +1,79 @@
+{
+ "clip": "gmdcsa_S3_ADL_07",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 1.0,
+ "n_frames": 33,
+ "flag": false,
+ "hold": "ok",
+ "events": [
+  {
+   "start_i": 1,
+   "end_i": 10,
+   "start_t": 0.1,
+   "end_t": 1.0,
+   "drop_speed_max": 0.38,
+   "total_drop": 0.226,
+   "ar_pre": 3.202,
+   "ar_post": 2.979,
+   "low_frac": 1.0,
+   "hold_s": 2.2,
+   "clip_truncated_hold": true,
+   "hold": "ok",
+   "drop_ok": true,
+   "shape_ok": false,
+   "hold_ok": true,
+   "flag": false,
+   "soft_score": 1.0
+  },
+  {
+   "start_i": 19,
+   "end_i": 28,
+   "start_t": 1.9,
+   "end_t": 2.8,
+   "drop_speed_max": 0.384,
+   "total_drop": 0.225,
+   "ar_pre": 2.624,
+   "ar_post": 1.464,
+   "low_frac": 0.75,
+   "hold_s": 0.4,
+   "clip_truncated_hold": true,
+   "hold": "failed",
+   "drop_ok": true,
+   "shape_ok": false,
+   "hold_ok": false,
+   "flag": false,
+   "soft_score": 0.875
+  }
+ ],
+ "best": {
+  "start_i": 1,
+  "end_i": 10,
+  "start_t": 0.1,
+  "end_t": 1.0,
+  "drop_speed_max": 0.38,
+  "total_drop": 0.226,
+  "ar_pre": 3.202,
+  "ar_post": 2.979,
+  "low_frac": 1.0,
+  "hold_s": 2.2,
+  "clip_truncated_hold": true,
+  "hold": "ok",
+  "drop_ok": true,
+  "shape_ok": false,
+  "hold_ok": true,
+  "flag": false,
+  "soft_score": 1.0
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": 1.0
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:exercise-stand"
+}

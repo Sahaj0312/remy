@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-01",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-987792877120881",
+ "burst_frames": [
+  13,
+  52
+ ],
+ "burst_s": 4.0,
+ "event_time": "3.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.711,
+  "drop_speed_rel_max": 1.033,
+  "time_to_floor_s": 1.1,
+  "ar_post": 0.584,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.3
+ },
+ "raw_text": "{\"is_lying_still\": false, \"summary_for_family\": \"Went down quickly in the middle of the office near the desks at 3.9s into the clip and is still on the floor but appears to be moving.\", \"urgency\": \"medium\", \"what_happened\": \"Walked forward from the door then crumpled forward to the floor ending curled on his side.\"}",
+ "status": "completed",
+ "latency_s": 8.33,
+ "usage": {
+  "input_tokens": 1606,
+  "output_tokens": 1200,
+  "reasoning_tokens": 1106
+ },
+ "cost_usd": 0.00711,
+ "response_id": "resp_6ae3dbd5d14a22e3538847b7",
+ "verdict": {
+  "is_lying_still": false,
+  "summary_for_family": "Went down quickly in the middle of the office near the desks at 3.9s into the clip and is still on the floor but appears to be moving.",
+  "urgency": "medium",
+  "what_happened": "Walked forward from the door then crumpled forward to the floor ending curled on his side."
+ }
+}

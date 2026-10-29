@@ -1,0 +1,60 @@
+{
+ "clip": "gmdcsa_S2_ADL_13",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 1.0,
+ "n_frames": 48,
+ "flag": false,
+ "hold": "ok",
+ "events": [
+  {
+   "start_i": 2,
+   "end_i": 12,
+   "start_t": 0.2,
+   "end_t": 1.2,
+   "drop_speed_max": 0.315,
+   "total_drop": 0.255,
+   "ar_pre": 3.638,
+   "ar_post": 1.128,
+   "low_frac": 1.0,
+   "hold_s": 3.0,
+   "clip_truncated_hold": false,
+   "hold": "ok",
+   "drop_ok": true,
+   "shape_ok": false,
+   "hold_ok": true,
+   "flag": false,
+   "soft_score": 1.0
+  }
+ ],
+ "best": {
+  "start_i": 2,
+  "end_i": 12,
+  "start_t": 0.2,
+  "end_t": 1.2,
+  "drop_speed_max": 0.315,
+  "total_drop": 0.255,
+  "ar_pre": 3.638,
+  "ar_post": 1.128,
+  "low_frac": 1.0,
+  "hold_s": 3.0,
+  "clip_truncated_hold": false,
+  "hold": "ok",
+  "drop_ok": true,
+  "shape_ok": false,
+  "hold_ok": true,
+  "flag": false,
+  "soft_score": 1.0
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": 1.0
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:sit"
+}

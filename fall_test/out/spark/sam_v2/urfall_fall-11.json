@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-11",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1485063446940247",
+ "burst_frames": [
+  2,
+  42
+ ],
+ "burst_s": 4.1,
+ "event_time": "2.3 s into the clip",
+ "numbers": {
+  "drop_rel": 0.3,
+  "drop_speed_rel_max": 0.588,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.685,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.9
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down fast in the middle of the office about 2 seconds into the video and is still lying on the floor without getting up.\", \"urgency\": \"high\", \"what_happened\": \"The person collapsed from standing sideways to the floor and ended lying flat on his back.\"}",
+ "status": "completed",
+ "latency_s": 7.34,
+ "usage": {
+  "input_tokens": 1606,
+  "output_tokens": 1134,
+  "reasoning_tokens": 1050
+ },
+ "cost_usd": 0.00683,
+ "response_id": "resp_6ae3dc1516b6b4e875f241de",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down fast in the middle of the office about 2 seconds into the video and is still lying on the floor without getting up.",
+  "urgency": "high",
+  "what_happened": "The person collapsed from standing sideways to the floor and ended lying flat on his back."
+ }
+}

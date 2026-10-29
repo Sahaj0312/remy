@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S2_Fall_03",
+ "tracker": "sam-3.1",
+ "scorer": "v2",
+ "coverage": 1.0,
+ "n_frames": 70,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.475,
+  "cy_max": 0.578,
+  "ar_min": 0.189,
+  "ar_max": 0.887,
+  "body_len_clip": 0.631,
+  "vel_rel_max": 0.324
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:onto-bed"
+}

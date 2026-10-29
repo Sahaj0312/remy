@@ -4,7 +4,7 @@
  "scorer": "v2",
  "coverage": 0.953,
  "n_frames": 43,
- "flag": false,
+ "flag": true,
  "hold": "unknown",
  "events": [
   {
@@ -22,10 +22,10 @@
    "hold": "unknown",
    "getup_t": null,
    "no_getup_observed_s": 0.9,
-   "drop_ok": false,
+   "drop_ok": true,
    "shape_ok": true,
-   "flag": false,
-   "soft_score": 0.859
+   "flag": true,
+   "soft_score": 0.875
   }
  ],
  "best": {
@@ -43,10 +43,10 @@
   "hold": "unknown",
   "getup_t": null,
   "no_getup_observed_s": 0.9,
-  "drop_ok": false,
+  "drop_ok": true,
   "shape_ok": true,
-  "flag": false,
-  "soft_score": 0.859
+  "flag": true,
+  "soft_score": 0.875
  },
  "summary": {
   "cy_min": 0.465,
@@ -59,9 +59,9 @@
  "object_id": "1",
  "objects_scored": {
   "1": {
-   "flag": false,
+   "flag": true,
    "coverage": 0.953,
-   "soft_score": 0.859
+   "soft_score": 0.875
   }
  },
  "label": "fall",

@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-02",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1093225653329659",
+ "burst_frames": [
+  2,
+  36
+ ],
+ "burst_s": 3.5,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.378,
+  "drop_speed_rel_max": 0.717,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.385,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.2
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Fell off the chair onto the office floor about 2.4 seconds into the clip and is still lying down after 1.2 seconds.\", \"urgency\": \"high\", \"what_happened\": \"The person slid forward off the chair and ended up lying on his back on the floor.\"}",
+ "status": "completed",
+ "latency_s": 5.9,
+ "usage": {
+  "input_tokens": 1346,
+  "output_tokens": 1046,
+  "reasoning_tokens": 959
+ },
+ "cost_usd": 0.00613,
+ "response_id": "resp_6ae3dbddb2b6d1803ff24d67",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Fell off the chair onto the office floor about 2.4 seconds into the clip and is still lying down after 1.2 seconds.",
+  "urgency": "high",
+  "what_happened": "The person slid forward off the chair and ended up lying on his back on the floor."
+ }
+}

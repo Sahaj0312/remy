@@ -22,10 +22,10 @@
    "hold": "failed",
    "getup_t": 7.6,
    "no_getup_observed_s": 2.0,
-   "drop_ok": false,
+   "drop_ok": true,
    "shape_ok": false,
    "flag": false,
-   "soft_score": 0.669
+   "soft_score": 0.684
   }
  ],
  "best": {
@@ -43,10 +43,10 @@
   "hold": "failed",
   "getup_t": 7.6,
   "no_getup_observed_s": 2.0,
-  "drop_ok": false,
+  "drop_ok": true,
   "shape_ok": false,
   "flag": false,
-  "soft_score": 0.669
+  "soft_score": 0.684
  },
  "summary": {
   "cy_min": 0.503,
@@ -61,7 +61,7 @@
   "1": {
    "flag": false,
    "coverage": 1.0,
-   "soft_score": 0.669
+   "soft_score": 0.684
   }
  },
  "label": "adl",

@@ -20,11 +20,12 @@ def put(img, text, org, scale=0.45, color=(255, 255, 255), thick=1):
     cv2.putText(img, text, org, FONT, scale, color, thick, cv2.LINE_AA)
 
 
-def make_gif(name: str, tracker: str, out_path: Path, title: str | None, width: int, label: str):
+def make_gif(name: str, score_dir: str, out_path: Path, title: str | None, width: int, label: str):
+    tracker = score_dir.split("_")[0]
     track = read_json(OUT / tracker / f"{name}.json")
-    score_p = OUT / "scores" / tracker / f"{name}.json"
+    score_p = OUT / "scores" / score_dir / f"{name}.json"
     score = read_json(score_p) if score_p.exists() else {}
-    spark_p = OUT / "spark" / tracker / f"{name}.json"
+    spark_p = OUT / "spark" / score_dir / f"{name}.json"
     spark = read_json(spark_p) if spark_p.exists() else None
     best = score.get("best") or {}
     fps = track["fps"]
@@ -33,7 +34,7 @@ def make_gif(name: str, tracker: str, out_path: Path, title: str | None, width: 
     if oid and oid in (track.get("objects") or {}):
         frames_src = track["objects"][oid]
     s_i, e_i = best.get("start_i", -1), best.get("end_i", -1)
-    hold_end = e_i + best.get("hold_frames", 0)
+    hold_end = e_i + int(round(best.get("no_getup_observed_s", best.get("hold_s", 0)) * fps))
 
     cap = cv2.VideoCapture(str(CLIPS / f"{name}.mp4"))
     frames_out, trail = [], []
@@ -48,7 +49,7 @@ def make_gif(name: str, tracker: str, out_path: Path, title: str | None, width: 
         if s_i <= i <= e_i:
             state, color = "DROP", (40, 40, 230)
         elif e_i < i <= hold_end:
-            state, color = "LOW", (30, 150, 255)
+            state, color = "DOWN", (30, 150, 255)
         if f.get("present"):
             x1, y1, x2, y2 = [int(round(v)) for v in f["box"]]
             cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
@@ -66,10 +67,10 @@ def make_gif(name: str, tracker: str, out_path: Path, title: str | None, width: 
         bar = np.zeros((44, W, 3), dtype=np.uint8)
         t1 = title or f"{name}  true={label}"
         flag = score.get("flag")
-        t2 = f"{tracker.upper()} flag={'YES' if flag else 'no'}"
+        t2 = f"{score_dir} flag={'YES' if flag else 'no'}" + (f" hold={best.get('hold')}" if best else "")
         if spark:
             v = spark["verdict"]
-            t2 += f" | Spark fall={'YES' if v.get('fall') else 'no'} ({v.get('confidence', 0):.2f})"
+            t2 += f" | Spark: {v.get('urgency')}, {'lying still' if v.get('is_lying_still') else 'moving'}"
         put(bar, t1, (8, 17), 0.5, (255, 255, 255), 1)
         put(bar, t2, (8, 37), 0.45, (180, 220, 255), 1)
         img = np.vstack([bar, img])
@@ -86,13 +87,13 @@ def make_gif(name: str, tracker: str, out_path: Path, title: str | None, width: 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("clip")
-    p.add_argument("--tracker", default="sam")
+    p.add_argument("--score-dir", default="sam_v2")
     p.add_argument("--out", required=True)
     p.add_argument("--title", default=None)
     p.add_argument("--label", default="?")
     p.add_argument("--width", type=int, default=420)
     a = p.parse_args()
-    make_gif(a.clip, a.tracker, Path(a.out), a.title, a.width, a.label)
+    make_gif(a.clip, a.score_dir, Path(a.out), a.title, a.width, a.label)
 
 
 if __name__ == "__main__":

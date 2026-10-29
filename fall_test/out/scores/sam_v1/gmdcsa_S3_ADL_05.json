@@ -1,0 +1,60 @@
+{
+ "clip": "gmdcsa_S3_ADL_05",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 1.0,
+ "n_frames": 52,
+ "flag": false,
+ "hold": "failed",
+ "events": [
+  {
+   "start_i": 15,
+   "end_i": 21,
+   "start_t": 1.5,
+   "end_t": 2.1,
+   "drop_speed_max": 0.261,
+   "total_drop": 0.156,
+   "ar_pre": 4.179,
+   "ar_post": 1.358,
+   "low_frac": 0.5,
+   "hold_s": 3.0,
+   "clip_truncated_hold": false,
+   "hold": "failed",
+   "drop_ok": true,
+   "shape_ok": false,
+   "hold_ok": false,
+   "flag": false,
+   "soft_score": 0.75
+  }
+ ],
+ "best": {
+  "start_i": 15,
+  "end_i": 21,
+  "start_t": 1.5,
+  "end_t": 2.1,
+  "drop_speed_max": 0.261,
+  "total_drop": 0.156,
+  "ar_pre": 4.179,
+  "ar_post": 1.358,
+  "low_frac": 0.5,
+  "hold_s": 3.0,
+  "clip_truncated_hold": false,
+  "hold": "failed",
+  "drop_ok": true,
+  "shape_ok": false,
+  "hold_ok": false,
+  "flag": false,
+  "soft_score": 0.75
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": 0.75
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:exercise-stand"
+}

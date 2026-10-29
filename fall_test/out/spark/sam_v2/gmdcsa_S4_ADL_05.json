@@ -1,0 +1,37 @@
+{
+ "clip": "gmdcsa_S4_ADL_05",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-2890664337981045",
+ "burst_frames": [
+  24,
+  73
+ ],
+ "burst_s": 5.0,
+ "event_time": "4.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.315,
+  "drop_speed_rel_max": 0.571,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.552,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.7
+ },
+ "raw_text": "{\"is_lying_still\": false, \"summary_for_family\": \"Went down near the bed at 4.6s into the clip and is still on the floor but moving.\", \"urgency\": \"medium\", \"what_happened\": \"The person bent forward from standing to hands and knees and then lowered to lying face-down on the floor.\"}",
+ "status": "completed",
+ "latency_s": 6.07,
+ "usage": {
+  "input_tokens": 1866,
+  "output_tokens": 878,
+  "reasoning_tokens": 794
+ },
+ "cost_usd": 0.00606,
+ "response_id": "resp_6ae3dce162378a651c674d00",
+ "verdict": {
+  "is_lying_still": false,
+  "summary_for_family": "Went down near the bed at 4.6s into the clip and is still on the floor but moving.",
+  "urgency": "medium",
+  "what_happened": "The person bent forward from standing to hands and knees and then lowered to lying face-down on the floor."
+ }
+}

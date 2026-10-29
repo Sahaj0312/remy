@@ -1,0 +1,37 @@
+{
+ "clip": "gmdcsa_S1_Fall_05",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1393705389203799",
+ "burst_frames": [
+  2,
+  54
+ ],
+ "burst_s": 5.3,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.333,
+  "drop_speed_rel_max": 0.624,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.426,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down quickly near the chair 2.4 seconds into the clip and has been lying still on the floor for 3 seconds.\", \"urgency\": \"high\", \"what_happened\": \"Walked forward then dropped to the knees and rolled onto the side, ending lying wide and horizontal on the floor.\"}",
+ "status": "completed",
+ "latency_s": 5.51,
+ "usage": {
+  "input_tokens": 1865,
+  "output_tokens": 855,
+  "reasoning_tokens": 765
+ },
+ "cost_usd": 0.00596,
+ "response_id": "resp_6ae3dc6d25bd4570d6d54ed8",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down quickly near the chair 2.4 seconds into the clip and has been lying still on the floor for 3 seconds.",
+  "urgency": "high",
+  "what_happened": "Walked forward then dropped to the knees and rolled onto the side, ending lying wide and horizontal on the floor."
+ }
+}

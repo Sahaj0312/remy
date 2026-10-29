@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S1_ADL_03",
+ "tracker": "sam-3.1",
+ "scorer": "v2",
+ "coverage": 1.0,
+ "n_frames": 67,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.463,
+  "cy_max": 0.52,
+  "ar_min": 0.14,
+  "ar_max": 2.159,
+  "body_len_clip": 1.05,
+  "vel_rel_max": 0.055
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:lie-bed"
+}

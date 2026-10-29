@@ -1,0 +1,37 @@
+{
+ "clip": "gmdcsa_S2_Fall_11",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-992739009864120",
+ "burst_frames": [
+  45,
+  97
+ ],
+ "burst_s": 5.3,
+ "event_time": "6.7 s into the clip",
+ "numbers": {
+  "drop_rel": 0.353,
+  "drop_speed_rel_max": 0.687,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.345,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Fell off the bed onto the floor mat at 6.7 seconds into the clip and has been lying still for 3 seconds.\", \"urgency\": \"high\", \"what_happened\": \"The person slid off the bed and landed on their back on the floor mat in front of the bed.\"}",
+ "status": "completed",
+ "latency_s": 3.98,
+ "usage": {
+  "input_tokens": 1865,
+  "output_tokens": 693,
+  "reasoning_tokens": 605
+ },
+ "cost_usd": 0.00528,
+ "response_id": "resp_6ae3dc9b1d7afd275d7e4947",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Fell off the bed onto the floor mat at 6.7 seconds into the clip and has been lying still for 3 seconds.",
+  "urgency": "high",
+  "what_happened": "The person slid off the bed and landed on their back on the floor mat in front of the bed."
+ }
+}

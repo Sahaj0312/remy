@@ -1,0 +1,30 @@
+{
+ "clip": "urfall_adl-27",
+ "tracker": "sam-3.1",
+ "scorer": "v2",
+ "coverage": 1.0,
+ "n_frames": 33,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.494,
+  "cy_max": 0.597,
+  "ar_min": 1.652,
+  "ar_max": 3.366,
+  "body_len_clip": 0.435,
+  "vel_rel_max": 0.345
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "urfall",
+ "type": "adl:bend-pick"
+}

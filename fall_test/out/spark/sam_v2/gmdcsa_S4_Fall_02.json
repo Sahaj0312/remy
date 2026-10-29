@@ -1,0 +1,37 @@
+{
+ "clip": "gmdcsa_S4_Fall_02",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1380446827499175",
+ "burst_frames": [
+  0,
+  29
+ ],
+ "burst_s": 3.0,
+ "event_time": "2.2 s into the clip",
+ "numbers": {
+  "drop_rel": 0.372,
+  "drop_speed_rel_max": 0.601,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.359,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.7
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Fell off the bed onto the floor at 2.2s into the clip and is still down on the floor.\", \"urgency\": \"high\", \"what_happened\": \"The person rolled off the bed and landed on the floor beside the bed, ending lying horizontal.\"}",
+ "status": "completed",
+ "latency_s": 4.44,
+ "usage": {
+  "input_tokens": 1346,
+  "output_tokens": 743,
+  "reasoning_tokens": 660
+ },
+ "cost_usd": 0.00484,
+ "response_id": "resp_6ae3dcb1e22d5ff010f84c7e",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Fell off the bed onto the floor at 2.2s into the clip and is still down on the floor.",
+  "urgency": "high",
+  "what_happened": "The person rolled off the bed and landed on the floor beside the bed, ending lying horizontal."
+ }
+}

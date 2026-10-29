@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-16",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1144597244621887",
+ "burst_frames": [
+  0,
+  17
+ ],
+ "burst_s": 1.8,
+ "event_time": "1.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.288,
+  "drop_speed_rel_max": 0.625,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.367,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.1
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Fell from the chair to the floor near the desk about 1.6s into the clip and was still down when the clip ended.\", \"urgency\": \"high\", \"what_happened\": \"The person went from sitting on the chair down to the floor ending lying horizontal.\"}",
+ "status": "completed",
+ "latency_s": 4.88,
+ "usage": {
+  "input_tokens": 826,
+  "output_tokens": 831,
+  "reasoning_tokens": 747
+ },
+ "cost_usd": 0.00456,
+ "response_id": "resp_6ae3dc2efbd040c3f0a64541",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Fell from the chair to the floor near the desk about 1.6s into the clip and was still down when the clip ended.",
+  "urgency": "high",
+  "what_happened": "The person went from sitting on the chair down to the floor ending lying horizontal."
+ }
+}

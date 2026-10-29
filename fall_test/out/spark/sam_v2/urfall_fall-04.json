@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-04",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1469356315092516",
+ "burst_frames": [
+  0,
+  31
+ ],
+ "burst_s": 3.2,
+ "event_time": "1.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.391,
+  "drop_speed_rel_max": 0.662,
+  "time_to_floor_s": 0.8,
+  "ar_post": 0.423,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.6
+ },
+ "raw_text": "{\"is_lying_still\": false, \"summary_for_family\": \"Fell off the chair onto the office floor 1.5s into the clip and is still down after 1.6 seconds, shifting but not getting up.\", \"urgency\": \"high\", \"what_happened\": \"The man seated on the chair pitched forward and went down to the floor, ending horizontal on his back/side.\"}",
+ "status": "completed",
+ "latency_s": 5.3,
+ "usage": {
+  "input_tokens": 1346,
+  "output_tokens": 817,
+  "reasoning_tokens": 721
+ },
+ "cost_usd": 0.00515,
+ "response_id": "resp_6ae3dbe500c3a2ce755f4932",
+ "verdict": {
+  "is_lying_still": false,
+  "summary_for_family": "Fell off the chair onto the office floor 1.5s into the clip and is still down after 1.6 seconds, shifting but not getting up.",
+  "urgency": "high",
+  "what_happened": "The man seated on the chair pitched forward and went down to the floor, ending horizontal on his back/side."
+ }
+}

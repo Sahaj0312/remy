@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-13",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-2614854385621687",
+ "burst_frames": [
+  0,
+  27
+ ],
+ "burst_s": 2.8,
+ "event_time": "2.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.781,
+  "drop_speed_rel_max": 0.988,
+  "time_to_floor_s": 1.2,
+  "ar_post": 0.508,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.1
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down in the middle of the room near the door about 2.6 seconds into the clip and was still down when the short clip ended.\", \"urgency\": \"high\", \"what_happened\": \"The person dropped from standing to lying horizontal on the floor over about 1.2 seconds.\"}",
+ "status": "completed",
+ "latency_s": 8.68,
+ "usage": {
+  "input_tokens": 1086,
+  "output_tokens": 1572,
+  "reasoning_tokens": 1483
+ },
+ "cost_usd": 0.00804,
+ "response_id": "resp_6ae3dc2078f2fdd48e884ba0",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down in the middle of the room near the door about 2.6 seconds into the clip and was still down when the short clip ended.",
+  "urgency": "high",
+  "what_happened": "The person dropped from standing to lying horizontal on the floor over about 1.2 seconds."
+ }
+}

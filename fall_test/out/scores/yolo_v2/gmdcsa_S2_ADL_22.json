@@ -4,7 +4,7 @@
  "scorer": "v2",
  "coverage": 0.488,
  "n_frames": 121,
- "flag": false,
+ "flag": true,
  "hold": "ok",
  "events": [
   {
@@ -22,10 +22,10 @@
    "hold": "ok",
    "getup_t": null,
    "no_getup_observed_s": 3.0,
-   "drop_ok": false,
+   "drop_ok": true,
    "shape_ok": true,
-   "flag": false,
-   "soft_score": 0.985
+   "flag": true,
+   "soft_score": 1.0
   }
  ],
  "best": {
@@ -43,10 +43,10 @@
   "hold": "ok",
   "getup_t": null,
   "no_getup_observed_s": 3.0,
-  "drop_ok": false,
+  "drop_ok": true,
   "shape_ok": true,
-  "flag": false,
-  "soft_score": 0.985
+  "flag": true,
+  "soft_score": 1.0
  },
  "summary": {
   "cy_min": 0.646,
@@ -76,12 +76,12 @@
   "5": {
    "flag": false,
    "coverage": 0.339,
-   "soft_score": 0.675
+   "soft_score": 0.693
   },
   "6": {
-   "flag": false,
+   "flag": true,
    "coverage": 0.488,
-   "soft_score": 0.985
+   "soft_score": 1.0
   }
  },
  "label": "adl",

@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-22",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1454547836800573",
+ "burst_frames": [
+  0,
+  18
+ ],
+ "burst_s": 1.9,
+ "event_time": "1.2 s into the clip",
+ "numbers": {
+  "drop_rel": 0.405,
+  "drop_speed_rel_max": 0.764,
+  "time_to_floor_s": 0.8,
+  "ar_post": 0.336,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.6
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Slid off the chair onto the floor 1.2 seconds into the clip and was still down at the end of the clip.\", \"urgency\": \"high\", \"what_happened\": \"The person went from sitting on the chair to lying horizontal on the floor in about 0.8 seconds.\"}",
+ "status": "completed",
+ "latency_s": 5.51,
+ "usage": {
+  "input_tokens": 826,
+  "output_tokens": 1068,
+  "reasoning_tokens": 980
+ },
+ "cost_usd": 0.00557,
+ "response_id": "resp_6ae3dc4e033639e9829949f5",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Slid off the chair onto the floor 1.2 seconds into the clip and was still down at the end of the clip.",
+  "urgency": "high",
+  "what_happened": "The person went from sitting on the chair to lying horizontal on the floor in about 0.8 seconds."
+ }
+}

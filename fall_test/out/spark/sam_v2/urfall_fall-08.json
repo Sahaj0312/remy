@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-08",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1106309368987184",
+ "burst_frames": [
+  0,
+  29
+ ],
+ "burst_s": 3.0,
+ "event_time": "1.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.304,
+  "drop_speed_rel_max": 0.607,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.453,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.0
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down from the chair to the office floor at 1.9s and is still down after 1 second.\", \"urgency\": \"high\", \"what_happened\": \"The seated person pitched forward off the chair to hands and knees then ended lying on his side on the floor.\"}",
+ "status": "completed",
+ "latency_s": 6.13,
+ "usage": {
+  "input_tokens": 1346,
+  "output_tokens": 1017,
+  "reasoning_tokens": 931
+ },
+ "cost_usd": 0.006,
+ "response_id": "resp_6ae3dc01fa21a9e285f54a22",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down from the chair to the office floor at 1.9s and is still down after 1 second.",
+  "urgency": "high",
+  "what_happened": "The seated person pitched forward off the chair to hands and knees then ended lying on his side on the floor."
+ }
+}

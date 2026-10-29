@@ -1,0 +1,37 @@
+{
+ "clip": "gmdcsa_S2_Fall_02",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1826338075056041",
+ "burst_frames": [
+  16,
+  65
+ ],
+ "burst_s": 5.0,
+ "event_time": "3.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.182,
+  "drop_speed_rel_max": 0.488,
+  "time_to_floor_s": 0.4,
+  "ar_post": 0.295,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down onto the floor mat in front of the bed at 3.5 seconds and has been lying still for 3 seconds.\", \"urgency\": \"high\", \"what_happened\": \"The person bent forward from standing and fell onto their side on the mat and remained down.\"}",
+ "status": "completed",
+ "latency_s": 5.8,
+ "usage": {
+  "input_tokens": 1865,
+  "output_tokens": 941,
+  "reasoning_tokens": 856
+ },
+ "cost_usd": 0.00633,
+ "response_id": "resp_6ae3dc8daacc3baf4ce9488a",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down onto the floor mat in front of the bed at 3.5 seconds and has been lying still for 3 seconds.",
+  "urgency": "high",
+  "what_happened": "The person bent forward from standing and fell onto their side on the mat and remained down."
+ }
+}

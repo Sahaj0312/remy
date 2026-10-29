@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S3_Fall_09",
+ "tracker": "sam-3.1",
+ "scorer": "v2",
+ "coverage": 1.0,
+ "n_frames": 62,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.703,
+  "cy_max": 0.806,
+  "ar_min": 0.473,
+  "ar_max": 0.894,
+  "body_len_clip": 0.419,
+  "vel_rel_max": 0.348
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:floor-sit"
+}

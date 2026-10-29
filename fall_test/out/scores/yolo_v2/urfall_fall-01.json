@@ -42,10 +42,10 @@
    "hold": "unknown",
    "getup_t": null,
    "no_getup_observed_s": 0.8,
-   "drop_ok": false,
+   "drop_ok": true,
    "shape_ok": true,
-   "flag": false,
-   "soft_score": 0.857
+   "flag": true,
+   "soft_score": 0.875
   }
  ],
  "best": {

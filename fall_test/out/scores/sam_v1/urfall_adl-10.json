@@ -1,0 +1,60 @@
+{
+ "clip": "urfall_adl-10",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 1.0,
+ "n_frames": 100,
+ "flag": false,
+ "hold": "ok",
+ "events": [
+  {
+   "start_i": 42,
+   "end_i": 50,
+   "start_t": 4.2,
+   "end_t": 5.0,
+   "drop_speed_max": 0.274,
+   "total_drop": 0.204,
+   "ar_pre": 2.39,
+   "ar_post": 1.696,
+   "low_frac": 1.0,
+   "hold_s": 3.0,
+   "clip_truncated_hold": false,
+   "hold": "ok",
+   "drop_ok": true,
+   "shape_ok": false,
+   "hold_ok": true,
+   "flag": false,
+   "soft_score": 1.0
+  }
+ ],
+ "best": {
+  "start_i": 42,
+  "end_i": 50,
+  "start_t": 4.2,
+  "end_t": 5.0,
+  "drop_speed_max": 0.274,
+  "total_drop": 0.204,
+  "ar_pre": 2.39,
+  "ar_post": 1.696,
+  "low_frac": 1.0,
+  "hold_s": 3.0,
+  "clip_truncated_hold": false,
+  "hold": "ok",
+  "drop_ok": true,
+  "shape_ok": false,
+  "hold_ok": true,
+  "flag": false,
+  "soft_score": 1.0
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": 1.0
+  }
+ },
+ "label": "adl",
+ "source": "urfall",
+ "type": "adl:lie-bed"
+}

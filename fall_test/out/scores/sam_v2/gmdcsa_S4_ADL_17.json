@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S4_ADL_17",
+ "tracker": "sam-3.1",
+ "scorer": "v2",
+ "coverage": 0.919,
+ "n_frames": 62,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.393,
+  "cy_max": 0.562,
+  "ar_min": 1.393,
+  "ar_max": 7.727,
+  "body_len_clip": 0.789,
+  "vel_rel_max": 0.229
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 0.919,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:bend-pick"
+}

@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-05",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-963842090134075",
+ "burst_frames": [
+  12,
+  49
+ ],
+ "burst_s": 3.8,
+ "event_time": "3.8 s into the clip",
+ "numbers": {
+  "drop_rel": 0.729,
+  "drop_speed_rel_max": 1.007,
+  "time_to_floor_s": 1.1,
+  "ar_post": 0.676,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.1
+ },
+ "raw_text": "{\"is_lying_still\": false, \"summary_for_family\": \"Went down quickly on the office floor about 3.8 seconds into the clip and is still down but moving.\", \"urgency\": \"medium\", \"what_happened\": \"He pitched forward onto his hands in the center of the room and then rolled onto his back on the floor.\"}",
+ "status": "completed",
+ "latency_s": 6.49,
+ "usage": {
+  "input_tokens": 1346,
+  "output_tokens": 1154,
+  "reasoning_tokens": 1069
+ },
+ "cost_usd": 0.00659,
+ "response_id": "resp_6ae3dbf0a6e5236976f24be3",
+ "verdict": {
+  "is_lying_still": false,
+  "summary_for_family": "Went down quickly on the office floor about 3.8 seconds into the clip and is still down but moving.",
+  "urgency": "medium",
+  "what_happened": "He pitched forward onto his hands in the center of the room and then rolled onto his back on the floor."
+ }
+}

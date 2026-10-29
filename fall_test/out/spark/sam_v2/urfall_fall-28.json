@@ -1,0 +1,37 @@
+{
+ "clip": "urfall_fall-28",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1159542080095006",
+ "burst_frames": [
+  0,
+  21
+ ],
+ "burst_s": 2.2,
+ "event_time": "1.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.423,
+  "drop_speed_rel_max": 0.735,
+  "time_to_floor_s": 0.8,
+  "ar_post": 0.307,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.2
+ },
+ "raw_text": "{\"is_lying_still\": false, \"summary_for_family\": \"Fell forward off the chair to the floor about 1.9s into the clip and is still down.\", \"urgency\": \"high\", \"what_happened\": \"A seated person pitched forward off the chair to the floor ending horizontal.\"}",
+ "status": "completed",
+ "latency_s": 7.56,
+ "usage": {
+  "input_tokens": 1086,
+  "output_tokens": 1429,
+  "reasoning_tokens": 1353
+ },
+ "cost_usd": 0.00743,
+ "response_id": "resp_6ae3dc65edef33c197b24bd8",
+ "verdict": {
+  "is_lying_still": false,
+  "summary_for_family": "Fell forward off the chair to the floor about 1.9s into the clip and is still down.",
+  "urgency": "high",
+  "what_happened": "A seated person pitched forward off the chair to the floor ending horizontal."
+ }
+}

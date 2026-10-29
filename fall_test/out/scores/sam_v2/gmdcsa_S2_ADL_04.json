@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S2_ADL_04",
+ "tracker": "sam-3.1",
+ "scorer": "v2",
+ "coverage": 1.0,
+ "n_frames": 78,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.449,
+  "cy_max": 0.626,
+  "ar_min": 1.378,
+  "ar_max": 4.455,
+  "body_len_clip": 0.781,
+  "vel_rel_max": 0.104
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:exercise-stand"
+}

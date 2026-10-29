@@ -1,0 +1,37 @@
+{
+ "clip": "gmdcsa_S3_Fall_12",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1658720595721374",
+ "burst_frames": [
+  3,
+  42
+ ],
+ "burst_s": 4.0,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.25,
+  "drop_speed_rel_max": 0.543,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.568,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.8
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down onto the floor mat in front of the bed at 2.4 seconds and is still lying down.\", \"urgency\": \"medium\", \"what_happened\": \"Leaned over the bed then slipped backward onto the mat and ended lying on his back.\"}",
+ "status": "completed",
+ "latency_s": 6.57,
+ "usage": {
+  "input_tokens": 1606,
+  "output_tokens": 1272,
+  "reasoning_tokens": 1191
+ },
+ "cost_usd": 0.00741,
+ "response_id": "resp_6ae3dcc87f05036b567e45b6",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down onto the floor mat in front of the bed at 2.4 seconds and is still lying down.",
+  "urgency": "medium",
+  "what_happened": "Leaned over the bed then slipped backward onto the mat and ended lying on his back."
+ }
+}

@@ -22,10 +22,10 @@
    "hold": "failed",
    "getup_t": 2.0,
    "no_getup_observed_s": 0.0,
-   "drop_ok": false,
+   "drop_ok": true,
    "shape_ok": false,
    "flag": false,
-   "soft_score": 0.532
+   "soft_score": 0.553
   },
   {
    "start_i": 35,

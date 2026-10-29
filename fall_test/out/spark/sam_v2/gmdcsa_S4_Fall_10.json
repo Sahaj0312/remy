@@ -1,0 +1,37 @@
+{
+ "clip": "gmdcsa_S4_Fall_10",
+ "score_dir": "sam_v2",
+ "model": "muse-spark-1.3",
+ "mode": "video",
+ "file_id": "file-1085724644470184",
+ "burst_frames": [
+  8,
+  50
+ ],
+ "burst_s": 4.3,
+ "event_time": "2.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.313,
+  "drop_speed_rel_max": 0.658,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.452,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.1
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Fell off the chair onto the floor at 2.9s into the clip and has been lying still for about 2 seconds.\", \"urgency\": \"high\", \"what_happened\": \"The seated person pitched forward off the chair and ended lying horizontal on the floor beside the chair.\"}",
+ "status": "completed",
+ "latency_s": 4.71,
+ "usage": {
+  "input_tokens": 1606,
+  "output_tokens": 628,
+  "reasoning_tokens": 542
+ },
+ "cost_usd": 0.00468,
+ "response_id": "resp_6ae3dcaa219bfa5eeb1e495a",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Fell off the chair onto the floor at 2.9s into the clip and has been lying still for about 2 seconds.",
+  "urgency": "high",
+  "what_happened": "The seated person pitched forward off the chair and ended lying horizontal on the floor beside the chair."
+ }
+}
