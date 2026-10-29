@@ -1,0 +1,36 @@
+{
+ "clip": "gmdcsa_S2_Fall_04",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  15,
+  20,
+  21,
+  23,
+  31,
+  38
+ ],
+ "frame_times_s": [
+  3.0,
+  4.0,
+  4.2,
+  4.6,
+  6.2,
+  7.6
+ ],
+ "verdict": {
+  "confidence": 0.85,
+  "fall": false,
+  "reason": "Person transitions from standing to crouch to seated to lying on the floor mat in staged, controlled motion, consistent with intentionally lying down, not an uncontrolled collapse."
+ },
+ "raw_text": "{\"confidence\": 0.85, \"fall\": false, \"reason\": \"Person transitions from standing to crouch to seated to lying on the floor mat in staged, controlled motion, consistent with intentionally lying down, not an uncontrolled collapse.\"}",
+ "structured_output": true,
+ "latency_s": 1.47,
+ "usage": {
+  "input_tokens": 2272,
+  "output_tokens": 248,
+  "reasoning_tokens": 189
+ },
+ "cost_usd": 0.00389,
+ "response_id": "resp_6ae3d0e34e1c62fcaa0b4bb5"
+}

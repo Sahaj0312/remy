@@ -1,0 +1,34 @@
+{
+ "clip": "urfall_fall-01",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  12,
+  17,
+  18,
+  20,
+  26
+ ],
+ "frame_times_s": [
+  2.4,
+  3.4,
+  3.6,
+  4.0,
+  5.2
+ ],
+ "verdict": {
+  "confidence": 0.9,
+  "fall": true,
+  "reason": "Man goes from standing to the floor in ~1s with motion blur, then rolls onto his side/back and remains lying on open office floor, indicating uncontrolled collapse not intentional sitting or lying."
+ },
+ "raw_text": "{\"confidence\": 0.9, \"fall\": true, \"reason\": \"Man goes from standing to the floor in ~1s with motion blur, then rolls onto his side/back and remains lying on open office floor, indicating uncontrolled collapse not intentional sitting or lying.\"}",
+ "structured_output": true,
+ "latency_s": 3.1,
+ "usage": {
+  "input_tokens": 2417,
+  "output_tokens": 335,
+  "reasoning_tokens": 270
+ },
+ "cost_usd": 0.00445,
+ "response_id": "resp_6ae3cfba1a87ef1ad6884fb1"
+}

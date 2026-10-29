@@ -30,7 +30,7 @@
       3.0
     ],
     "reasoning_effort": "low",
-    "max_output_tokens": 400,
+    "max_output_tokens": 2000,
     "jpeg_quality": 80
   },
   "yolo": {
@@ -47,7 +47,8 @@
     "low_*": "a frame counts as low if ar <= low_ar_max OR cy >= post-drop cy - low_cy_margin",
     "spark.offsets_s": "frame times relative to drop end; 'mid' = midpoint of the drop",
     "tracking": "link detections / merge broken ids when boxes overlap (IoU or half of overlap-over-smaller-box) within max_gap_s",
-    "min_post_s": "when the clip ends before low_hold_s, accept the tail if it is at least this long (dataset clips are trimmed right after impact)"
+    "min_post_s": "when the clip ends before low_hold_s, accept the tail if it is at least this long (dataset clips are trimmed right after impact)",
+    "spark.max_output_tokens": "reasoning tokens count against this cap; 400 truncated most answers before the JSON"
   },
   "tracking": {
     "max_gap_s": 1.0,

@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-22",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  0,
+  1,
+  3,
+  4,
+  6,
+  8
+ ],
+ "frame_times_s": [
+  0.0,
+  0.2,
+  0.6,
+  0.8,
+  1.2,
+  1.6
+ ],
+ "verdict": {
+  "confidence": 0.88,
+  "fall": true,
+  "reason": "Person rapidly collapses forward off the chair to the floor with motion blur, ending lying on his back, indicating an uncontrolled fall rather than intentional sitting or lying down."
+ },
+ "raw_text": "{\"confidence\": 0.88, \"fall\": true, \"reason\": \"Person rapidly collapses forward off the chair to the floor with motion blur, ending lying on his back, indicating an uncontrolled fall rather than intentional sitting or lying down.\"}",
+ "structured_output": true,
+ "latency_s": 2.05,
+ "usage": {
+  "input_tokens": 2824,
+  "output_tokens": 361,
+  "reasoning_tokens": 301
+ },
+ "cost_usd": 0.00506,
+ "response_id": "resp_6ae3d11247e4fc4b2568424f"
+}

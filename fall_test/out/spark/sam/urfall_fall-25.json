@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-25",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  5,
+  7,
+  8,
+  10,
+  11,
+  13
+ ],
+ "frame_times_s": [
+  1.0,
+  1.4,
+  1.6,
+  2.0,
+  2.2,
+  2.6
+ ],
+ "verdict": {
+  "confidence": 0.82,
+  "fall": true,
+  "reason": "Man goes from standing to hands-on-floor to fully prone on open office floor in ~1.6s with fast motion blur, ending lying face-down, consistent with uncontrolled forward collapse rather than controlled sitting, bending, or resting."
+ },
+ "raw_text": "{\"confidence\": 0.82, \"fall\": true, \"reason\": \"Man goes from standing to hands-on-floor to fully prone on open office floor in ~1.6s with fast motion blur, ending lying face-down, consistent with uncontrolled forward collapse rather than controlled sitting, bending, or resting.\"}",
+ "structured_output": true,
+ "latency_s": 3.78,
+ "usage": {
+  "input_tokens": 2824,
+  "output_tokens": 812,
+  "reasoning_tokens": 738
+ },
+ "cost_usd": 0.00698,
+ "response_id": "resp_6ae3d11626ce75f9da9a4d47"
+}

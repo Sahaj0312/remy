@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-10",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  4,
+  9,
+  10,
+  12,
+  20,
+  21
+ ],
+ "frame_times_s": [
+  0.8,
+  1.8,
+  2.0,
+  2.4,
+  4.0,
+  4.2
+ ],
+ "verdict": {
+  "confidence": 0.78,
+  "fall": true,
+  "reason": "From a chair-sit to crouch, the person then rapidly collapses sideways to the floor with legs off the ground and ends lying on his back, indicating an uncontrolled collapse rather than a controlled lie-down."
+ },
+ "raw_text": "{\"confidence\": 0.78, \"fall\": true, \"reason\": \"From a chair-sit to crouch, the person then rapidly collapses sideways to the floor with legs off the ground and ends lying on his back, indicating an uncontrolled collapse rather than a controlled lie-down.\"}",
+ "structured_output": true,
+ "latency_s": 5.07,
+ "usage": {
+  "input_tokens": 2824,
+  "output_tokens": 1175,
+  "reasoning_tokens": 1106
+ },
+ "cost_usd": 0.00852,
+ "response_id": "resp_6ae3d10a85b9b6d2ba384f97"
+}

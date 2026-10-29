@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-07",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  11,
+  16,
+  17,
+  19,
+  22,
+  25
+ ],
+ "frame_times_s": [
+  2.2,
+  3.2,
+  3.4,
+  3.8,
+  4.4,
+  5.0
+ ],
+ "verdict": {
+  "confidence": 0.88,
+  "fall": true,
+  "reason": "Standing person rapidly collapses to open floor within ~1s with motion blur, ending lying on back and remaining down, not a controlled sit or lie on furniture."
+ },
+ "raw_text": "{\"confidence\": 0.88, \"fall\": true, \"reason\": \"Standing person rapidly collapses to open floor within ~1s with motion blur, ending lying on back and remaining down, not a controlled sit or lie on furniture.\"}",
+ "structured_output": true,
+ "latency_s": 3.96,
+ "usage": {
+  "input_tokens": 2824,
+  "output_tokens": 342,
+  "reasoning_tokens": 282
+ },
+ "cost_usd": 0.00498,
+ "response_id": "resp_6ae3d0c18688a8808a4c48b5"
+}

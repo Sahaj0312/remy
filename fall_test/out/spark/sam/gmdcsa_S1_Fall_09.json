@@ -1,0 +1,36 @@
+{
+ "clip": "gmdcsa_S1_Fall_09",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  2,
+  6,
+  8,
+  10,
+  18,
+  21
+ ],
+ "frame_times_s": [
+  0.4,
+  1.2,
+  1.6,
+  2.0,
+  3.6,
+  4.2
+ ],
+ "verdict": {
+  "confidence": 0.8,
+  "fall": true,
+  "reason": "Standing person rapidly collapses forward to hands-and-knees then prone on open floor within ~1s with motion blur, ending motionless face-down, not a controlled sit, bend, or exercise."
+ },
+ "raw_text": "{\"confidence\": 0.8, \"fall\": true, \"reason\": \"Standing person rapidly collapses forward to hands-and-knees then prone on open floor within ~1s with motion blur, ending motionless face-down, not a controlled sit, bend, or exercise.\"}",
+ "structured_output": true,
+ "latency_s": 2.87,
+ "usage": {
+  "input_tokens": 2272,
+  "output_tokens": 577,
+  "reasoning_tokens": 509
+ },
+ "cost_usd": 0.00529,
+ "response_id": "resp_6ae3d11ca50683a4ad0047bc"
+}

@@ -1,0 +1,36 @@
+{
+ "clip": "gmdcsa_S3_Fall_05",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  12,
+  17,
+  18,
+  20,
+  28,
+  35
+ ],
+ "frame_times_s": [
+  2.4,
+  3.4,
+  3.6,
+  4.0,
+  5.6,
+  7.0
+ ],
+ "verdict": {
+  "confidence": 0.8,
+  "fall": false,
+  "reason": "Man bends, crouches with hand support, then lowers himself onto the floor mat and remains lying, indicating a controlled intentional lie-down rather than an uncontrolled collapse."
+ },
+ "raw_text": "{\"confidence\": 0.8, \"fall\": false, \"reason\": \"Man bends, crouches with hand support, then lowers himself onto the floor mat and remains lying, indicating a controlled intentional lie-down rather than an uncontrolled collapse.\"}",
+ "structured_output": true,
+ "latency_s": 2.55,
+ "usage": {
+  "input_tokens": 2272,
+  "output_tokens": 598,
+  "reasoning_tokens": 538
+ },
+ "cost_usd": 0.00538,
+ "response_id": "resp_6ae3d128e0eddafb96b14756"
+}

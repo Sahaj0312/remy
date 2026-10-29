@@ -1,0 +1,34 @@
+{
+ "clip": "urfall_adl-10",
+ "tracker": "sam",
+ "model": "muse-spark-1.3",
+ "frames_sent": [
+  16,
+  22,
+  24,
+  32,
+  39
+ ],
+ "frame_times_s": [
+  3.2,
+  4.4,
+  4.8,
+  6.4,
+  7.8
+ ],
+ "verdict": {
+  "confidence": 0.95,
+  "fall": false,
+  "reason": "The person performs a controlled sit-down onto the bed and then deliberately lies back with hands behind head, not an uncontrolled collapse to the floor."
+ },
+ "raw_text": "{\"confidence\": 0.95, \"fall\": false, \"reason\": \"The person performs a controlled sit-down onto the bed and then deliberately lies back with hands behind head, not an uncontrolled collapse to the floor.\"}",
+ "structured_output": true,
+ "latency_s": 2.19,
+ "usage": {
+  "input_tokens": 2417,
+  "output_tokens": 253,
+  "reasoning_tokens": 198
+ },
+ "cost_usd": 0.0041,
+ "response_id": "resp_6ae3cfbcfb49826b296e4d58"
+}

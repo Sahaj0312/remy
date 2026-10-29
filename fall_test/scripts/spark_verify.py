@@ -145,7 +145,19 @@ def verify_clip(client: OpenAI, name: str, tracker: str, cfg: dict, args) -> dic
             raise
     latency = time.perf_counter() - t0
     text = resp.output_text
-    verdict = parse_json(text)
+    if resp.status != "completed" or not text.strip():
+        # usually max_output_tokens exhausted by reasoning: retry once with a bigger cap
+        req["max_output_tokens"] = cfg["max_output_tokens"] * 2
+        resp = client.responses.create(**req)
+        latency = time.perf_counter() - t0
+        text = resp.output_text
+    try:
+        verdict = parse_json(text)
+    except Exception:
+        write_json(OUT / "spark" / tracker / f"{name}.error.json",
+                   {"clip": name, "status": resp.status, "raw_text": text,
+                    "usage": resp.usage.model_dump() if resp.usage else None})
+        raise
     usage = resp.usage
     cost = usage.input_tokens * SPARK_USD_PER_INPUT_TOKEN + usage.output_tokens * SPARK_USD_PER_OUTPUT_TOKEN
     doc = {
