@@ -1,8 +1,9 @@
-"""Verify flagged clips with Muse Spark: send ~6 frames spanning before / during /
-after the detected drop and ask for a strict-JSON verdict.
+"""Muse Spark triage for SAM-flagged falls (no veto): urgency + a family summary.
 
-Reads out/scores/<tracker>/<clip>.json (needs flag=True and best event),
-writes out/spark/<tracker>/<clip>.json.
+For every clip the rule score flagged, send a short 10 fps burst around the drop (as a video file
+via the Files API, with a frames fallback) plus the SAM numbers, and ask for JSON:
+  {"urgency": "high"|"medium"|"low", "summary_for_family": "...", "what_happened": "...", "is_lying_still": bool}
+Reads out/scores/<tracker>_<scorer>/<clip>.json, writes out/spark/<tracker>_<scorer>/<clip>.json.
 """
 from __future__ import annotations
 
@@ -10,8 +11,11 @@ import argparse
 import base64
 import json
 import re
+import subprocess
 import sys
+import tempfile
 import time
+from datetime import datetime
 from pathlib import Path
 
 import cv2
@@ -23,72 +27,63 @@ from common import (  # noqa: E402
 )
 from openai import OpenAI  # noqa: E402
 
-SYSTEM = """You are a careful reviewer for a home fall-detection system. You will see a few
-still frames from a single fixed indoor camera, in time order, with their timestamps.
-Decide whether the person FELL in this clip.
+SYSTEM = """You are the triage step of a home fall-alert system. A motion detector has already decided that
+the person fell; you do NOT decide whether it was a fall. Your job is to judge how serious it looks and to
+write a short note for the family.
 
-A FALL is an uncontrolled, unintended collapse to the floor or ground (or against furniture),
-usually fast, ending with the person lying or slumped on the floor.
+You get a short video (or frames) from a fixed indoor camera around the moment of the fall, plus numbers
+from a tracker: how far the body centroid dropped (in body lengths), how fast, how long the drop took, and how
+long the person has been down without getting up. The floor may have a mat, rug or mattress on it; that does
+not make the event less of a fall.
 
-These are NOT falls, even though the person ends up low or horizontal:
-- sitting down on a chair, bed, sofa or the floor on purpose
-- bending over, crouching, kneeling, picking something up from the floor
-- lying down or sleeping on a bed, sofa or even on the floor on purpose, with a controlled motion
-- exercising: push-ups, planks, yoga, stretching, sit-ups, bending exercises
-- getting up from bed or from the floor
+Urgency:
+- "high": hard or fast fall, head/trunk impact likely, or the person is not moving afterwards, or they fell
+  from a height (bed, chair) onto the floor.
+- "medium": clear fall but softer or slower, or the person is moving, shifting or trying to get up.
+- "low": very soft, slow or partial fall, and the person is clearly moving or already getting up.
 
-Judge the MOTION between frames (controlled vs. uncontrolled, speed, where the body ends up)
-and the context (bed vs. open floor). If the frames are ambiguous, say so with a lower confidence.
-Answer only with the JSON object requested."""
+Return only the JSON object requested. summary_for_family must be one or two plain sentences a worried
+relative can read in three seconds, e.g. "Went down quickly near the bed at 3:42pm and hasn't moved for 40
+seconds." Use the event time you are given, name the place in the room if visible, and say whether they are
+moving. what_happened is a one-sentence factual description of the motion."""
 
 SCHEMA = {
     "type": "object",
     "properties": {
-        "fall": {"type": "boolean", "description": "true only if the person fell"},
-        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-        "reason": {"type": "string", "description": "one or two sentences"},
+        "urgency": {"type": "string", "enum": ["high", "medium", "low"]},
+        "summary_for_family": {"type": "string"},
+        "what_happened": {"type": "string"},
+        "is_lying_still": {"type": "boolean"},
     },
-    "required": ["fall", "confidence", "reason"],
+    "required": ["urgency", "summary_for_family", "what_happened", "is_lying_still"],
     "additionalProperties": False,
 }
 
 
-def pick_frames(score: dict, n_frames: int, fps: float, offsets) -> list[int]:
-    b = score["best"]
-    s, e = b["start_i"], b["end_i"]
-    idx = []
-    for off in offsets:
-        if off == "mid":
-            i = (s + e) // 2
-        else:
-            i = e + int(round(off * fps))
-        idx.append(min(max(i, 0), n_frames - 1))
-    # de-duplicate, then pad by splitting the largest gap until we have len(offsets) frames
-    out = sorted(set(idx))
-    while len(out) < len(offsets):
-        gaps = [(out[k + 1] - out[k], k) for k in range(len(out) - 1)]
-        if not gaps or max(gaps)[0] < 2:
-            break
-        g, k = max(gaps)
-        out.insert(k + 1, out[k] + g // 2)
-    return out
+def burst_window(best: dict, n_frames: int, fps: float, cfg: dict) -> tuple[int, int]:
+    s = max(0, best["start_i"] - int(round(cfg["burst_before_s"] * fps)))
+    e = min(n_frames - 1, best["end_i"] + int(round(cfg["burst_after_s"] * fps)))
+    return s, e
+
+
+def cut_clip(src: Path, s: int, e: int, fps: float, dst: Path):
+    """Frame-exact cut [s, e] re-encoded at the clip fps."""
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(src),
+                    "-vf", f"select='between(n\\,{s}\\,{e})',setpts=N/{fps:g}/TB", "-r", f"{fps:g}",
+                    "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "23", "-pix_fmt", "yuv420p",
+                    "-movflags", "+faststart", str(dst)], check=True, capture_output=True)
 
 
 def grab_frames(path: Path, indices: list[int], quality: int) -> dict[int, str]:
-    cap = cv2.VideoCapture(str(path))
-    want = set(indices)
-    frames: dict[int, str] = {}
-    i = 0
+    cap = cv2.VideoCapture(str(path)); want = set(indices); frames = {}; i = 0
     while True:
         ok, img = cap.read()
-        if not ok:
+        if not ok or i > max(indices):
             break
         if i in want:
             ok2, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, quality])
             frames[i] = base64.b64encode(buf.tobytes()).decode("ascii")
         i += 1
-        if i > max(indices):
-            break
     cap.release()
     return frames
 
@@ -103,109 +98,104 @@ def parse_json(text: str) -> dict:
         raise
 
 
-def verify_clip(client: OpenAI, name: str, tracker: str, cfg: dict, args) -> dict:
-    score = read_json(OUT / "scores" / tracker / f"{name}.json")
-    track = read_json(OUT / tracker / f"{name}.json")
-    fps, n = track["fps"], track["n_frames"]
-    indices = pick_frames(score, n, fps, cfg["offsets_s"])
-    frames = grab_frames(CLIPS / f"{name}.mp4", indices, cfg["jpeg_quality"])
-    e_t = score["best"]["end_t"]
-    content = [{"type": "input_text",
-                "text": f"{len(indices)} frames from a {n/fps:.1f}s clip at {fps:g} fps. "
-                        f"Our motion detector flagged a possible fall ending around t={e_t:.1f}s. "
-                        "Frames are in time order."}]
-    for i in indices:
-        rel = i / fps - e_t
-        phase = "before" if rel < -0.3 else ("during" if rel <= 0.1 else "after")
-        content.append({"type": "input_text", "text": f"Frame at t={i/fps:.1f}s ({phase} the flagged motion):"})
-        content.append({"type": "input_image", "image_url": f"data:image/jpeg;base64,{frames[i]}"})
-    content.append({"type": "input_text", "text": 'Return JSON: {"fall": true|false, "confidence": 0-1, "reason": "..."}'})
+def numbers_text(best: dict, event_time: str) -> str:
+    return (f"Tracker numbers: the body centroid dropped {best['drop_rel']:.2f} body lengths, peak speed "
+            f"{best['drop_speed_rel_max']:.2f} body lengths per second, time to floor {best['time_to_floor_s']:.1f} s, "
+            f"body ended {'wide/horizontal' if best['shape_ok'] else 'not clearly horizontal'} "
+            f"(height/width {best['ar_post']:.2f}). Time down without getting up so far: "
+            f"{best['no_getup_observed_s']:.1f} s"
+            + (" (clip ended, still down)" if best['hold'] == 'unknown' else
+               (" (then got up)" if best['hold'] == 'failed' else " (no get-up seen)")) +
+            f". Event time: {event_time}.")
 
-    req = dict(
-        model=cfg["model"],
-        instructions=SYSTEM,
-        input=[{"type": "message", "role": "user", "content": content}],
-        max_output_tokens=cfg["max_output_tokens"],
-        reasoning={"effort": cfg["reasoning_effort"]},
-    )
-    structured = not args.no_schema
-    if structured:
-        req["text"] = {"format": {"type": "json_schema", "name": "fall_verdict",
-                                  "schema": SCHEMA, "strict": True}}
+
+def run_triage(client: OpenAI, cfg: dict, best: dict, fps: float, n_frames: int, src: Path,
+               event_time: str, mode: str = "video") -> dict:
+    """Core call: burst around `best` from `src` + the tracker numbers -> triage JSON. No file I/O."""
+    s, e = burst_window(best, n_frames, fps, cfg)
+    text = (f"A {(e - s + 1) / fps:.1f} s burst at {fps:g} fps around the fall. " + numbers_text(best, event_time))
+    content = [{"type": "input_text", "text": text}]
+    file_id = None
+    if mode == "video":
+        with tempfile.TemporaryDirectory() as tmp:
+            burst = Path(tmp) / "burst.mp4"
+            cut_clip(src, s, e, fps, burst)
+            up = client.files.create(file=(burst.name, burst.read_bytes(), "video/mp4"), purpose="user_data")
+            file_id = up.id
+        content.append({"type": "input_video", "file_id": file_id})
+    else:
+        step = max(1, int(round(fps / cfg["frames_fps"])))
+        idx = list(range(s, e + 1, step))
+        frames = grab_frames(src, idx, cfg["jpeg_quality"])
+        for i in idx:
+            content.append({"type": "input_text", "text": f"t={i / fps:.1f}s"})
+            content.append({"type": "input_image", "image_url": f"data:image/jpeg;base64,{frames[i]}"})
+    content.append({"type": "input_text", "text": 'Return JSON: {"urgency": "high"|"medium"|"low", '
+                    '"summary_for_family": "...", "what_happened": "...", "is_lying_still": true|false}'})
+    req = dict(model=cfg["model"], instructions=SYSTEM,
+               input=[{"type": "message", "role": "user", "content": content}],
+               max_output_tokens=cfg["max_output_tokens"], reasoning={"effort": cfg["reasoning_effort"]},
+               text={"format": {"type": "json_schema", "name": "fall_triage", "schema": SCHEMA, "strict": True}})
     t0 = time.perf_counter()
-    try:
+    resp = client.responses.create(**req)
+    if resp.status != "completed" or not resp.output_text.strip():
+        req["max_output_tokens"] = cfg["max_output_tokens"] * 2          # reasoning ate the cap: retry once
         resp = client.responses.create(**req)
-    except Exception as e:
-        if structured and getattr(e, "status_code", None) == 400:
-            # fall back to prompt-only JSON
-            req.pop("text")
-            structured = False
-            resp = client.responses.create(**req)
-        else:
-            raise
     latency = time.perf_counter() - t0
-    text = resp.output_text
-    if resp.status != "completed" or not text.strip():
-        # usually max_output_tokens exhausted by reasoning: retry once with a bigger cap
-        req["max_output_tokens"] = cfg["max_output_tokens"] * 2
-        resp = client.responses.create(**req)
-        latency = time.perf_counter() - t0
-        text = resp.output_text
-    try:
-        verdict = parse_json(text)
-    except Exception:
-        write_json(OUT / "spark" / tracker / f"{name}.error.json",
-                   {"clip": name, "status": resp.status, "raw_text": text,
-                    "usage": resp.usage.model_dump() if resp.usage else None})
-        raise
+    text_out = resp.output_text
     usage = resp.usage
-    cost = usage.input_tokens * SPARK_USD_PER_INPUT_TOKEN + usage.output_tokens * SPARK_USD_PER_OUTPUT_TOKEN
-    doc = {
-        "clip": name, "tracker": tracker, "model": cfg["model"],
-        "frames_sent": indices, "frame_times_s": [round(i / fps, 2) for i in indices],
-        "verdict": verdict, "raw_text": text, "structured_output": structured,
-        "latency_s": round(latency, 2),
-        "usage": {"input_tokens": usage.input_tokens, "output_tokens": usage.output_tokens,
-                  "reasoning_tokens": getattr(getattr(usage, "output_tokens_details", None), "reasoning_tokens", None)},
-        "cost_usd": round(cost, 5),
-        "response_id": resp.id,
-    }
-    write_json(OUT / "spark" / tracker / f"{name}.json", doc)
-    print(f"{name:28s} spark fall={verdict.get('fall')} conf={verdict.get('confidence')} "
-          f"{latency:.1f}s in={usage.input_tokens} out={usage.output_tokens} ${cost:.4f} :: {verdict.get('reason','')[:90]}",
-          flush=True)
+    doc = {"model": cfg["model"], "mode": mode, "file_id": file_id, "burst_frames": [s, e],
+           "burst_s": round((e - s + 1) / fps, 2), "event_time": event_time,
+           "numbers": {k: best[k] for k in ("drop_rel", "drop_speed_rel_max", "time_to_floor_s", "ar_post", "hold", "no_getup_observed_s")},
+           "raw_text": text_out, "status": resp.status, "latency_s": round(latency, 2),
+           "usage": {"input_tokens": usage.input_tokens, "output_tokens": usage.output_tokens,
+                     "reasoning_tokens": getattr(getattr(usage, "output_tokens_details", None), "reasoning_tokens", None)},
+           "cost_usd": round(usage.input_tokens * SPARK_USD_PER_INPUT_TOKEN + usage.output_tokens * SPARK_USD_PER_OUTPUT_TOKEN, 5),
+           "response_id": resp.id}
+    doc["verdict"] = parse_json(text_out)       # raises on bad JSON; caller keeps doc via exception args
+    return doc
+
+
+def triage(client: OpenAI, name: str, score_dir: str, cfg: dict, args) -> dict:
+    score = read_json(OUT / "scores" / score_dir / f"{name}.json")
+    tracker = score_dir.split("_")[0]
+    track = read_json(OUT / tracker / f"{name}.json")
+    best = score["best"]
+    mode = "frames" if args.frames else "video"
+    doc = run_triage(client, cfg, best, track["fps"], track["n_frames"], CLIPS / f"{name}.mp4",
+                     f"{best['end_t']:.1f} s into the clip", mode)
+    doc = {"clip": name, "score_dir": score_dir, **doc}
+    write_json(OUT / "spark" / score_dir / f"{name}.json", doc)
+    v, u = doc["verdict"], doc["usage"]
+    print(f"{name:22s} {v.get('urgency','?'):6s} still={str(v.get('is_lying_still')):5s} {doc['latency_s']:.1f}s "
+          f"in={u['input_tokens']} out={u['output_tokens']} ${doc['cost_usd']:.4f} :: {v.get('summary_for_family','')[:100]}", flush=True)
     return doc
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("clips", nargs="*", help="default: every flagged clip")
-    p.add_argument("--tracker", default="sam", choices=["sam", "yolo"])
-    p.add_argument("--all", action="store_true", help="verify every scored clip, not only flagged")
+    p.add_argument("--score-dir", default="sam_v2", help="out/scores/<dir> to read flags from")
+    p.add_argument("--all", action="store_true", help="every clip with an event, not only flagged")
     p.add_argument("--force", action="store_true")
-    p.add_argument("--no-schema", action="store_true")
+    p.add_argument("--frames", action="store_true", help="send JPEG frames instead of a video file")
     args = p.parse_args()
     cfg = load_config()["spark"]
     names = args.clips
     if not names:
-        names = []
-        for r in load_labels():
-            sp = OUT / "scores" / args.tracker / f"{r['clip']}.json"
-            if not sp.exists():
-                continue
-            sc = read_json(sp)
-            if (sc.get("flag") or args.all) and sc.get("best"):
-                names.append(r["clip"])
+        names = [r["clip"] for r in load_labels()
+                 if (OUT / "scores" / args.score_dir / f"{r['clip']}.json").exists()
+                 and (lambda sc: (sc.get("flag") or args.all) and sc.get("best"))(read_json(OUT / "scores" / args.score_dir / f"{r['clip']}.json"))]
     if not args.force:
-        names = [n for n in names if not (OUT / "spark" / args.tracker / f"{n}.json").exists()]
-    print(f"{len(names)} clips to verify with {cfg['model']}", flush=True)
+        names = [n for n in names if not (OUT / "spark" / args.score_dir / f"{n}.json").exists()]
+    print(f"{len(names)} clips to triage with {cfg['model']} ({'frames' if args.frames else 'video'})", flush=True)
     client = OpenAI(base_url=META_BASE_URL, api_key=api_key(), timeout=300)
     for n in names:
         try:
-            verify_clip(client, n, args.tracker, cfg, args)
+            triage(client, n, args.score_dir, cfg, args)
         except Exception as e:
             print(f"{n}: FAILED {type(e).__name__}: {e}", flush=True)
-            write_json(OUT / "spark" / args.tracker / f"{n}.error.json", {"clip": n, "error": repr(e)})
+            write_json(OUT / "spark" / args.score_dir / f"{n}.error.json", {"clip": n, "error": repr(e)})
 
 
 if __name__ == "__main__":

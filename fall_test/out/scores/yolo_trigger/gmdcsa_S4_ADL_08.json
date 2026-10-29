@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S4_ADL_08",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "trigger",
+ "coverage": 1.0,
+ "n_frames": 123,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.413,
+  "cy_max": 0.552,
+  "ar_min": 0.182,
+  "ar_max": 2.625,
+  "body_len_clip": 0.654,
+  "vel_rel_max": 0.289
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:get-up"
+}

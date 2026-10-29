@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S4_Fall_10",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.882,
+ "n_frames": 51,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.539,
+  "cy_max": 0.878,
+  "ar_min": 0.459,
+  "ar_max": 1.713,
+  "body_len_clip": 0.617,
+  "vel_rel_max": 0.346
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.882,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:chair"
+}

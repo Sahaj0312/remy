@@ -1,0 +1,30 @@
+{
+ "clip": "urfall_adl-01",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.98,
+ "n_frames": 50,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.426,
+  "cy_max": 0.659,
+  "ar_min": 1.118,
+  "ar_max": 5.545,
+  "body_len_clip": 0.479,
+  "vel_rel_max": 0.309
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.98,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "urfall",
+ "type": "adl:sit-walk"
+}

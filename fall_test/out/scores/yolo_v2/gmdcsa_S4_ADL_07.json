@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S4_ADL_07",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.44,
+ "n_frames": 50,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.567,
+  "cy_max": 0.773,
+  "ar_min": 0.501,
+  "ar_max": 0.972,
+  "body_len_clip": 0.77,
+  "vel_rel_max": 0.316
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.44,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:exercise-floor"
+}

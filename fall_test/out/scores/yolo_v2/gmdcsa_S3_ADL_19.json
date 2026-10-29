@@ -1,0 +1,40 @@
+{
+ "clip": "gmdcsa_S3_ADL_19",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 1.0,
+ "n_frames": 65,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.367,
+  "cy_max": 0.648,
+  "ar_min": 1.109,
+  "ar_max": 4.079,
+  "body_len_clip": 0.649,
+  "vel_rel_max": 0.361
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  },
+  "2": {
+   "flag": false,
+   "coverage": 0.062,
+   "soft_score": null
+  },
+  "3": {
+   "flag": false,
+   "coverage": 0.077,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:bend-pick"
+}

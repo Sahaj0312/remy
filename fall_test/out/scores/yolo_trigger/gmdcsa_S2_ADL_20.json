@@ -1,0 +1,135 @@
+{
+ "clip": "gmdcsa_S2_ADL_20",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "trigger",
+ "coverage": 0.974,
+ "n_frames": 117,
+ "flag": true,
+ "hold": "failed",
+ "events": [
+  {
+   "start_i": 9,
+   "end_i": 14,
+   "start_t": 0.9,
+   "end_t": 1.4,
+   "time_to_floor_s": 0.5,
+   "body_len": 0.543,
+   "drop_rel": 0.147,
+   "drop_speed_rel_max": 0.457,
+   "total_drop": 0.08,
+   "ar_post": 1.218,
+   "cy_post": 0.534,
+   "hold": "failed",
+   "getup_t": 2.1,
+   "no_getup_observed_s": 0.6,
+   "drop_ok": true,
+   "shape_ok": false,
+   "flag": true,
+   "soft_score": 0.664
+  },
+  {
+   "start_i": 33,
+   "end_i": 40,
+   "start_t": 3.3,
+   "end_t": 4.0,
+   "time_to_floor_s": 0.7,
+   "body_len": 0.662,
+   "drop_rel": 0.259,
+   "drop_speed_rel_max": 0.467,
+   "total_drop": 0.172,
+   "ar_post": 1.412,
+   "cy_post": 0.643,
+   "hold": "failed",
+   "getup_t": 4.3,
+   "no_getup_observed_s": 0.2,
+   "drop_ok": true,
+   "shape_ok": false,
+   "flag": true,
+   "soft_score": 0.642
+  },
+  {
+   "start_i": 39,
+   "end_i": 44,
+   "start_t": 3.9,
+   "end_t": 4.4,
+   "time_to_floor_s": 0.5,
+   "body_len": 0.661,
+   "drop_rel": 0.163,
+   "drop_speed_rel_max": 0.328,
+   "total_drop": 0.108,
+   "ar_post": 1.232,
+   "cy_post": 0.638,
+   "hold": "failed",
+   "getup_t": 4.7,
+   "no_getup_observed_s": 0.2,
+   "drop_ok": true,
+   "shape_ok": false,
+   "flag": true,
+   "soft_score": 0.662
+  }
+ ],
+ "best": {
+  "start_i": 9,
+  "end_i": 14,
+  "start_t": 0.9,
+  "end_t": 1.4,
+  "time_to_floor_s": 0.5,
+  "body_len": 0.543,
+  "drop_rel": 0.147,
+  "drop_speed_rel_max": 0.457,
+  "total_drop": 0.08,
+  "ar_post": 1.218,
+  "cy_post": 0.534,
+  "hold": "failed",
+  "getup_t": 2.1,
+  "no_getup_observed_s": 0.6,
+  "drop_ok": true,
+  "shape_ok": false,
+  "flag": true,
+  "soft_score": 0.664
+ },
+ "summary": {
+  "cy_min": 0.403,
+  "cy_max": 0.687,
+  "ar_min": 0.785,
+  "ar_max": 2.9,
+  "body_len_clip": 0.48,
+  "vel_rel_max": 0.467
+ },
+ "object_id": "2",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.128,
+   "soft_score": null
+  },
+  "2": {
+   "flag": true,
+   "coverage": 0.974,
+   "soft_score": 0.664
+  },
+  "3": {
+   "flag": false,
+   "coverage": 0.085,
+   "soft_score": null
+  },
+  "4": {
+   "flag": false,
+   "coverage": 0.103,
+   "soft_score": null
+  },
+  "5": {
+   "flag": false,
+   "coverage": 0.179,
+   "soft_score": null
+  },
+  "6": {
+   "flag": false,
+   "coverage": 0.214,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:sit"
+}

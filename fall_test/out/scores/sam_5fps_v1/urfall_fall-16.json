@@ -1,0 +1,60 @@
+{
+ "clip": "urfall_fall-16",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 1.0,
+ "n_frames": 9,
+ "flag": true,
+ "hold": "ok",
+ "events": [
+  {
+   "start_i": 5,
+   "end_i": 8,
+   "start_t": 1.0,
+   "end_t": 1.6,
+   "drop_speed_max": 0.263,
+   "total_drop": 0.158,
+   "ar_pre": 1.646,
+   "ar_post": 0.374,
+   "low_frac": 1.0,
+   "hold_s": 0.0,
+   "clip_truncated_hold": true,
+   "hold": "ok",
+   "drop_ok": true,
+   "shape_ok": true,
+   "hold_ok": true,
+   "flag": true,
+   "soft_score": 1.0
+  }
+ ],
+ "best": {
+  "start_i": 5,
+  "end_i": 8,
+  "start_t": 1.0,
+  "end_t": 1.6,
+  "drop_speed_max": 0.263,
+  "total_drop": 0.158,
+  "ar_pre": 1.646,
+  "ar_post": 0.374,
+  "low_frac": 1.0,
+  "hold_s": 0.0,
+  "clip_truncated_hold": true,
+  "hold": "ok",
+  "drop_ok": true,
+  "shape_ok": true,
+  "hold_ok": true,
+  "flag": true,
+  "soft_score": 1.0
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": true,
+   "coverage": 1.0,
+   "soft_score": 1.0
+  }
+ },
+ "label": "fall",
+ "source": "urfall",
+ "type": "fall:chair"
+}

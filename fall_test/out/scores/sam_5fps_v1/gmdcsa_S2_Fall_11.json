@@ -1,0 +1,60 @@
+{
+ "clip": "gmdcsa_S2_Fall_11",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 1.0,
+ "n_frames": 53,
+ "flag": false,
+ "hold": "ok",
+ "events": [
+  {
+   "start_i": 29,
+   "end_i": 34,
+   "start_t": 5.8,
+   "end_t": 6.8,
+   "drop_speed_max": 0.359,
+   "total_drop": 0.268,
+   "ar_pre": 0.355,
+   "ar_post": 0.343,
+   "low_frac": 1.0,
+   "hold_s": 3.0,
+   "clip_truncated_hold": false,
+   "hold": "ok",
+   "drop_ok": true,
+   "shape_ok": false,
+   "hold_ok": true,
+   "flag": false,
+   "soft_score": 1.0
+  }
+ ],
+ "best": {
+  "start_i": 29,
+  "end_i": 34,
+  "start_t": 5.8,
+  "end_t": 6.8,
+  "drop_speed_max": 0.359,
+  "total_drop": 0.268,
+  "ar_pre": 0.355,
+  "ar_post": 0.343,
+  "low_frac": 1.0,
+  "hold_s": 3.0,
+  "clip_truncated_hold": false,
+  "hold": "ok",
+  "drop_ok": true,
+  "shape_ok": false,
+  "hold_ok": true,
+  "flag": false,
+  "soft_score": 1.0
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": 1.0
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:bed"
+}

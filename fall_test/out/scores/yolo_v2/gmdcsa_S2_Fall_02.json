@@ -1,0 +1,30 @@
+{
+ "clip": "gmdcsa_S2_Fall_02",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.798,
+ "n_frames": 84,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.47,
+  "cy_max": 0.918,
+  "ar_min": 0.137,
+  "ar_max": 3.906,
+  "body_len_clip": 0.889,
+  "vel_rel_max": 0.432
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.798,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:standing"
+}

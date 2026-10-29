@@ -1,0 +1,110 @@
+{
+ "clip": "gmdcsa_S3_Fall_18",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.319,
+ "n_frames": 119,
+ "flag": false,
+ "hold": "unknown",
+ "events": [
+  {
+   "start_i": 97,
+   "end_i": 101,
+   "start_t": 9.7,
+   "end_t": 10.1,
+   "time_to_floor_s": 0.4,
+   "body_len": 0.404,
+   "drop_rel": 0.197,
+   "drop_speed_rel_max": 0.491,
+   "total_drop": 0.079,
+   "ar_post": 0.745,
+   "cy_post": 0.924,
+   "hold": "unknown",
+   "getup_t": null,
+   "no_getup_observed_s": 1.7,
+   "drop_ok": false,
+   "shape_ok": true,
+   "flag": false,
+   "soft_score": 0.871
+  },
+  {
+   "start_i": 100,
+   "end_i": 104,
+   "start_t": 10.0,
+   "end_t": 10.4,
+   "time_to_floor_s": 0.4,
+   "body_len": 0.402,
+   "drop_rel": 0.184,
+   "drop_speed_rel_max": 0.459,
+   "total_drop": 0.074,
+   "ar_post": 0.727,
+   "cy_post": 0.925,
+   "hold": "unknown",
+   "getup_t": null,
+   "no_getup_observed_s": 1.4,
+   "drop_ok": false,
+   "shape_ok": true,
+   "flag": false,
+   "soft_score": 0.855
+  }
+ ],
+ "best": {
+  "start_i": 97,
+  "end_i": 101,
+  "start_t": 9.7,
+  "end_t": 10.1,
+  "time_to_floor_s": 0.4,
+  "body_len": 0.404,
+  "drop_rel": 0.197,
+  "drop_speed_rel_max": 0.491,
+  "total_drop": 0.079,
+  "ar_post": 0.745,
+  "cy_post": 0.924,
+  "hold": "unknown",
+  "getup_t": null,
+  "no_getup_observed_s": 1.7,
+  "drop_ok": false,
+  "shape_ok": true,
+  "flag": false,
+  "soft_score": 0.871
+ },
+ "summary": {
+  "cy_min": 0.844,
+  "cy_max": 0.941,
+  "ar_min": 0.638,
+  "ar_max": 0.819,
+  "body_len_clip": 0.393,
+  "vel_rel_max": 0.491
+ },
+ "object_id": "5",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.378,
+   "soft_score": 0.852
+  },
+  "2": {
+   "flag": false,
+   "coverage": 0.042,
+   "soft_score": null
+  },
+  "4": {
+   "flag": false,
+   "coverage": 0.034,
+   "soft_score": null
+  },
+  "5": {
+   "flag": false,
+   "coverage": 0.319,
+   "soft_score": 0.871
+  },
+  "6": {
+   "flag": false,
+   "coverage": 0.034,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:bed"
+}

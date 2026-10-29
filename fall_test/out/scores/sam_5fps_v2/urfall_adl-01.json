@@ -1,0 +1,30 @@
+{
+ "clip": "urfall_adl-01",
+ "tracker": "sam-3.1",
+ "scorer": "v2",
+ "coverage": 0.96,
+ "n_frames": 25,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.46,
+  "cy_max": 0.657,
+  "ar_min": 1.121,
+  "ar_max": 4.703,
+  "body_len_clip": 0.502,
+  "vel_rel_max": 0.329
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 0.96,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "urfall",
+ "type": "adl:sit-walk"
+}

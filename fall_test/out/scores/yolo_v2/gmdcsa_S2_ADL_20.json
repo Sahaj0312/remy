@@ -1,0 +1,115 @@
+{
+ "clip": "gmdcsa_S2_ADL_20",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.974,
+ "n_frames": 117,
+ "flag": false,
+ "hold": "failed",
+ "events": [
+  {
+   "start_i": 9,
+   "end_i": 13,
+   "start_t": 0.9,
+   "end_t": 1.3,
+   "time_to_floor_s": 0.4,
+   "body_len": 0.543,
+   "drop_rel": 0.183,
+   "drop_speed_rel_max": 0.457,
+   "total_drop": 0.099,
+   "ar_post": 1.218,
+   "cy_post": 0.535,
+   "hold": "failed",
+   "getup_t": 2.1,
+   "no_getup_observed_s": 0.7,
+   "drop_ok": false,
+   "shape_ok": false,
+   "flag": false,
+   "soft_score": 0.643
+  },
+  {
+   "start_i": 34,
+   "end_i": 39,
+   "start_t": 3.4,
+   "end_t": 3.9,
+   "time_to_floor_s": 0.5,
+   "body_len": 0.662,
+   "drop_rel": 0.209,
+   "drop_speed_rel_max": 0.467,
+   "total_drop": 0.138,
+   "ar_post": 1.243,
+   "cy_post": 0.643,
+   "hold": "failed",
+   "getup_t": 4.3,
+   "no_getup_observed_s": 0.3,
+   "drop_ok": true,
+   "shape_ok": false,
+   "flag": false,
+   "soft_score": 0.661
+  }
+ ],
+ "best": {
+  "start_i": 34,
+  "end_i": 39,
+  "start_t": 3.4,
+  "end_t": 3.9,
+  "time_to_floor_s": 0.5,
+  "body_len": 0.662,
+  "drop_rel": 0.209,
+  "drop_speed_rel_max": 0.467,
+  "total_drop": 0.138,
+  "ar_post": 1.243,
+  "cy_post": 0.643,
+  "hold": "failed",
+  "getup_t": 4.3,
+  "no_getup_observed_s": 0.3,
+  "drop_ok": true,
+  "shape_ok": false,
+  "flag": false,
+  "soft_score": 0.661
+ },
+ "summary": {
+  "cy_min": 0.403,
+  "cy_max": 0.687,
+  "ar_min": 0.785,
+  "ar_max": 2.9,
+  "body_len_clip": 0.48,
+  "vel_rel_max": 0.467
+ },
+ "object_id": "2",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.128,
+   "soft_score": null
+  },
+  "2": {
+   "flag": false,
+   "coverage": 0.974,
+   "soft_score": 0.661
+  },
+  "3": {
+   "flag": false,
+   "coverage": 0.085,
+   "soft_score": null
+  },
+  "4": {
+   "flag": false,
+   "coverage": 0.103,
+   "soft_score": null
+  },
+  "5": {
+   "flag": false,
+   "coverage": 0.179,
+   "soft_score": null
+  },
+  "6": {
+   "flag": false,
+   "coverage": 0.214,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:sit"
+}

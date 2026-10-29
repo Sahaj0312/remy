@@ -1,0 +1,70 @@
+{
+ "clip": "gmdcsa_S2_Fall_04",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.824,
+ "n_frames": 51,
+ "flag": true,
+ "hold": "ok",
+ "events": [
+  {
+   "start_i": 19,
+   "end_i": 23,
+   "start_t": 3.8,
+   "end_t": 4.6,
+   "time_to_floor_s": 0.8,
+   "body_len": 0.716,
+   "drop_rel": 0.342,
+   "drop_speed_rel_max": 0.482,
+   "total_drop": 0.245,
+   "ar_post": 0.758,
+   "cy_post": 0.806,
+   "hold": "ok",
+   "getup_t": null,
+   "no_getup_observed_s": 3.0,
+   "drop_ok": true,
+   "shape_ok": true,
+   "flag": true,
+   "soft_score": 1.0
+  }
+ ],
+ "best": {
+  "start_i": 19,
+  "end_i": 23,
+  "start_t": 3.8,
+  "end_t": 4.6,
+  "time_to_floor_s": 0.8,
+  "body_len": 0.716,
+  "drop_rel": 0.342,
+  "drop_speed_rel_max": 0.482,
+  "total_drop": 0.245,
+  "ar_post": 0.758,
+  "cy_post": 0.806,
+  "hold": "ok",
+  "getup_t": null,
+  "no_getup_observed_s": 3.0,
+  "drop_ok": true,
+  "shape_ok": true,
+  "flag": true,
+  "soft_score": 1.0
+ },
+ "summary": {
+  "cy_min": 0.377,
+  "cy_max": 0.907,
+  "ar_min": 0.335,
+  "ar_max": 4.169,
+  "body_len_clip": 0.745,
+  "vel_rel_max": 0.482
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": true,
+   "coverage": 0.824,
+   "soft_score": 1.0
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:standing"
+}

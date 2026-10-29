@@ -1,0 +1,35 @@
+{
+ "clip": "urfall_adl-21",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.645,
+ "n_frames": 93,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.414,
+  "cy_max": 0.649,
+  "ar_min": 0.979,
+  "ar_max": 3.157,
+  "body_len_clip": 0.501,
+  "vel_rel_max": 0.428
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.645,
+   "soft_score": null
+  },
+  "2": {
+   "flag": false,
+   "coverage": 0.065,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "urfall",
+ "type": "adl:lie-bed"
+}

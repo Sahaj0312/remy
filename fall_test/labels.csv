@@ -1,41 +1,101 @@
-clip,label,source,src_file,description
-urfall_fall-01,fall,urfall,fall-01-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-04,fall,urfall,fall-04-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-07,fall,urfall,fall-07-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-10,fall,urfall,fall-10-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-13,fall,urfall,fall-13-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-16,fall,urfall,fall-16-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-19,fall,urfall,fall-19-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-22,fall,urfall,fall-22-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-25,fall,urfall,fall-25-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_fall-28,fall,urfall,fall-28-cam0-rgb.zip,"fall (UR Fall Detection Dataset, cam0 RGB)"
-urfall_adl-01,adl,urfall,adl-01-cam0-rgb.zip,"ADL, no lying frames in dataset labels (walking/sitting type)"
-urfall_adl-07,adl,urfall,adl-07-cam0-rgb.zip,"ADL, no lying frames; low min height/width ratio 0.62 (crouch/bend/sit)"
-urfall_adl-08,adl,urfall,adl-08-cam0-rgb.zip,"ADL, no lying frames; low min height/width ratio 0.75 (crouch/bend/sit)"
-urfall_adl-10,adl,urfall,adl-10-cam0-rgb.zip,ADL with lying frames (lying down on bed/sofa)
-urfall_adl-20,adl,urfall,adl-20-cam0-rgb.zip,"ADL, no lying frames; low min height/width ratio 0.65 (crouch/bend/sit)"
-urfall_adl-21,adl,urfall,adl-21-cam0-rgb.zip,"ADL with lying frames, very wide pose (lying down)"
-urfall_adl-22,adl,urfall,adl-22-cam0-rgb.zip,"ADL with lying frames, very wide pose (lying down)"
-urfall_adl-30,adl,urfall,adl-30-cam0-rgb.zip,ADL with many lying frames (lying down)
-urfall_adl-35,adl,urfall,adl-35-cam0-rgb.zip,ADL with lying frames (lying down)
-urfall_adl-38,adl,urfall,adl-38-cam0-rgb.zip,ADL with many lying frames (lying down)
-gmdcsa_S1_Fall_05,fall,gmdcsa24,gm_S1_Fall_05.mp4,Walking to falling. Right side fall
-gmdcsa_S1_Fall_09,fall,gmdcsa24,gm_S1_Fall_09.mp4,"Standing to falling. Forward fall, head not fully visible"
-gmdcsa_S1_Fall_12,fall,gmdcsa24,gm_S1_Fall_12.mp4,Standing to falling. Backward fall
-gmdcsa_S1_Fall_15,fall,gmdcsa24,gm_S1_Fall_15.mp4,Sitting on chair (side view) to right side fall
-gmdcsa_S2_Fall_02,fall,gmdcsa24,gm_S2_Fall_02.mp4,Right side fall on the ground after walking
-gmdcsa_S2_Fall_04,fall,gmdcsa24,gm_S2_Fall_04.mp4,Looking out window then backward fall
-gmdcsa_S2_Fall_08,fall,gmdcsa24,gm_S2_Fall_08.mp4,"Reading while sitting on the ground, then falling backward"
-gmdcsa_S2_Fall_11,fall,gmdcsa24,gm_S2_Fall_11.mp4,Falling from bed to ground (night)
-gmdcsa_S3_Fall_05,fall,gmdcsa24,gm_S3_Fall_05.mp4,Falling slowly from standing position to the floor
-gmdcsa_S4_Fall_10,fall,gmdcsa24,gm_S4_Fall_10.mp4,Reading while sitting on chair then forward fall to ground
-gmdcsa_S1_ADL_01,adl,gmdcsa24,gm_S1_ADL_01.mp4,Sitting on the bed to sleeping on right side on the bed
-gmdcsa_S2_ADL_03,adl,gmdcsa24,gm_S2_ADL_03.mp4,Walking; dusting the bed with a pillow; sleeping on the bed
-gmdcsa_S2_ADL_08,adl,gmdcsa24,gm_S2_ADL_08.mp4,"Exercising: stretching thigh, touching the ground (pyramid pose)"
-gmdcsa_S2_ADL_12,adl,gmdcsa24,gm_S2_ADL_12.mp4,Going to bed and sleeping belly down
-gmdcsa_S2_ADL_22,adl,gmdcsa24,gm_S2_ADL_22.mp4,Exercising (push-ups) and sitting (night)
-gmdcsa_S3_ADL_08,adl,gmdcsa24,gm_S3_ADL_08.mp4,Sitting to sleeping on the floor
-gmdcsa_S3_ADL_09,adl,gmdcsa24,gm_S3_ADL_09.mp4,Sleeping on the floor to sitting then standing
-gmdcsa_S4_ADL_05,adl,gmdcsa24,gm_S4_ADL_05.mp4,"Push-ups, view 1 (lights off)"
-gmdcsa_S4_ADL_10,adl,gmdcsa24,gm_S4_ADL_10.mp4,Walking then sleeping on the bed (lights off)
-gmdcsa_S4_ADL_15,adl,gmdcsa24,gm_S4_ADL_15.mp4,Sitting to sleeping on the bed
+clip,label,source,src_file,type,lighting,description
+urfall_fall-01,fall,urfall,fall-01-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1886 mm)
+urfall_fall-02,fall,urfall,fall-02-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1439 mm)
+urfall_fall-04,fall,urfall,fall-04-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1369 mm)
+urfall_fall-05,fall,urfall,fall-05-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1816 mm)
+urfall_fall-07,fall,urfall,fall-07-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1614 mm)
+urfall_fall-08,fall,urfall,fall-08-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1350 mm)
+urfall_fall-10,fall,urfall,fall-10-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1353 mm)
+urfall_fall-11,fall,urfall,fall-11-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1703 mm)
+urfall_fall-13,fall,urfall,fall-13-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1690 mm)
+urfall_fall-14,fall,urfall,fall-14-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1306 mm)
+urfall_fall-16,fall,urfall,fall-16-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1309 mm)
+urfall_fall-17,fall,urfall,fall-17-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1718 mm)
+urfall_fall-19,fall,urfall,fall-19-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1689 mm)
+urfall_fall-20,fall,urfall,fall-20-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1364 mm)
+urfall_fall-22,fall,urfall,fall-22-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1319 mm)
+urfall_fall-23,fall,urfall,fall-23-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1719 mm)
+urfall_fall-25,fall,urfall,fall-25-cam0-rgb.zip,fall:standing,day,fall (inferred standing: start head height 1754 mm)
+urfall_fall-28,fall,urfall,fall-28-cam0-rgb.zip,fall:chair,day,fall (inferred chair: start head height 1388 mm)
+urfall_adl-01,adl,urfall,adl-01-cam0-rgb.zip,adl:sit-walk,day,"walking/sitting (inferred: min height/width ratio 1.07, no lying frames)"
+urfall_adl-07,adl,urfall,adl-07-cam0-rgb.zip,adl:bend-pick,day,crouch/bend/pick up (inferred: min height/width ratio 0.62)
+urfall_adl-08,adl,urfall,adl-08-cam0-rgb.zip,adl:bend-pick,day,crouch/bend/pick up (inferred: min height/width ratio 0.75)
+urfall_adl-10,adl,urfall,adl-10-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 101 lying frames, min head height 461 mm)"
+urfall_adl-11,adl,urfall,adl-11-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 101 lying frames, min head height 543 mm)"
+urfall_adl-18,adl,urfall,adl-18-cam0-rgb.zip,adl:bend-pick,day,crouch/bend/pick up (inferred: min height/width ratio 0.94)
+urfall_adl-19,adl,urfall,adl-19-cam0-rgb.zip,adl:bend-pick,day,crouch/bend/pick up (inferred: min height/width ratio 0.91)
+urfall_adl-20,adl,urfall,adl-20-cam0-rgb.zip,adl:bend-pick,day,crouch/bend/pick up (inferred: min height/width ratio 0.65)
+urfall_adl-21,adl,urfall,adl-21-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 61 lying frames, min head height 665 mm)"
+urfall_adl-22,adl,urfall,adl-22-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 72 lying frames, min head height 657 mm)"
+urfall_adl-23,adl,urfall,adl-23-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 76 lying frames, min head height 683 mm)"
+urfall_adl-25,adl,urfall,adl-25-cam0-rgb.zip,adl:bend-pick,day,crouch/bend/pick up (inferred: min height/width ratio 0.68)
+urfall_adl-27,adl,urfall,adl-27-cam0-rgb.zip,adl:bend-pick,day,crouch/bend/pick up (inferred: min height/width ratio 0.99)
+urfall_adl-30,adl,urfall,adl-30-cam0-rgb.zip,adl:lie-floor,day,"lying down on purpose (inferred: 181 lying frames, min head height 353 mm)"
+urfall_adl-31,adl,urfall,adl-31-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 76 lying frames, min head height 429 mm)"
+urfall_adl-32,adl,urfall,adl-32-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 78 lying frames, min head height 454 mm)"
+urfall_adl-33,adl,urfall,adl-33-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 65 lying frames, min head height 506 mm)"
+urfall_adl-34,adl,urfall,adl-34-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 70 lying frames, min head height 504 mm)"
+urfall_adl-35,adl,urfall,adl-35-cam0-rgb.zip,adl:lie-floor,day,"lying down on purpose (inferred: 108 lying frames, min head height 371 mm)"
+urfall_adl-36,adl,urfall,adl-36-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 111 lying frames, min head height 737 mm)"
+urfall_adl-37,adl,urfall,adl-37-cam0-rgb.zip,adl:lie-bed,day,"lying down on purpose (inferred: 81 lying frames, min head height 726 mm)"
+urfall_adl-38,adl,urfall,adl-38-cam0-rgb.zip,adl:lie-floor,day,"lying down on purpose (inferred: 141 lying frames, min head height 272 mm)"
+urfall_adl-39,adl,urfall,adl-39-cam0-rgb.zip,adl:lie-floor,day,"lying down on purpose (inferred: 77 lying frames, min head height 332 mm)"
+urfall_adl-40,adl,urfall,adl-40-cam0-rgb.zip,adl:lie-floor,day,"lying down on purpose (inferred: 71 lying frames, min head height 334 mm)"
+gmdcsa_S1_Fall_05,fall,gmdcsa24,gm_S1_Fall_05.mp4,fall:standing,day,Walking to falling. Right side fall
+gmdcsa_S1_Fall_09,fall,gmdcsa24,gm_S1_Fall_09.mp4,fall:standing,day,Standing position to falling. Forward Fall. Full body (head) not visible
+gmdcsa_S1_Fall_12,fall,gmdcsa24,gm_S1_Fall_12.mp4,fall:standing,day,Standing position to falling. Backward Fall
+gmdcsa_S1_Fall_15,fall,gmdcsa24,gm_S1_Fall_15.mp4,fall:chair,day,Sitting on the chair (side view) to right side fall
+gmdcsa_S2_Fall_02,fall,gmdcsa24,gm_S2_Fall_02.mp4,fall:standing,day,Right side fall on the ground after walking
+gmdcsa_S2_Fall_04,fall,gmdcsa24,gm_S2_Fall_04.mp4,fall:standing,day,Seeing outside the window then backward fall
+gmdcsa_S2_Fall_08,fall,gmdcsa24,gm_S2_Fall_08.mp4,fall:floor-sit,day,Reading a newspaper in the sitting position on the ground then falling backward
+gmdcsa_S2_Fall_11,fall,gmdcsa24,gm_S2_Fall_11.mp4,fall:bed,night,Falling from bed to ground
+gmdcsa_S3_Fall_05,fall,gmdcsa24,gm_S3_Fall_05.mp4,fall:slow,day,Falling slowly from standing position to the floor
+gmdcsa_S4_Fall_10,fall,gmdcsa24,gm_S4_Fall_10.mp4,fall:chair,day,Reading a book while sitting on the chair then falling (FW) on the ground
+gmdcsa_S4_Fall_02,fall,gmdcsa24,gm_S4_Fall_02.mp4,fall:bed,day,Falling (LS) from the bed to the floor
+gmdcsa_S4_Fall_06,fall,gmdcsa24,gm_S4_Fall_06.mp4,fall:bed,lights-off,Falling (LS) on the bed from sitting on the bed then falling (RS) to the floor
+gmdcsa_S4_Fall_12,fall,gmdcsa24,gm_S4_Fall_12.mp4,fall:bed,day,Falling (FW)to the floor from sitting on the bed
+gmdcsa_S4_Fall_15,fall,gmdcsa24,gm_S4_Fall_15.mp4,fall:bed,day,Falling (FW) on the floor from sitting on the bed
+gmdcsa_S3_Fall_12,fall,gmdcsa24,gm_S3_Fall_12.mp4,fall:bed,day,Falling backward from the bed
+gmdcsa_S3_Fall_18,fall,gmdcsa24,gm_S3_Fall_18.mp4,fall:bed,night,Sitting on the bed; then falling on the floor
+gmdcsa_S3_Fall_09,fall,gmdcsa24,gm_S3_Fall_09.mp4,fall:floor-sit,day,Reading the book while sitting on the ground; then falling backward
+gmdcsa_S3_Fall_13,fall,gmdcsa24,gm_S3_Fall_13.mp4,fall:floor-sit,day,Writing something in a notebook while sitting position on the floor; then falling backward
+gmdcsa_S3_Fall_17,fall,gmdcsa24,gm_S3_Fall_17.mp4,fall:onto-bed,night,Reading newspaper then falling Backward on the bed
+gmdcsa_S3_Fall_16,fall,gmdcsa24,gm_S3_Fall_16.mp4,fall:standing,night,Walking and then falling left side on the floor
+gmdcsa_S2_Fall_03,fall,gmdcsa24,gm_S2_Fall_03.mp4,fall:onto-bed,day,Forward fall on the bed
+gmdcsa_S2_Fall_10,fall,gmdcsa24,gm_S2_Fall_10.mp4,fall:standing,night,Right side fall then backward
+gmdcsa_S1_ADL_01,adl,gmdcsa24,gm_S1_ADL_01.mp4,adl:lie-bed,day,Sitting on the bed to sleeping right side on the bed. Face towards camera
+gmdcsa_S2_ADL_03,adl,gmdcsa24,gm_S2_ADL_03.mp4,adl:lie-bed,day,Walking; removing dust from the bed using a pillow; and sleeping on the bed
+gmdcsa_S2_ADL_08,adl,gmdcsa24,gm_S2_ADL_08.mp4,adl:exercise-stand,day,Exercising (Stretching thigh and trying to touch the ground:Pyramid Pose)
+gmdcsa_S2_ADL_12,adl,gmdcsa24,gm_S2_ADL_12.mp4,adl:lie-bed,day,Going to bed and sleeping (belly facing downwards)
+gmdcsa_S2_ADL_22,adl,gmdcsa24,gm_S2_ADL_22.mp4,adl:exercise-floor,night,Exercising (Push-up) and sitting
+gmdcsa_S3_ADL_08,adl,gmdcsa24,gm_S3_ADL_08.mp4,adl:lie-floor,day,Sitting to sleeping on the floor
+gmdcsa_S3_ADL_09,adl,gmdcsa24,gm_S3_ADL_09.mp4,adl:get-up,day,Sleeping on the floor to sitting and then standing
+gmdcsa_S4_ADL_05,adl,gmdcsa24,gm_S4_ADL_05.mp4,adl:exercise-floor,lights-off,Doing exercise (push-up); view 1
+gmdcsa_S4_ADL_10,adl,gmdcsa24,gm_S4_ADL_10.mp4,adl:lie-bed,lights-off,Walking then sleeping on the bed after removing the goggles
+gmdcsa_S4_ADL_15,adl,gmdcsa24,gm_S4_ADL_15.mp4,adl:lie-bed,day,Sitting to sleeping on the bed
+gmdcsa_S1_ADL_02,adl,gmdcsa24,gm_S1_ADL_02.mp4,adl:lie-bed,day,Sitting on the bed to sleeping left side on the bed. Face towards the camera
+gmdcsa_S1_ADL_03,adl,gmdcsa24,gm_S1_ADL_03.mp4,adl:lie-bed,day,Sitting on the bed to sleeping left side on the bed. Face towards the ceiling
+gmdcsa_S1_ADL_04,adl,gmdcsa24,gm_S1_ADL_04.mp4,adl:get-up,day,From sleeping left side on the bed (Face towards the ceiling) to sitting on the bed
+gmdcsa_S1_ADL_15,adl,gmdcsa24,gm_S1_ADL_15.mp4,adl:bend-pick,day,Walking to picking a mobile phone from the ground and then sitting on the chair
+gmdcsa_S1_ADL_16,adl,gmdcsa24,gm_S1_ADL_16.mp4,adl:bend-pick,day,Picking the mobile phone from the ground while sitting on the chair
+gmdcsa_S2_ADL_02,adl,gmdcsa24,gm_S2_ADL_02.mp4,adl:bend-pick,day,Picking up a water bottle from the ground and drinking while sitting on the bed
+gmdcsa_S2_ADL_04,adl,gmdcsa24,gm_S2_ADL_04.mp4,adl:exercise-stand,day,Yoga: Standing forward bend (Uttanasana)
+gmdcsa_S2_ADL_05,adl,gmdcsa24,gm_S2_ADL_05.mp4,adl:get-up,day,Throwing a book on the bed; standing up from the ground; walking; and opening the curtain
+gmdcsa_S2_ADL_06,adl,gmdcsa24,gm_S2_ADL_06.mp4,adl:bend-pick,day,Picking up the mobile phone from the ground; placing it on the bed; and sitting on the bed
+gmdcsa_S2_ADL_09,adl,gmdcsa24,gm_S2_ADL_09.mp4,adl:sit,day,Standing up from a sitting position on the bed and then sitting on the ground
+gmdcsa_S2_ADL_13,adl,gmdcsa24,gm_S2_ADL_13.mp4,adl:sit,day,Sitting on the ground and reading a book
+gmdcsa_S2_ADL_16,adl,gmdcsa24,gm_S2_ADL_16.mp4,adl:lie-bed,night,Reading a newspaper; throwing the newspaper; and sleeping
+gmdcsa_S2_ADL_20,adl,gmdcsa24,gm_S2_ADL_20.mp4,adl:sit,night,Standing up; picking up a water bottle; and drinking water while sitting on the ground
+gmdcsa_S3_ADL_03,adl,gmdcsa24,gm_S3_ADL_03.mp4,adl:get-up,day,Getting up from the sleeping position from the bed; Putting a mask on the face; then walking
+gmdcsa_S3_ADL_04,adl,gmdcsa24,gm_S3_ADL_04.mp4,adl:bend-pick,day,Picking a book from the floor and putting it on the bed; sitting on the bed
+gmdcsa_S3_ADL_05,adl,gmdcsa24,gm_S3_ADL_05.mp4,adl:exercise-stand,day,Exercising (hand down & up with body bending)
+gmdcsa_S3_ADL_06,adl,gmdcsa24,gm_S3_ADL_06.mp4,adl:sit,day,Exercising then sitting down on the floor
+gmdcsa_S3_ADL_07,adl,gmdcsa24,gm_S3_ADL_07.mp4,adl:exercise-stand,day,Exercising (sitting and standing)
+gmdcsa_S3_ADL_19,adl,gmdcsa24,gm_S3_ADL_19.mp4,adl:bend-pick,night,Picking the pen from the floor and putting it on the bed
+gmdcsa_S4_ADL_06,adl,gmdcsa24,gm_S4_ADL_06.mp4,adl:exercise-floor,lights-off,Doing exercise (push-up); view 2
+gmdcsa_S4_ADL_07,adl,gmdcsa24,gm_S4_ADL_07.mp4,adl:exercise-floor,lights-off,Doing exercise (push-up); view 3
+gmdcsa_S4_ADL_08,adl,gmdcsa24,gm_S4_ADL_08.mp4,adl:get-up,lights-off,Sleeping to sitting; putting on the goggles and drinking water
+gmdcsa_S4_ADL_11,adl,gmdcsa24,gm_S4_ADL_11.mp4,adl:sit,lights-off,Copying content from a book into a notebook while sitting on the floor
+gmdcsa_S4_ADL_14,adl,gmdcsa24,gm_S4_ADL_14.mp4,adl:bend-pick,day,Sitting in the chair to standing on the floor; then picking up the water bottle and drinking water from it
+gmdcsa_S4_ADL_16,adl,gmdcsa24,gm_S4_ADL_16.mp4,adl:lie-bed,day,Sitting on the bed; removing the goggles; then sleeping
+gmdcsa_S4_ADL_17,adl,gmdcsa24,gm_S4_ADL_17.mp4,adl:bend-pick,day,Picking up the book from the floor and putting it on the bed

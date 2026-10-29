@@ -1,0 +1,60 @@
+{
+ "clip": "urfall_fall-01",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 1.0,
+ "n_frames": 27,
+ "flag": true,
+ "hold": "ok",
+ "events": [
+  {
+   "start_i": 14,
+   "end_i": 20,
+   "start_t": 2.8,
+   "end_t": 4.0,
+   "drop_speed_max": 0.545,
+   "total_drop": 0.415,
+   "ar_pre": 2.635,
+   "ar_post": 0.589,
+   "low_frac": 1.0,
+   "hold_s": 1.2,
+   "clip_truncated_hold": true,
+   "hold": "ok",
+   "drop_ok": true,
+   "shape_ok": true,
+   "hold_ok": true,
+   "flag": true,
+   "soft_score": 1.0
+  }
+ ],
+ "best": {
+  "start_i": 14,
+  "end_i": 20,
+  "start_t": 2.8,
+  "end_t": 4.0,
+  "drop_speed_max": 0.545,
+  "total_drop": 0.415,
+  "ar_pre": 2.635,
+  "ar_post": 0.589,
+  "low_frac": 1.0,
+  "hold_s": 1.2,
+  "clip_truncated_hold": true,
+  "hold": "ok",
+  "drop_ok": true,
+  "shape_ok": true,
+  "hold_ok": true,
+  "flag": true,
+  "soft_score": 1.0
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": true,
+   "coverage": 1.0,
+   "soft_score": 1.0
+  }
+ },
+ "label": "fall",
+ "source": "urfall",
+ "type": "fall:standing"
+}

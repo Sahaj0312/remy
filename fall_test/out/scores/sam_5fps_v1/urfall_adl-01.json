@@ -1,0 +1,22 @@
+{
+ "clip": "urfall_adl-01",
+ "tracker": "sam-3.1",
+ "scorer": "v1",
+ "coverage": 0.96,
+ "n_frames": 25,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 0.96,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "urfall",
+ "type": "adl:sit-walk"
+}

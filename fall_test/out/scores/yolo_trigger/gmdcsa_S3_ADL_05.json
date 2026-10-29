@@ -1,0 +1,70 @@
+{
+ "clip": "gmdcsa_S3_ADL_05",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "trigger",
+ "coverage": 1.0,
+ "n_frames": 52,
+ "flag": true,
+ "hold": "failed",
+ "events": [
+  {
+   "start_i": 15,
+   "end_i": 22,
+   "start_t": 1.5,
+   "end_t": 2.2,
+   "time_to_floor_s": 0.7,
+   "body_len": 0.96,
+   "drop_rel": 0.264,
+   "drop_speed_rel_max": 0.652,
+   "total_drop": 0.254,
+   "ar_post": 1.349,
+   "cy_post": 0.673,
+   "hold": "failed",
+   "getup_t": 2.3,
+   "no_getup_observed_s": 0.0,
+   "drop_ok": true,
+   "shape_ok": false,
+   "flag": true,
+   "soft_score": 0.648
+  }
+ ],
+ "best": {
+  "start_i": 15,
+  "end_i": 22,
+  "start_t": 1.5,
+  "end_t": 2.2,
+  "time_to_floor_s": 0.7,
+  "body_len": 0.96,
+  "drop_rel": 0.264,
+  "drop_speed_rel_max": 0.652,
+  "total_drop": 0.254,
+  "ar_post": 1.349,
+  "cy_post": 0.673,
+  "hold": "failed",
+  "getup_t": 2.3,
+  "no_getup_observed_s": 0.0,
+  "drop_ok": true,
+  "shape_ok": false,
+  "flag": true,
+  "soft_score": 0.648
+ },
+ "summary": {
+  "cy_min": 0.385,
+  "cy_max": 0.702,
+  "ar_min": 1.304,
+  "ar_max": 5.738,
+  "body_len_clip": 0.82,
+  "vel_rel_max": 0.652
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": true,
+   "coverage": 1.0,
+   "soft_score": 0.648
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:exercise-stand"
+}

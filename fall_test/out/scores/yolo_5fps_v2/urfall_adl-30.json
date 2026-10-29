@@ -1,0 +1,70 @@
+{
+ "clip": "urfall_adl-30",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.537,
+ "n_frames": 67,
+ "flag": false,
+ "hold": "failed",
+ "events": [
+  {
+   "start_i": 25,
+   "end_i": 30,
+   "start_t": 5.0,
+   "end_t": 6.0,
+   "time_to_floor_s": 1.0,
+   "body_len": 0.591,
+   "drop_rel": 0.482,
+   "drop_speed_rel_max": 0.603,
+   "total_drop": 0.285,
+   "ar_post": 1.215,
+   "cy_post": 0.814,
+   "hold": "failed",
+   "getup_t": 6.2,
+   "no_getup_observed_s": 0.0,
+   "drop_ok": true,
+   "shape_ok": false,
+   "flag": false,
+   "soft_score": 0.665
+  }
+ ],
+ "best": {
+  "start_i": 25,
+  "end_i": 30,
+  "start_t": 5.0,
+  "end_t": 6.0,
+  "time_to_floor_s": 1.0,
+  "body_len": 0.591,
+  "drop_rel": 0.482,
+  "drop_speed_rel_max": 0.603,
+  "total_drop": 0.285,
+  "ar_post": 1.215,
+  "cy_post": 0.814,
+  "hold": "failed",
+  "getup_t": 6.2,
+  "no_getup_observed_s": 0.0,
+  "drop_ok": true,
+  "shape_ok": false,
+  "flag": false,
+  "soft_score": 0.665
+ },
+ "summary": {
+  "cy_min": 0.372,
+  "cy_max": 0.91,
+  "ar_min": 0.638,
+  "ar_max": 3.248,
+  "body_len_clip": 0.438,
+  "vel_rel_max": 0.603
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.537,
+   "soft_score": 0.665
+  }
+ },
+ "label": "adl",
+ "source": "urfall",
+ "type": "adl:lie-floor"
+}

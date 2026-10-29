@@ -1,0 +1,35 @@
+{
+ "clip": "gmdcsa_S2_ADL_08",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 1.0,
+ "n_frames": 137,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.4,
+  "cy_max": 0.731,
+  "ar_min": 0.788,
+  "ar_max": 4.966,
+  "body_len_clip": 0.904,
+  "vel_rel_max": 0.302
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  },
+  "2": {
+   "flag": false,
+   "coverage": 0.993,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:exercise-stand"
+}

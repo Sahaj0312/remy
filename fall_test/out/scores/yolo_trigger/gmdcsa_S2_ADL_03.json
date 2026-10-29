@@ -1,0 +1,35 @@
+{
+ "clip": "gmdcsa_S2_ADL_03",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "trigger",
+ "coverage": 1.0,
+ "n_frames": 119,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.387,
+  "cy_max": 0.508,
+  "ar_min": 0.272,
+  "ar_max": 3.709,
+  "body_len_clip": 0.527,
+  "vel_rel_max": 0.267
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  },
+  "2": {
+   "flag": false,
+   "coverage": 0.471,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24",
+ "type": "adl:lie-bed"
+}

@@ -1,0 +1,40 @@
+{
+ "clip": "gmdcsa_S3_Fall_17",
+ "tracker": "yolo11n-pose+iou-link",
+ "scorer": "v2",
+ "coverage": 0.953,
+ "n_frames": 85,
+ "flag": false,
+ "hold": null,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.461,
+  "cy_max": 0.57,
+  "ar_min": 0.458,
+  "ar_max": 2.048,
+  "body_len_clip": 0.387,
+  "vel_rel_max": 0.368
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.953,
+   "soft_score": null
+  },
+  "2": {
+   "flag": false,
+   "coverage": 0.176,
+   "soft_score": null
+  },
+  "4": {
+   "flag": false,
+   "coverage": 0.071,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24",
+ "type": "fall:onto-bed"
+}
