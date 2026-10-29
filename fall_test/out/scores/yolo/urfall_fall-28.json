@@ -1,0 +1,26 @@
+{
+ "clip": "urfall_fall-28",
+ "tracker": "yolo11n-pose+iou-link",
+ "coverage": 0.727,
+ "n_frames": 11,
+ "flag": false,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.631,
+  "cy_max": 0.795,
+  "ar_max": 1.997,
+  "ar_min": 0.78,
+  "vel_max": 0.235
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.727,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "urfall"
+}

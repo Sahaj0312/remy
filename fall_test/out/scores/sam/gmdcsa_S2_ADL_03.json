@@ -1,0 +1,26 @@
+{
+ "clip": "gmdcsa_S2_ADL_03",
+ "tracker": "sam-3.1",
+ "coverage": 1.0,
+ "n_frames": 60,
+ "flag": false,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.418,
+  "cy_max": 0.51,
+  "ar_max": 3.656,
+  "ar_min": 0.185,
+  "vel_max": 0.085
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "gmdcsa24"
+}

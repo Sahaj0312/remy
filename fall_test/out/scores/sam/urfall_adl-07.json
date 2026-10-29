@@ -1,0 +1,26 @@
+{
+ "clip": "urfall_adl-07",
+ "tracker": "sam-3.1",
+ "coverage": 1.0,
+ "n_frames": 30,
+ "flag": false,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.451,
+  "cy_max": 0.609,
+  "ar_max": 4.061,
+  "ar_min": 1.719,
+  "vel_max": 0.124
+ },
+ "object_id": "0",
+ "objects_scored": {
+  "0": {
+   "flag": false,
+   "coverage": 1.0,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "urfall"
+}

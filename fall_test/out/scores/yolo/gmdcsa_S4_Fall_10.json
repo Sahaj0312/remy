@@ -1,0 +1,26 @@
+{
+ "clip": "gmdcsa_S4_Fall_10",
+ "tracker": "yolo11n-pose+iou-link",
+ "coverage": 0.88,
+ "n_frames": 25,
+ "flag": false,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.541,
+  "cy_max": 0.869,
+  "ar_max": 1.718,
+  "ar_min": 0.464,
+  "vel_max": 0.218
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.88,
+   "soft_score": null
+  }
+ },
+ "label": "fall",
+ "source": "gmdcsa24"
+}

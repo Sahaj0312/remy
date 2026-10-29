@@ -1,0 +1,25 @@
+{
+ "tracker": "yolo",
+ "n_scored": 40,
+ "falls_total": 20,
+ "falls_caught": 14,
+ "adl_total": 20,
+ "adl_false_alarms": 2,
+ "config": {
+  "drop_window_s": 0.6,
+  "drop_speed_min": 0.25,
+  "drop_min": 0.12,
+  "pre_window_s": 1.0,
+  "post_window_s": 1.0,
+  "ar_tall_min": 1.2,
+  "ar_wide_max": 1.0,
+  "low_hold_s": 3.0,
+  "low_hold_frac": 0.8,
+  "low_ar_max": 1.0,
+  "low_cy_margin": 0.08,
+  "allow_clip_end": true,
+  "min_post_s": 0.2,
+  "max_gap_s": 1.0,
+  "min_coverage": 0.3
+ }
+}

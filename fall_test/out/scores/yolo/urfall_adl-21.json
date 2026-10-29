@@ -1,0 +1,26 @@
+{
+ "clip": "urfall_adl-21",
+ "tracker": "yolo11n-pose+iou-link",
+ "coverage": 0.681,
+ "n_frames": 47,
+ "flag": false,
+ "events": [],
+ "best": null,
+ "summary": {
+  "cy_min": 0.41,
+  "cy_max": 0.621,
+  "ar_max": 3.05,
+  "ar_min": 0.837,
+  "vel_max": 0.155
+ },
+ "object_id": "1",
+ "objects_scored": {
+  "1": {
+   "flag": false,
+   "coverage": 0.681,
+   "soft_score": null
+  }
+ },
+ "label": "adl",
+ "source": "urfall"
+}

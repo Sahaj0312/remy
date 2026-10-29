@@ -1,0 +1,495 @@
+{
+ "clip": "urfall_fall-19",
+ "source_video": "clips/urfall_fall-19.mp4",
+ "tracker": "yolo11n-pose+iou-link",
+ "width": 640,
+ "height": 480,
+ "fps": 5.0,
+ "n_frames": 17,
+ "timing": {
+  "total_s": 0.69,
+  "per_frame_ms_mean": 40.0,
+  "per_frame_ms_p95": 42.8
+ },
+ "cost_usd": 0.0,
+ "meta": {
+  "n_objects": 2,
+  "primary_object": "1",
+  "frames_per_object": {
+   "1": 9,
+   "2": 1
+  }
+ },
+ "frames": [
+  {
+   "i": 0,
+   "t": 0.0,
+   "present": true,
+   "box": [
+    326.6,
+    167.3,
+    395.4,
+    390.6
+   ],
+   "cx": 0.5608,
+   "cy": 0.5336,
+   "ar": 3.244,
+   "mask_area": null,
+   "conf": 0.882
+  },
+  {
+   "i": 1,
+   "t": 0.2,
+   "present": true,
+   "box": [
+    323.2,
+    167.0,
+    392.1,
+    390.9
+   ],
+   "cx": 0.5579,
+   "cy": 0.5337,
+   "ar": 3.251,
+   "mask_area": null,
+   "conf": 0.887
+  },
+  {
+   "i": 2,
+   "t": 0.4,
+   "present": true,
+   "box": [
+    319.5,
+    166.3,
+    391.1,
+    394.5
+   ],
+   "cx": 0.5533,
+   "cy": 0.5354,
+   "ar": 3.188,
+   "mask_area": null,
+   "conf": 0.887
+  },
+  {
+   "i": 3,
+   "t": 0.6,
+   "present": true,
+   "box": [
+    319.5,
+    164.1,
+    392.0,
+    398.2
+   ],
+   "cx": 0.5526,
+   "cy": 0.5449,
+   "ar": 3.226,
+   "mask_area": null,
+   "conf": 0.891
+  },
+  {
+   "i": 4,
+   "t": 0.8,
+   "present": true,
+   "box": [
+    315.2,
+    156.1,
+    393.9,
+    402.0
+   ],
+   "cx": 0.5494,
+   "cy": 0.5373,
+   "ar": 3.122,
+   "mask_area": null,
+   "conf": 0.903
+  },
+  {
+   "i": 5,
+   "t": 1.0,
+   "present": true,
+   "box": [
+    303.5,
+    158.3,
+    390.9,
+    411.3
+   ],
+   "cx": 0.5442,
+   "cy": 0.5559,
+   "ar": 2.894,
+   "mask_area": null,
+   "conf": 0.893
+  },
+  {
+   "i": 6,
+   "t": 1.2,
+   "present": true,
+   "box": [
+    301.1,
+    187.6,
+    391.4,
+    401.7
+   ],
+   "cx": 0.5429,
+   "cy": 0.5668,
+   "ar": 2.372,
+   "mask_area": null,
+   "conf": 0.831
+  },
+  {
+   "i": 7,
+   "t": 1.4,
+   "present": true,
+   "box": [
+    300.0,
+    255.0,
+    390.4,
+    448.7
+   ],
+   "cx": 0.5525,
+   "cy": 0.7013,
+   "ar": 2.143,
+   "mask_area": null,
+   "conf": 0.843
+  },
+  {
+   "i": 8,
+   "t": 1.6,
+   "present": true,
+   "box": [
+    283.3,
+    345.8,
+    409.4,
+    479.9
+   ],
+   "cx": 0.5462,
+   "cy": 0.8934,
+   "ar": 1.063,
+   "mask_area": null,
+   "conf": 0.867
+  },
+  {
+   "i": 9,
+   "t": 1.8,
+   "present": false
+  },
+  {
+   "i": 10,
+   "t": 2.0,
+   "present": false
+  },
+  {
+   "i": 11,
+   "t": 2.2,
+   "present": false
+  },
+  {
+   "i": 12,
+   "t": 2.4,
+   "present": false
+  },
+  {
+   "i": 13,
+   "t": 2.6,
+   "present": false
+  },
+  {
+   "i": 14,
+   "t": 2.8,
+   "present": false
+  },
+  {
+   "i": 15,
+   "t": 3.0,
+   "present": false
+  },
+  {
+   "i": 16,
+   "t": 3.2,
+   "present": false
+  }
+ ],
+ "objects": {
+  "1": [
+   {
+    "i": 0,
+    "t": 0.0,
+    "present": true,
+    "box": [
+     326.6,
+     167.3,
+     395.4,
+     390.6
+    ],
+    "cx": 0.5608,
+    "cy": 0.5336,
+    "ar": 3.244,
+    "mask_area": null,
+    "conf": 0.882
+   },
+   {
+    "i": 1,
+    "t": 0.2,
+    "present": true,
+    "box": [
+     323.2,
+     167.0,
+     392.1,
+     390.9
+    ],
+    "cx": 0.5579,
+    "cy": 0.5337,
+    "ar": 3.251,
+    "mask_area": null,
+    "conf": 0.887
+   },
+   {
+    "i": 2,
+    "t": 0.4,
+    "present": true,
+    "box": [
+     319.5,
+     166.3,
+     391.1,
+     394.5
+    ],
+    "cx": 0.5533,
+    "cy": 0.5354,
+    "ar": 3.188,
+    "mask_area": null,
+    "conf": 0.887
+   },
+   {
+    "i": 3,
+    "t": 0.6,
+    "present": true,
+    "box": [
+     319.5,
+     164.1,
+     392.0,
+     398.2
+    ],
+    "cx": 0.5526,
+    "cy": 0.5449,
+    "ar": 3.226,
+    "mask_area": null,
+    "conf": 0.891
+   },
+   {
+    "i": 4,
+    "t": 0.8,
+    "present": true,
+    "box": [
+     315.2,
+     156.1,
+     393.9,
+     402.0
+    ],
+    "cx": 0.5494,
+    "cy": 0.5373,
+    "ar": 3.122,
+    "mask_area": null,
+    "conf": 0.903
+   },
+   {
+    "i": 5,
+    "t": 1.0,
+    "present": true,
+    "box": [
+     303.5,
+     158.3,
+     390.9,
+     411.3
+    ],
+    "cx": 0.5442,
+    "cy": 0.5559,
+    "ar": 2.894,
+    "mask_area": null,
+    "conf": 0.893
+   },
+   {
+    "i": 6,
+    "t": 1.2,
+    "present": true,
+    "box": [
+     301.1,
+     187.6,
+     391.4,
+     401.7
+    ],
+    "cx": 0.5429,
+    "cy": 0.5668,
+    "ar": 2.372,
+    "mask_area": null,
+    "conf": 0.831
+   },
+   {
+    "i": 7,
+    "t": 1.4,
+    "present": true,
+    "box": [
+     300.0,
+     255.0,
+     390.4,
+     448.7
+    ],
+    "cx": 0.5525,
+    "cy": 0.7013,
+    "ar": 2.143,
+    "mask_area": null,
+    "conf": 0.843
+   },
+   {
+    "i": 8,
+    "t": 1.6,
+    "present": true,
+    "box": [
+     283.3,
+     345.8,
+     409.4,
+     479.9
+    ],
+    "cx": 0.5462,
+    "cy": 0.8934,
+    "ar": 1.063,
+    "mask_area": null,
+    "conf": 0.867
+   },
+   {
+    "i": 9,
+    "t": 1.8,
+    "present": false
+   },
+   {
+    "i": 10,
+    "t": 2.0,
+    "present": false
+   },
+   {
+    "i": 11,
+    "t": 2.2,
+    "present": false
+   },
+   {
+    "i": 12,
+    "t": 2.4,
+    "present": false
+   },
+   {
+    "i": 13,
+    "t": 2.6,
+    "present": false
+   },
+   {
+    "i": 14,
+    "t": 2.8,
+    "present": false
+   },
+   {
+    "i": 15,
+    "t": 3.0,
+    "present": false
+   },
+   {
+    "i": 16,
+    "t": 3.2,
+    "present": false
+   }
+  ],
+  "2": [
+   {
+    "i": 0,
+    "t": 0.0,
+    "present": false
+   },
+   {
+    "i": 1,
+    "t": 0.2,
+    "present": false
+   },
+   {
+    "i": 2,
+    "t": 0.4,
+    "present": false
+   },
+   {
+    "i": 3,
+    "t": 0.6,
+    "present": false
+   },
+   {
+    "i": 4,
+    "t": 0.8,
+    "present": false
+   },
+   {
+    "i": 5,
+    "t": 1.0,
+    "present": false
+   },
+   {
+    "i": 6,
+    "t": 1.2,
+    "present": false
+   },
+   {
+    "i": 7,
+    "t": 1.4,
+    "present": false
+   },
+   {
+    "i": 8,
+    "t": 1.6,
+    "present": false
+   },
+   {
+    "i": 9,
+    "t": 1.8,
+    "present": false
+   },
+   {
+    "i": 10,
+    "t": 2.0,
+    "present": false
+   },
+   {
+    "i": 11,
+    "t": 2.2,
+    "present": false
+   },
+   {
+    "i": 12,
+    "t": 2.4,
+    "present": false
+   },
+   {
+    "i": 13,
+    "t": 2.6,
+    "present": false
+   },
+   {
+    "i": 14,
+    "t": 2.8,
+    "present": true,
+    "box": [
+     222.2,
+     391.5,
+     346.1,
+     480.0
+    ],
+    "cx": 0.4386,
+    "cy": 0.9168,
+    "ar": 0.715,
+    "mask_area": null,
+    "conf": 0.409
+   },
+   {
+    "i": 15,
+    "t": 3.0,
+    "present": false
+   },
+   {
+    "i": 16,
+    "t": 3.2,
+    "present": false
+   }
+  ]
+ }
+}
