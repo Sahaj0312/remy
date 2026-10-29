@@ -96,6 +96,22 @@ class OnlineTracks:
                 "frames": objects.get(primary, []), "objects": objects}
 
 
+def got_up(frames: list[dict], since_drop_s: float, cfg: dict, best: dict) -> bool:
+    """Get-up rule on the frames after the drop: box tall again, or centroid back up by getup_rise_rel body lengths."""
+    if not frames:
+        return False
+    t_end = frames[-1]["t"]
+    after = [f for f in frames if f["present"] and f["t"] > t_end - since_drop_s + 1e-6]
+    if len(after) < 2:
+        return False
+    cy_post = float(np.median([f["cy"] for f in after[:max(1, len(after) // 2)]]))
+    bl = best.get("body_len", 0.5)
+    for f in after[1:]:
+        if f["ar"] >= cfg["getup_ar_min"] or f["cy"] <= cy_post - cfg["getup_rise_rel"] * bl:
+            return True
+    return False
+
+
 def yolo_detect(model, img, ycfg, tcfg) -> list[dict]:
     res = model.predict(img, verbose=False, conf=ycfg["conf"], imgsz=ycfg["imgsz"], classes=[0])[0]
     dets = []
@@ -156,7 +172,8 @@ class Pipeline:
         clip = ev_dir / "clip.mp4"
         write_clip(clip_frames, fps, clip)
         cv2.imwrite(str(ev_dir / "snapshot.jpg"), snapshot)
-        timings = {"drop_wall": drop_wall, "trigger_wall": t_trigger, "clip_s": len(clip_frames) / fps}
+        timings = {"drop_wall": drop_wall, "trigger_wall": t_trigger, "clip_s": round(clip_frames[-1][0] - clip_frames[0][0], 2),
+                   "clip_write_s": round(time.time() - t_trigger, 2)}
         info = video_info(clip)
         if self.args.no_api:
             log(f"[dry run] clip saved to {ev_dir} ({info['n_frames']} frames); SAM/Spark skipped")
@@ -167,7 +184,7 @@ class Pipeline:
                 async with AsyncOpenAI(base_url=META_BASE_URL, api_key=api_key(), timeout=600) as api:
                     return await sam_track.segment_video(api, clip, "one_bit", False)
             result, sam_timing = asyncio.run(run_sam())
-            timings["sam_done_wall"] = time.time()
+            timings["sam_done_wall"] = time.time(); timings["sam_upload_s"] = round(sam_timing["upload_s"], 2)
             frames, meta, objects = sam_track.result_to_frames(result, info["n_frames"], info["fps"], info["width"], info["height"])
             track = {"clip": ev_dir.name, "fps": info["fps"], "height": info["height"], "width": info["width"],
                      "tracker": "sam-3.1", "frames": frames, "objects": objects, "meta": meta}
@@ -183,6 +200,7 @@ class Pipeline:
                 return
             client = OpenAI(base_url=META_BASE_URL, api_key=api_key(), timeout=300)
             event_time = datetime.fromtimestamp(drop_wall).strftime("%-I:%M%p").lower()
+            t_sp = time.time()
             try:
                 triage = run_triage(client, self.cfg["spark"], score["best"], info["fps"], info["n_frames"], clip, event_time, "video")
             except Exception as e:
@@ -192,6 +210,8 @@ class Pipeline:
             timings["event_wall"] = time.time()
             timings["drop_to_event_s"] = round(timings["event_wall"] - drop_wall, 2)
             timings["sam_s"] = round(sam_timing["total_s"], 2); timings["spark_s"] = triage.get("latency_s")
+            timings["spark_total_s"] = round(timings["spark_done_wall"] - t_sp, 2)   # incl. burst cut + upload
+            timings["wait_s"] = round(t_trigger - drop_wall, 2)
             cost += triage.get("cost_usd", 0.0)
             v = triage["verdict"]
             event = {"label": label, "fall": True, "time": datetime.fromtimestamp(drop_wall).isoformat(timespec="seconds"),
@@ -201,8 +221,9 @@ class Pipeline:
                      "spark": {k: triage.get(k) for k in ("latency_s", "usage", "cost_usd", "raw_text")}}
             write_json(ev_dir / "event.json", event)
             log(f"EVENT  {event['time']}  urgency={event['urgency']}  lying_still={event['is_lying_still']}  "
-                f"drop->event {timings['drop_to_event_s']}s (wait {t_trigger - drop_wall:.1f}s, SAM {timings['sam_s']}s, "
-                f"Spark {timings['spark_s']}s)  ${cost:.4f}\n        {event['summary_for_family']}")
+                f"drop->event {timings['drop_to_event_s']}s (wait {timings['wait_s']}s, clip write {timings['clip_write_s']}s, "
+                f"SAM {timings['sam_s']}s incl. upload {timings['sam_upload_s']}s, Spark {timings['spark_total_s']}s incl. "
+                f"burst cut+upload)  ${cost:.4f}\n        {event['summary_for_family']}")
             self.events.append(event)
         except Exception as e:
             log(f"pipeline error: {type(e).__name__}: {e}")
@@ -290,9 +311,8 @@ def main():
                     log(f"candidate drop on track {res['object_id']}: drop_rel {b['drop_rel']:.2f} body lengths, "
                         f"{b['drop_speed_rel_max']:.2f} bl/s, ended {t_v - drop_v:.1f}s ago; waiting {post_s:g}s for a get-up")
             elif pending is not None:
-                res = score_track(tr, {**cfg["score_v2"]}, "v2")
-                if res.get("hold") == "failed" and res["best"] and abs(res["best"]["end_t"] - (pending["drop_v"] - (t_v - tr["frames"][-1]["t"] if tr["frames"] else 0))) < 2.0:
-                    log("person got back up within the wait -> no event (YOLO)")
+                if got_up(tr["objects"].get(pending["obj"], []), t_v - pending["drop_v"], cfg["score_v2"], pending["best"]):
+                    log("person is upright again after the drop -> no event (YOLO)")
                     pending = None; cooldown_until = t_v + 5
                 elif t_v - pending["drop_v"] >= post_s:
                     start_v = pending["drop_v"] - args.pre_s
@@ -307,6 +327,15 @@ def main():
         if args.duration and t_v >= args.duration:
             break
     cap.release()
+    if pending is not None and not pipe.busy:
+        log("source ended with a pending drop -> sending what we have")
+        start_v = pending["drop_v"] - args.pre_s
+        clip_frames = [(t, f) for (t, f) in buffer if t >= start_v]
+        snap = min(buffer, key=lambda tf: abs(tf[0] - pending["drop_v"]))[1]
+        with pipe.lock:
+            pipe.busy = True
+        threading.Thread(target=pipe.handle, args=(clip_frames, args.buffer_fps, pending["drop_wall"], pending["drop_v"], snap, args.label), daemon=True).start()
+        pending = None
     # let the worker finish
     while pipe.busy:
         time.sleep(0.2)
