@@ -116,13 +116,17 @@ def run_triage(client: OpenAI, cfg: dict, best: dict, fps: float, n_frames: int,
     text = (f"A {(e - s + 1) / fps:.1f} s burst at {fps:g} fps around the fall. " + numbers_text(best, event_time))
     content = [{"type": "input_text", "text": text}]
     file_id = None
-    if mode == "video":
+    if mode in ("video", "inline"):
         with tempfile.TemporaryDirectory() as tmp:
             burst = Path(tmp) / "burst.mp4"
             cut_clip(src, s, e, fps, burst)
-            up = client.files.create(file=(burst.name, burst.read_bytes(), "video/mp4"), purpose="user_data")
-            file_id = up.id
-        content.append({"type": "input_video", "file_id": file_id})
+            if mode == "inline":                 # no second upload: base64 data URL in the request body
+                data = base64.b64encode(burst.read_bytes()).decode("ascii")
+                content.append({"type": "input_video", "video_url": f"data:video/mp4;base64,{data}"})
+            else:
+                up = client.files.create(file=(burst.name, burst.read_bytes(), "video/mp4"), purpose="user_data")
+                file_id = up.id
+                content.append({"type": "input_video", "file_id": file_id})
     else:
         step = max(1, int(round(fps / cfg["frames_fps"])))
         idx = list(range(s, e + 1, step))
@@ -134,7 +138,7 @@ def run_triage(client: OpenAI, cfg: dict, best: dict, fps: float, n_frames: int,
                     '"summary_for_family": "...", "what_happened": "...", "is_lying_still": true|false}'})
     req = dict(model=cfg["model"], instructions=SYSTEM,
                input=[{"type": "message", "role": "user", "content": content}],
-               max_output_tokens=cfg["max_output_tokens"], reasoning={"effort": cfg["reasoning_effort"]},
+               max_output_tokens=cfg["max_output_tokens"], reasoning={"effort": cfg.get("live_reasoning_effort", cfg["reasoning_effort"]) if mode == "inline" else cfg["reasoning_effort"]},
                text={"format": {"type": "json_schema", "name": "fall_triage", "schema": SCHEMA, "strict": True}})
     t0 = time.perf_counter()
     resp = client.responses.create(**req)

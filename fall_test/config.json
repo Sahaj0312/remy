@@ -8,7 +8,9 @@
     "frames_fps": 5,
     "reasoning_effort": "low",
     "max_output_tokens": 2000,
-    "jpeg_quality": 80
+    "jpeg_quality": 80,
+    "live_reasoning_effort": "minimal",
+    "live_burst_after_s": 1.0
   },
   "yolo": {
     "model": "yolo11n-pose.pt",
@@ -27,7 +29,11 @@
     "score_v1.min_post_s": "when the clip ends before low_hold_s, accept the tail if it is at least this long (dataset clips are trimmed right after impact)",
     "score_v2": "units are body lengths (median of max(box h, box w) in the 1 s before the drop). drop_rel_min = total centroid drop, drop_speed_rel_min = peak speed over drop_window_s, ar_wide_max = median box h/w after the drop, no_getup_s = seconds without a get-up (ar >= getup_ar_min or centroid rising >= getup_rise_rel body lengths); hold is 'unknown' when the clip ends first and still counts as flagged",
     "trigger": "looser DROP-only thresholds for the always-on YOLO stage that decides when to call SAM",
-    "spark": "burst_before_s/after_s bound the 10 fps burst around the drop sent as a video file; frames_fps is used only with --frames. max_output_tokens includes reasoning tokens."
+    "spark": "burst_before_s/after_s bound the 10 fps burst around the drop sent as a video file; frames_fps is used only with --frames. max_output_tokens includes reasoning tokens.",
+    "audio.output": "camera (Tapo speaker via go2rtc) or laptop (afplay); one-line switch",
+    "checkin": "language picks the prompt and Kokoro voice; help_words force needs_help before Spark; recheck_after_s = still-down time after an 'okay' that triggers another check-in",
+    "monitor": "still_down_s: seconds down after a confirmed drop before the event upgrades; floor_still_s: seconds on floor/rug barely moving (no drop needed); still_move_max_bl: centroid movement over 2 s in body lengths that still counts as 'barely moving'",
+    "alerts.family": "E.164 numbers; with the WhatsApp test number each must be added as a recipient in the Meta app and must message the test number first (24 h window) for free-form text"
   },
   "tracking": {
     "max_gap_s": 1.0,
@@ -68,5 +74,59 @@
   "trigger": {
     "drop_rel_min": 0.12,
     "drop_speed_rel_min": 0.3
+  },
+  "audio": {
+    "output": "camera",
+    "camera_codec": "pcma",
+    "camera_stream": "tapo",
+    "laptop_cmd": "afplay"
+  },
+  "checkin": {
+    "language": "en",
+    "name": "Nani",
+    "prompts": {
+      "en": "{name}, are you okay?",
+      "hi": "नानी, आप ठीक हो?"
+    },
+    "voices": {
+      "en": "af_heart",
+      "hi": "hf_alpha"
+    },
+    "speed": 0.95,
+    "lead_in_s": 1.0,
+    "record_s": 15,
+    "retries": 1,
+    "help_words": [
+      "help",
+      "bachao",
+      "बचाओ",
+      "madad",
+      "मदद",
+      "hurt",
+      "can't get up",
+      "cannot get up"
+    ],
+    "recheck_after_s": 60
+  },
+  "monitor": {
+    "still_down_s": 20,
+    "floor_still_s": 20,
+    "still_move_max_bl": 0.08,
+    "low_ar_max": 1.6,
+    "getup_confirm_ticks": 3,
+    "zones_file": "zones.json"
+  },
+  "alerts": {
+    "enabled": true,
+    "channel": "whatsapp",
+    "person_name": "Nani",
+    "family": [
+      {
+        "name": "Sahaj",
+        "number": "+10000000000"
+      }
+    ],
+    "calm_prefix": "✅",
+    "urgent_prefix": "🚨 URGENT:"
   }
 }
