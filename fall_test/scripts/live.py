@@ -254,12 +254,26 @@ def main():
     trig_cfg = {**cfg["score_v2"], **cfg["trigger"]}
 
     src = int(args.source) if args.source.isdigit() else args.source
+    if src == "tapo":                       # shortcut: Tapo stream2 from .env
+        from common import tapo_rtsp
+        src = tapo_rtsp(2)
     is_file = isinstance(src, str) and Path(src).exists()
-    cap = cv2.VideoCapture(src, cv2.CAP_FFMPEG) if (isinstance(src, str) and src.startswith(("rtsp", "http"))) else cv2.VideoCapture(src)
-    if not cap.isOpened():
-        raise SystemExit(f"cannot open source {args.source}")
-    src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    log(f"source opened: {args.source} ({src_fps:.1f} fps reported), yolo {args.yolo_fps:g} fps, buffer {args.buffer_s:g}s @ {args.buffer_fps:g} fps, "
+    if isinstance(src, str) and src.startswith(("rtsp", "http")):
+        # ffmpeg subprocess reader: Python sockets are blocked from the LAN by macOS Local Network privacy
+        from rtsp_reader import FFmpegFrames
+        rd = FFmpegFrames(src, max_width=args.max_width)
+        src_fps = rd.src_fps if 0 < rd.src_fps <= 60 else 15.0
+        class _Cap:
+            def read(self): return rd.read()
+            def release(self): rd.close()
+        cap = _Cap()
+    else:
+        cap = cv2.VideoCapture(src)
+        if not cap.isOpened():
+            raise SystemExit(f"cannot open source {args.source}")
+        src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    from common import redact
+    log(f"source opened: {redact(str(args.source))} ({src_fps:.1f} fps reported), yolo {args.yolo_fps:g} fps, buffer {args.buffer_s:g}s @ {args.buffer_fps:g} fps, "
         f"wait {post_s:g}s after a drop, {'DRY RUN' if args.no_api else 'SAM+Spark live'}")
     from ultralytics import YOLO
     model = YOLO(cfg["yolo"]["model"])

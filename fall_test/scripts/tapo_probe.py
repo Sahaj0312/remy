@@ -20,53 +20,40 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import ROOT, redact, tapo_rtsp, write_json  # noqa: E402
+from rtsp_reader import FFmpegFrames, probe as ffprobe_json  # noqa: E402
 
 OUT_DIR = ROOT / "tapo"
-
-
-def ffprobe_info(url: str) -> dict:
-    try:
-        out = subprocess.run(["ffprobe", "-v", "error", "-rtsp_transport", "tcp", "-show_entries",
-                              "stream=codec_type,codec_name,profile,width,height,r_frame_rate,sample_rate,channels",
-                              "-of", "json", url], capture_output=True, text=True, timeout=30).stdout
-        return json.loads(out) if out else {}
-    except Exception as e:
-        return {"error": repr(e)}
-
-
-def open_stream(url: str) -> cv2.VideoCapture:
-    cap = cv2.VideoCapture(url, cv2.CAP_FFMPEG)
-    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-    return cap
 
 
 def probe(stream: int, seconds: float, tag: str, flash: bool, flash_duration: float) -> dict:
     url = tapo_rtsp(stream)
     res = {"stream": f"stream{stream}", "url": redact(url), "tag": tag}
     print(f"== {res['url']}", flush=True)
-    res["ffprobe"] = ffprobe_info(url)
     t0 = time.time()
-    cap = open_stream(url)
-    res["open_s"] = round(time.time() - t0, 2)
-    if not cap.isOpened():
-        res["error"] = "cannot open"; print("  cannot open", flush=True); return res
-    res["reported"] = {"width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-                       "fps": round(cap.get(cv2.CAP_PROP_FPS), 2)}
-    ok, frame = cap.read()
-    res["first_frame_s"] = round(time.time() - t0, 2)
+    try:
+        res["ffprobe"] = ffprobe_json(url)
+        res["ffprobe_s"] = round(time.time() - t0, 2)
+        t1 = time.time()
+        rd = FFmpegFrames(url)
+    except Exception as e:
+        res["error"] = repr(e); print("  cannot open:", e, flush=True); return res
+    res["reported"] = {"width": rd.src_w, "height": rd.src_h, "fps": round(rd.src_fps, 2),
+                       "audio": None if rd.audio is None else f"{rd.audio.get('codec_name')} {rd.audio.get('sample_rate')} Hz"}
+    ok, frame = rd.read()
+    res["first_frame_s"] = round(time.time() - t1, 2)
     if not ok:
-        res["error"] = "no frame"; print("  no frame", flush=True); return res
+        res["error"] = "no frame: " + rd.stderr()[:300]; print("  no frame", flush=True); return res
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     OUT_DIR.mkdir(exist_ok=True)
     snap = OUT_DIR / f"snap_stream{stream}_{tag}_{stamp}.jpg"
     cv2.imwrite(str(snap), frame)
-    res["snapshot"] = str(snap.relative_to(ROOT)); res["measured"] = {}
-    print(f"  {frame.shape[1]}x{frame.shape[0]} first frame after {res['first_frame_s']}s, snapshot {snap.name}", flush=True)
+    res["snapshot"] = str(snap.relative_to(ROOT))
+    print(f"  {frame.shape[1]}x{frame.shape[0]} reported {rd.src_fps:g} fps, first frame {res['first_frame_s']}s after open "
+          f"(ffprobe took {res['ffprobe_s']}s), snapshot {snap.name}", flush=True)
 
-    # measured fps / jitter over `seconds`
     ts = [time.time()]
     while time.time() - ts[0] < seconds:
-        ok, frame = cap.read()
+        ok, frame = rd.read()
         if not ok:
             break
         ts.append(time.time())
@@ -76,28 +63,24 @@ def probe(stream: int, seconds: float, tag: str, flash: bool, flash_duration: fl
                        "interval_ms_p95": round(float(np.percentile(iv, 95) * 1000), 1) if len(iv) else None,
                        "interval_ms_max": round(float(iv.max() * 1000), 1) if len(iv) else None}
     print(f"  measured {res['measured']['fps']} fps over {seconds:g}s (interval mean {res['measured']['interval_ms_mean']} ms, "
-          f"p95 {res['measured']['interval_ms_p95']} ms)", flush=True)
+          f"p95 {res['measured']['interval_ms_p95']} ms, max {res['measured']['interval_ms_max']} ms)", flush=True)
 
     if flash:
-        # glass-to-glass: flash this screen white at a known time, detect the brightness jump in received frames
         win = "flash"
         cv2.namedWindow(win, cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty(win, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         black = np.zeros((600, 1000, 3), np.uint8); white = np.full((600, 1000, 3), 255, np.uint8)
         cv2.imshow(win, black); cv2.waitKey(1)
-        # drain and baseline
-        base = []
-        t_end = time.time() + 2.0
+        base = []; t_end = time.time() + 2.0
         while time.time() < t_end:
-            ok, frame = cap.read(); cv2.waitKey(1)
+            ok, frame = rd.read(); cv2.waitKey(1)
             if ok:
                 base.append(float(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).mean()))
         b0 = float(np.median(base)) if base else 0.0
         cv2.imshow(win, white); cv2.waitKey(1)
-        t_flash = time.time()
-        lat = None
+        t_flash = time.time(); lat = None
         while time.time() - t_flash < flash_duration:
-            ok, frame = cap.read(); cv2.waitKey(1)
+            ok, frame = rd.read(); cv2.waitKey(1)
             if not ok:
                 continue
             m = float(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).mean())
@@ -107,7 +90,7 @@ def probe(stream: int, seconds: float, tag: str, flash: bool, flash_duration: fl
         res["flash_latency_s"] = None if lat is None else round(lat, 3)
         res["flash_baseline_brightness"] = round(b0, 1)
         print(f"  flash latency: {'not detected (is the camera looking at this screen?)' if lat is None else f'{lat:.2f} s'}", flush=True)
-    cap.release()
+    rd.close()
     return res
 
 

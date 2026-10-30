@@ -69,9 +69,10 @@ async def main_async(args):
         img = cv2.imread(args.frame)
         src = args.frame
     else:
+        from rtsp_reader import FFmpegFrames
         url = tapo_rtsp(args.stream)
-        cap = cv2.VideoCapture(url, cv2.CAP_FFMPEG)
-        ok, img = cap.read(); cap.release()
+        rd = FFmpegFrames(url)
+        ok, img = rd.read(); rd.close()
         if not ok:
             raise SystemExit("could not grab a frame from the stream")
         src = f"tapo stream{args.stream}"
