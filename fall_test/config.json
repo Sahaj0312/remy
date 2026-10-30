@@ -85,12 +85,10 @@
     "language": "en",
     "name": "Nani",
     "prompts": {
-      "en": "{name}, are you okay?",
-      "hi": "नानी, आप ठीक हो?"
+      "en": "{name}, are you okay?"
     },
     "voices": {
-      "en": "af_heart",
-      "hi": "hf_alpha"
+      "en": "af_heart"
     },
     "speed": 0.95,
     "lead_in_s": 1.0,
