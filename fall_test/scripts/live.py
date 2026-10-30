@@ -251,7 +251,7 @@ class Flow(threading.Thread):
         result, st = asyncio.run(run_sam())
         self.timings["sam_upload_s"] = round(st["upload_s"], 2); self.timings["sam_total_s"] = round(st["total_s"], 2); self.mark("sam_done")
         self.cost += sam_cost_usd(info["n_frames"]); costs.add("sam-live", sam_cost_usd(info["n_frames"]), self.dir.name)
-        frames_t, meta, objects = sam_track.result_to_frames(result, info["n_frames"], info["fps"], info["width"], info["height"])
+        frames_t, meta, objects = sam_track.result_to_frames(result, info["n_frames"], info["fps"], info["width"], info["height"], use_masks=False)
         self.mark("sam_parsed")
         track = {"clip": self.dir.name, "fps": info["fps"], "height": info["height"], "width": info["width"], "n_frames": info["n_frames"],
                  "tracker": "sam-3.1", "frames": frames_t, "objects": objects, "meta": meta}

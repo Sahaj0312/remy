@@ -143,7 +143,8 @@ def mask_stats(record) -> tuple[float, float, int]:
 
 
 def result_to_frames(result: VideoSegmentationResult, n_frames: int, fps: float,
-                     W: int, H: int) -> tuple[list[dict], dict, dict]:
+                     W: int, H: int, use_masks: bool = True) -> tuple[list[dict], dict, dict]:
+    """use_masks=False skips the pure-Python mask decode (~70 ms per mask) and uses box centers: the live path."""
     by_obj: dict[str, dict[int, dict]] = defaultdict(dict)
     for rec in result.records:
         if rec.frame is None:
@@ -173,7 +174,7 @@ def result_to_frames(result: VideoSegmentationResult, n_frames: int, fps: float,
                 continue
             x1, y1, x2, y2 = slot["box"]
             cx, cy, area = (x1 + x2) / 2, (y1 + y2) / 2, None
-            if "mask_rec" in slot:
+            if use_masks and "mask_rec" in slot:
                 mcx, mcy, marea = mask_stats(slot["mask_rec"])
                 if not np.isnan(mcx):
                     cx, cy, area = mcx, mcy, marea
