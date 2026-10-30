@@ -106,10 +106,8 @@ def got_up(frames: list[dict], since_drop_s: float, cfg: dict, best: dict) -> bo
         return False
     cy_post = float(np.median([f["cy"] for f in after[:max(1, len(after) // 2)]]))
     bl = best.get("body_len", 0.5)
-    for f in after[1:]:
-        if f["ar"] >= cfg["getup_ar_min"] or f["cy"] <= cy_post - cfg["getup_rise_rel"] * bl:
-            return True
-    return False
+    # centroid rise only: YOLO boxes on a lying person are often tall (bent legs, occlusion), so ar alone is not trusted here
+    return any(f["cy"] <= cy_post - cfg["getup_rise_rel"] * bl for f in after[1:])
 
 
 def yolo_detect(model, img, ycfg, tcfg) -> list[dict]:
@@ -187,7 +185,7 @@ class Pipeline:
             timings["sam_done_wall"] = time.time(); timings["sam_upload_s"] = round(sam_timing["upload_s"], 2)
             frames, meta, objects = sam_track.result_to_frames(result, info["n_frames"], info["fps"], info["width"], info["height"])
             track = {"clip": ev_dir.name, "fps": info["fps"], "height": info["height"], "width": info["width"],
-                     "tracker": "sam-3.1", "frames": frames, "objects": objects, "meta": meta}
+                     "n_frames": info["n_frames"], "tracker": "sam-3.1", "frames": frames, "objects": objects, "meta": meta}
             write_json(ev_dir / "sam_track.json", track)
             score = score_track(track, self.cfg["score_v2"], "v2")
             write_json(ev_dir / "score.json", score)
@@ -240,7 +238,7 @@ def main():
     p.add_argument("--yolo-fps", type=float, default=5.0)
     p.add_argument("--buffer-fps", type=float, default=10.0)
     p.add_argument("--buffer-s", type=float, default=10.0)
-    p.add_argument("--pre-s", type=float, default=4.0, help="seconds of buffer before the drop to send to SAM")
+    p.add_argument("--pre-s", type=float, default=6.0, help="seconds of buffer before the drop to send to SAM")
     p.add_argument("--post-s", type=float, default=None, help="wait after the drop before calling SAM (default: no_getup_s)")
     p.add_argument("--cooldown-s", type=float, default=20.0)
     p.add_argument("--max-width", type=int, default=640)
@@ -248,6 +246,7 @@ def main():
     p.add_argument("--no-api", action="store_true")
     p.add_argument("--display", action="store_true")
     p.add_argument("--label", default="live")
+    p.add_argument("--save-candidates", action="store_true", help="save a clip for every candidate drop, even cancelled ones")
     args = p.parse_args()
     cfg = load_config()
     post_s = args.post_s if args.post_s is not None else cfg["score_v2"]["no_getup_s"]
@@ -285,6 +284,9 @@ def main():
     last_buf = last_yolo = -1e9
     pending = None            # {"drop_v": virtual t, "drop_wall": wall t, "track_id": id}
     cooldown_until = -1e9
+    last_drop_v = -1e9        # end time of the last candidate we acted on (no re-trigger on the same drop)
+    last_cancelled_v = None   # drop time of the last candidate cancelled by the get-up check
+    cand_dir = EVENTS / "candidates"
     t0_wall = time.time(); i = 0; yolo_ms = []
     while True:
         ok, frame = cap.read()
@@ -321,13 +323,30 @@ def main():
                 if res["flag"]:
                     b = res["best"]
                     drop_v = t_v - (tr["objects"][res["object_id"]][-1]["t"] - b["end_t"])
-                    pending = {"drop_v": drop_v, "drop_wall": wall - (t_v - drop_v), "obj": res["object_id"], "best": b}
+                    if drop_v <= last_drop_v + 0.5 and last_cancelled_v is None:
+                        res["flag"] = False      # same drop as before (still inside the track window)
+                if res["flag"]:
+                    # a candidate right after a cancelled one is the same fall: keep the earliest drop time for the clip
+                    if last_cancelled_v is not None and drop_v - last_cancelled_v < 12.0:
+                        drop_v = last_cancelled_v
+                    last_drop_v = max(last_drop_v, drop_v)
+                    pending = {"drop_v": drop_v, "drop_wall": wall - (t_v - drop_v), "obj": res["object_id"], "best": b, "n_up": 0}
                     log(f"candidate drop on track {res['object_id']}: drop_rel {b['drop_rel']:.2f} body lengths, "
                         f"{b['drop_speed_rel_max']:.2f} bl/s, ended {t_v - drop_v:.1f}s ago; waiting {post_s:g}s for a get-up")
             elif pending is not None:
-                if got_up(tr["objects"].get(pending["obj"], []), t_v - pending["drop_v"], cfg["score_v2"], pending["best"]):
+                up_now = got_up(tr["objects"].get(pending["obj"], []), t_v - pending["drop_v"], cfg["score_v2"], pending["best"])
+                pending["n_up"] = pending["n_up"] + 1 if up_now else 0
+                if pending["n_up"] >= 2:                       # upright on two consecutive YOLO ticks
                     log("person is upright again after the drop -> no event (YOLO)")
-                    pending = None; cooldown_until = t_v + 5
+                    if args.save_candidates:
+                        cf = [(t, f) for (t, f) in buffer if t >= pending["drop_v"] - args.pre_s]
+                        if len(cf) > 5:
+                            cand_dir.mkdir(parents=True, exist_ok=True)
+                            name = datetime.fromtimestamp(pending["drop_wall"]).strftime("%Y%m%d_%H%M%S") + "_cancelled"
+                            write_clip(cf, args.buffer_fps, cand_dir / f"{name}.mp4")
+                            write_json(cand_dir / f"{name}.json", {"best": pending["best"], "reason": "upright again"})
+                    last_cancelled_v = pending["drop_v"]
+                    pending = None; cooldown_until = t_v + 2
                 elif t_v - pending["drop_v"] >= post_s:
                     start_v = pending["drop_v"] - args.pre_s
                     clip_frames = [(t, f) for (t, f) in buffer if t >= start_v]
@@ -336,7 +355,7 @@ def main():
                     with pipe.lock:
                         pipe.busy = True
                     threading.Thread(target=pipe.handle, args=(clip_frames, args.buffer_fps, pending["drop_wall"], pending["drop_v"], snap, args.label), daemon=True).start()
-                    pending = None; cooldown_until = t_v + args.cooldown_s
+                    pending = None; last_cancelled_v = None; cooldown_until = t_v + args.cooldown_s
         i += 1
         if args.duration and t_v >= args.duration:
             break
