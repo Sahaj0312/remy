@@ -1,0 +1,15 @@
+# go2rtc config template for the Tapo C200 (two-way audio needs the tapo:// source with the
+# Tapo app / cloud password, not the camera account). scripts/tapo_speak.py fills the
+# placeholders from fall_test/.env into tools/go2rtc/go2rtc.yaml (gitignored) and starts go2rtc.
+api:
+  listen: "127.0.0.1:1984"
+rtsp:
+  listen: ""          # we do not need go2rtc's own RTSP server
+webrtc:
+  listen: ""
+streams:
+  # cloud password only, no login (go2rtc docs). The alternative is admin + UPPERCASE MD5/SHA256 of it.
+  tapo: tapo://${TAPO_CLOUD_PASS}@${TAPO_IP}
+  tapo_sub: tapo://${TAPO_CLOUD_PASS}@${TAPO_IP}?subtype=1
+  # plain RTSP (camera account) for comparison
+  tapo_rtsp: rtsp://${TAPO_USER}:${TAPO_PASS}@${TAPO_IP}:554/stream2

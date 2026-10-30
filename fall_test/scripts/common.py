@@ -33,23 +33,43 @@ def load_labels() -> list[dict]:
         return list(csv.DictReader(f))
 
 
-def api_key() -> str:
-    """META_API_KEY (or MODEL_API_KEY) from env, else from fall_test/.env."""
-    for name in ("META_API_KEY", "MODEL_API_KEY"):
+def env_get(*names: str, required: bool = True) -> str | None:
+    """First of `names` found in the environment, else in fall_test/.env."""
+    for name in names:
         if os.environ.get(name):
             return os.environ[name]
     env_file = ROOT / ".env"
     if env_file.exists():
+        vals = {}
         for line in env_file.read_text().splitlines():
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
             k, v = line.split("=", 1)
-            if k.strip() in ("META_API_KEY", "MODEL_API_KEY") and v.strip():
-                return v.strip().strip('"').strip("'")
-    raise SystemExit(
-        "META_API_KEY is not set. Export it or put META_API_KEY=... in fall_test/.env"
-    )
+            vals[k.strip()] = v.strip().strip('"').strip("'")
+        for name in names:
+            if vals.get(name):
+                return vals[name]
+    if required:
+        raise SystemExit(f"{names[0]} is not set. Export it or put {names[0]}=... in fall_test/.env")
+    return None
+
+
+def api_key() -> str:
+    """META_API_KEY (or MODEL_API_KEY) from env, else from fall_test/.env."""
+    return env_get("META_API_KEY", "MODEL_API_KEY")
+
+
+def tapo_rtsp(stream: int = 2) -> str:
+    """rtsp://user:pass@ip:554/stream<N> from TAPO_IP / TAPO_USER / TAPO_PASS."""
+    from urllib.parse import quote
+    ip, user, pw = env_get("TAPO_IP"), env_get("TAPO_USER"), env_get("TAPO_PASS")
+    return f"rtsp://{quote(user, safe='')}:{quote(pw, safe='')}@{ip}:554/stream{stream}"
+
+
+def redact(url: str) -> str:
+    import re
+    return re.sub(r"//[^@/]+@", "//<user>:<pass>@", url)
 
 
 def video_info(path: Path) -> dict:

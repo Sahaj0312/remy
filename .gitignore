@@ -21,3 +21,12 @@ fall_test/out/*.log
 *.pt
 
 .DS_Store
+
+# camera footage, recordings, live events, binaries, generated go2rtc config
+fall_test/tapo/
+fall_test/events/
+fall_test/audio/
+fall_test/tools/go2rtc/
+fall_test/tools/piper/
+*.jpg
+*.wav
