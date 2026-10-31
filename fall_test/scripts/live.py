@@ -258,6 +258,10 @@ class Flow(threading.Thread):
         score = score_track(track, self.cfg["score_v2"], "v2"); self.mark("scored")
         threading.Thread(target=lambda: (write_json(self.dir / "sam_track.json", track), write_json(self.dir / "score.json", score)), daemon=True).start()
         self.result["score"] = score.get("best"); self.result["sam_flag"] = score["flag"]
+        last_ev = getattr(self.state, "last_event_t", None)
+        if last_ev is not None and abs(d["drop_v"] - last_ev) < 20.0:
+            self.log(f"SAM {'confirms' if score['flag'] else 'rejects'} the drop, but an event was already raised for this fall -> duplicate, no event")
+            return False
         if self.person_got_up(d["drop_v"]):
             self.log(f"SAM {'confirms' if score['flag'] else 'rejects'} the drop, but the person is already up -> no event")
             return False
@@ -269,6 +273,8 @@ class Flow(threading.Thread):
 
     def raise_event(self):
         self.mark("event"); self.result["event"] = True
+        self.state.cooldown_until_wall = time.time() + self.args.cooldown_s
+        self.state.last_event_t = self.drop.get("drop_v", self.state.t)
         self.event_wall = time.time(); self.event_t = self.state.t
         self.result["time"] = datetime.fromtimestamp(self.drop.get("drop_wall", self.event_wall)).isoformat(timespec="seconds")
         when = datetime.fromtimestamp(self.drop.get("drop_wall", self.event_wall)).strftime("%-I:%M%p").lower()
@@ -338,21 +344,30 @@ class Flow(threading.Thread):
             self.log("check-in skipped (--no-checkin)")
             outcome = "skipped"
         else:
-            for attempt in range(1, ck["retries"] + 2):
+            retries = ck.get("retries_no_answer", 1)
+            for attempt in range(1, retries + 2):
                 self.mark(f"checkin{attempt}_start")
                 r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log); rounds.append(r)
                 self.mark(f"checkin{attempt}_done")
                 if r["transcript"].get("transcript"):
                     said = r["transcript"]["transcript"]
-                if r["status"] in ("okay", "needs_help"):
-                    outcome = r["status"]; break
+                outcome = r["status"]
+                if outcome in ("okay", "needs_help"):
+                    break
+                if outcome == "unclear" and ck.get("escalate_on_unclear", True):
+                    self.log("check-in: reply was not a clear okay -> escalating")
+                    break
                 if self.got_up_at is not None:
                     outcome = "got_up"; break
-                outcome = r["status"]
-                if attempt <= ck["retries"]:
-                    self.log(f"check-in {attempt}: {r['status']} -> asking once more")
+                if attempt <= retries:
+                    self.log(f"check-in {attempt}: {outcome} -> asking once more")
         self.result.update(checkin_rounds=rounds, said=said, outcome=outcome)
         summary = self.summary_text()
+        # what the watcher knows now beats what the clip showed
+        if self.got_up_at is not None:
+            summary += f" She got back up about {int(self.state.t - self.event_t)}s after the fall."
+        elif self.state.down_now(self.cfg["monitor"]["low_ar_max"]):
+            summary += f" Still down {int(self.state.t - self.event_t)}s after the fall."
         snap = self.dir / "snapshot.jpg"
         if outcome == "okay":
             resp = wa.calm(summary, said, self.when); self.mark("alert_sent")
@@ -367,7 +382,7 @@ class Flow(threading.Thread):
             self.result["alert"] = None
         else:
             reason = {"needs_help": "She asked for help.", "no_answer": "No answer to two check-ins.",
-                      "unclear": "Two check-ins, no clear answer."}.get(outcome, outcome)
+                      "unclear": "She answered but not clearly."}.get(outcome, outcome)
             resp = wa.urgent(summary, said, self.when, snap, reason); self.mark("alert_sent")
             self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
             self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp}
@@ -410,7 +425,8 @@ def main():
     p.add_argument("--buffer-s", type=float, default=12.0)
     p.add_argument("--pre-s", type=float, default=4.0)
     p.add_argument("--post-s", type=float, default=1.0, help="seconds after the drop end to include before cutting the SAM clip (shape check needs ~1 s)")
-    p.add_argument("--cooldown-s", type=float, default=30.0)
+    p.add_argument("--cooldown-s", type=float, default=30.0, help="after a raised event")
+    p.add_argument("--reject-cooldown-s", type=float, default=2.0, help="after a candidate SAM rejected")
     p.add_argument("--max-width", type=int, default=640)
     p.add_argument("--duration", type=float, default=0)
     p.add_argument("--no-api", action="store_true")
@@ -477,21 +493,31 @@ def main():
             main_det = max(dets, key=lambda d: (d["box"][2] - d["box"][0]) * (d["box"][3] - d["box"][1])) if dets else None
             state.push(t_v, wall, main_det)
             active = [f for f in flows if not f.done]
+            # a flow that finished without an event only blocks the trigger for a couple of seconds
+            for f in flows:
+                if f.done and not f.result.get("event") and not getattr(f, "_released", False):
+                    f._released = True; cooldown_until = min(cooldown_until, t_v + args.reject_cooldown_s)
             tr = tracks.as_track()
-            # ---- drop trigger
-            if not active and t_v >= cooldown_until and tr["objects"]:
+            # ---- drop trigger (allowed while another flow is still waiting on SAM, so a real fall right after
+            #      a false candidate is not lost; never while an event is being handled)
+            handling = [f for f in active if f.result.get("event")]
+            if not handling and len(active) < 2 and t_v >= cooldown_until and tr["objects"]:
                 res = score_track(tr, trig_cfg, "trigger")
                 if res["flag"]:
                     b = res["best"]; drop_v = t_v - (tr["objects"][res["object_id"]][-1]["t"] - b["end_t"])
                     if drop_v <= last_drop_v + 0.5 and last_cancelled_v is None:
                         res["flag"] = False
+                if res["flag"] and active and any(abs(fa.drop["drop_v"] - drop_v) < 6.0 for fa in active if fa.drop):
+                    res["flag"] = False      # same drop the running flow is already checking
                 if res["flag"]:
                     if last_cancelled_v is not None and drop_v - last_cancelled_v < 12.0:
                         drop_v = last_cancelled_v
                     last_drop_v = max(last_drop_v, drop_v); last_cancelled_v = None
                     snap = min(buffer, key=lambda tf: abs(tf[0] - drop_v))[1]
                     fl = Flow("drop", state, args, cfg, (W, H), drop={"drop_v": drop_v, "drop_wall": wall - (t_v - drop_v), "obj": res["object_id"], "best": b}, snapshot=snap)
-                    flows.append(fl); fl.start(); cooldown_until = t_v + args.cooldown_s
+                    flows.append(fl); fl.start(); cooldown_until = t_v + args.reject_cooldown_s
+            if getattr(state, "cooldown_until_wall", 0) > wall:          # an event was raised: hold the trigger
+                cooldown_until = max(cooldown_until, t_v + (state.cooldown_until_wall - wall))
             # ---- floor-zone rule (no drop needed)
             if state.zones is not None and not active and t_v >= cooldown_until:
                 r = state.latest()
