@@ -33,3 +33,6 @@ fall_test/tools/piper/
 
 # real family numbers
 fall_test/family.json
+
+# served snapshots for Twilio media
+fall_test/public/
