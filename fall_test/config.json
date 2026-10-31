@@ -117,7 +117,7 @@
   },
   "alerts": {
     "enabled": true,
-    "channel": "twilio",
+    "channel": "whatsapp",
     "person_name": "Nani",
     "family": [
       {
