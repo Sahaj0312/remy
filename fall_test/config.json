@@ -33,7 +33,7 @@
     "audio.output": "camera (Tapo speaker via go2rtc) or laptop (afplay); one-line switch",
     "checkin": "language picks the prompt and Kokoro voice; help_words force needs_help before Spark; recheck_after_s = still-down time after an 'okay' that triggers another check-in",
     "monitor": "still_down_s: seconds down after a confirmed drop before the event upgrades; floor_still_s: seconds on floor/rug barely moving (no drop needed); still_move_max_bl: centroid movement over 2 s in body lengths that still counts as 'barely moving'",
-    "alerts.family": "E.164 numbers; with the WhatsApp test number each must be added as a recipient in the Meta app and must message the test number first (24 h window) for free-form text"
+    "alerts.family": "placeholder; real numbers live in fall_test/family.json (gitignored) with the same shape. With the WhatsApp test number each recipient must be on the app's allow-list and must message the test number first (24 h window)."
   },
   "tracking": {
     "max_gap_s": 1.0,
@@ -120,7 +120,7 @@
     "person_name": "Nani",
     "family": [
       {
-        "name": "Sahaj",
+        "name": "example",
         "number": "+10000000000"
       }
     ],

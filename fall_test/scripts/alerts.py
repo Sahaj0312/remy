@@ -46,6 +46,9 @@ class WhatsApp:
         return out
 
     def recipients(self) -> list[dict]:
+        fam = ROOT / "family.json"                       # real numbers, gitignored; config holds a placeholder
+        if fam.exists():
+            return json.load(open(fam))["family"]
         return self.cfg["family"]
 
     def send_template(self, to: str, name: str = "hello_world", lang: str = "en_US") -> dict:

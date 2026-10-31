@@ -30,3 +30,6 @@ fall_test/tools/go2rtc/
 fall_test/tools/piper/
 *.jpg
 *.wav
+
+# real family numbers
+fall_test/family.json
