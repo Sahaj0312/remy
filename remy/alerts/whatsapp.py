@@ -87,6 +87,7 @@ class WhatsApp:
             self.token = env_get("WHATSAPP_TOKEN", required=not self.dry)
             self.phone_id = env_get("WHATSAPP_PHONE_NUMBER_ID", required=not self.dry)
         self.log_path = EVENTS / "alerts.log"
+        self.last_text = None        # the body of the last calm/urgent alert, for event.json and replay
 
     # ---- Twilio sandbox
     def _twilio(self, to: str, body: str, media_url: str | None = None) -> dict:
@@ -166,12 +167,14 @@ class WhatsApp:
         text = f"{self.cfg['calm_prefix']} {name} had a fall at {when} but says she's okay.\n{summary}"
         if said:
             text += f'\nShe said: "{said}"'
+        self.last_text = text
         return [self.send_text(r["number"], text) for r in self.recipients()]
 
     def urgent(self, summary: str, said: str | None, when: str, snapshot: Path | None, reason: str) -> list[dict]:
         name = self.cfg["person_name"]
         text = (f"{self.cfg['urgent_prefix']} {name} may need help. Fall detected at {when}. {reason}\n{summary}")
         text += f'\nShe said: "{said}"' if said else "\nShe did not answer the check-in."
+        self.last_text = text
         out = []
         for r in self.recipients():
             if snapshot and snapshot.exists():

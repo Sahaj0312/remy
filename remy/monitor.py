@@ -186,7 +186,7 @@ class Flow(threading.Thread):
         clip = self.dir / "clip.mp4"; write_clip(frames, self.args.buffer_fps, clip); self.mark("clip_written")
         cv2.imwrite(str(self.dir / "snapshot.jpg"), self.snapshot)
         info = video_info(clip)
-        self.log(f"clip {info['n_frames']} frames ({info['n_frames']/info['fps']:.1f}s) written, SAM upload starting while YOLO watches for a get-up")
+        self.log(f"clip {info['n_frames']} frames ({info['n_frames']/info['fps']:.1f}s) written, SAM 3.1 upload starting while YOLO watches for a get-up")
         if self.args.no_api:
             self.log("[dry run] SAM skipped"); self.result.update(dry_run=True); return False
         from remy.vision import sam
@@ -207,15 +207,15 @@ class Flow(threading.Thread):
         self.result["score"] = score.get("best"); self.result["sam_flag"] = score["flag"]
         last_ev = self.state.last_event_t
         if last_ev is not None and abs(d["drop_v"] - last_ev) < 20.0:
-            self.log(f"SAM {'confirms' if score['flag'] else 'rejects'} the drop, but an event was already raised for this fall -> duplicate, no event")
+            self.log(f"SAM 3.1 {'confirms' if score['flag'] else 'rejects'} the drop, but an event was already raised for this fall -> duplicate, no event")
             return False
         if self.person_got_up(d["drop_v"]):
-            self.log(f"SAM {'confirms' if score['flag'] else 'rejects'} the drop, but the person is already up -> no event")
+            self.log(f"SAM 3.1 {'confirms' if score['flag'] else 'rejects'} the drop, but the person is already up -> no event")
             return False
         if not score["flag"]:
-            self.log(f"SAM: not a fall (best={ {k: (score.get('best') or {}).get(k) for k in ('drop_rel','drop_speed_rel_max','ar_post')} }) -> no event")
+            self.log(f"SAM 3.1: not a fall (best={ {k: (score.get('best') or {}).get(k) for k in ('drop_rel','drop_speed_rel_max','ar_post')} }) -> no event")
             return False
-        self.log(f"SAM confirms: drop {score['best']['drop_rel']:.2f} bl at {score['best']['drop_speed_rel_max']:.2f} bl/s, ends wide (ar {score['best']['ar_post']:.2f})")
+        self.log(f"SAM 3.1 confirms: drop {score['best']['drop_rel']:.2f} bl at {score['best']['drop_speed_rel_max']:.2f} bl/s, ends wide (ar {score['best']['ar_post']:.2f})")
         return True
 
     def raise_event(self):
@@ -249,10 +249,11 @@ class Flow(threading.Thread):
             spark_cfg = dict(self.cfg["spark"]); spark_cfg["burst_after_s"] = spark_cfg.get("live_burst_after_s", 1.0)
             backend = get_backend({**self.cfg, "spark": spark_cfg}, timeout=120)
             t0 = time.time()
-            doc = backend.triage_fall(best, info["fps"], info["n_frames"], clip, self.when, "inline")
+            doc = backend.triage_fall(best, info["fps"], info["n_frames"], clip, self.when, "inline" if backend.name == "spark" else "frames")
             self.triage = doc["verdict"]; self.timings["spark_total_s"] = round(time.time() - t0, 2); self.mark("triage_done")
             self.cost += doc["cost_usd"]; costs.add("spark-triage", doc["cost_usd"], self.dir.name)
-            self.log(f"{backend.name} triage ({self.timings['spark_total_s']}s incl. burst cut, inline base64): urgency={self.triage['urgency']} "
+            self.result["triage_backend"] = backend.label
+            self.log(f"{backend.label} triage ({self.timings['spark_total_s']}s incl. burst cut): urgency={self.triage['urgency']} "
                      f"lying_still={self.triage['is_lying_still']} :: {self.triage['summary_for_family']}")
         except Exception as e:
             self.log(f"triage failed: {type(e).__name__}: {e}")
@@ -318,12 +319,12 @@ class Flow(threading.Thread):
         if outcome == "okay":
             resp = wa.calm(summary, said, self.when); self.mark("alert_sent")
             self.log(f"ALERT calm -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: she says she's okay")
-            self.result["alert"] = {"kind": "calm", "responses": resp}
+            self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text}
             self.recheck_after_okay(wa, snap)
         elif outcome == "got_up":
             resp = wa.calm(summary + " She got back up on her own.", said, self.when); self.mark("alert_sent")
             self.log(f"ALERT calm -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: got up")
-            self.result["alert"] = {"kind": "calm", "responses": resp}
+            self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text}
         elif outcome == "skipped":
             self.result["alert"] = None
         else:
@@ -331,7 +332,7 @@ class Flow(threading.Thread):
                       "unclear": "She answered but not clearly."}.get(outcome, outcome)
             resp = wa.urgent(summary, said, self.when, snap, reason); self.mark("alert_sent")
             self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
-            self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp}
+            self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text}
         self.save()
         # keep the watcher alive a while for the still-down line, then finish
         t0 = time.time()
@@ -355,7 +356,7 @@ class Flow(threading.Thread):
                         "asked for help." if r["status"] == "needs_help" else "no clear answer this time.")
                     resp = wa.urgent(self.summary_text(), r["transcript"].get("transcript") or self.result.get("said"), self.when, snap, reason)
                     self.log(f"ALERT urgent (re-check) -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
-                    self.result["alert_recheck"] = {"kind": "urgent", "reason": reason, "responses": resp}
+                    self.result["alert_recheck"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text}
                 return
             time.sleep(0.5)
 

@@ -32,6 +32,7 @@ public/
 *.jpg
 *.wav
 !docs/demo.gif
+!examples/**
 
 # model weights and third-party binaries (go2rtc, Kokoro, Piper)
 tools/

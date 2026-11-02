@@ -1,0 +1,127 @@
+{
+ "kind": "drop",
+ "event": true,
+ "score": {
+  "start_i": 21,
+  "end_i": 26,
+  "start_t": 2.1,
+  "end_t": 2.6,
+  "time_to_floor_s": 0.5,
+  "body_len": 1.0,
+  "drop_rel": 0.247,
+  "drop_speed_rel_max": 0.541,
+  "total_drop": 0.247,
+  "ar_post": 0.581,
+  "cy_post": 0.792,
+  "hold": "unknown",
+  "getup_t": null,
+  "no_getup_observed_s": 0.8,
+  "drop_ok": true,
+  "shape_ok": true,
+  "flag": true,
+  "soft_score": 0.875
+ },
+ "sam_flag": true,
+ "time": "2026-11-01T19:00:54",
+ "checkin_rounds": [
+  {
+   "question": "Nani, are you okay?",
+   "speak": {
+    "device": "laptop",
+    "ok": true,
+    "detail": "afplay",
+    "took_s": 5.44
+   },
+   "record": {
+    "ok": true,
+    "took_s": 14.91,
+    "err": ""
+   },
+   "wav": "/Users/sahaj/Desktop/dev/remy/events/20261101_190055_restructure_drop/checkin_r1_190111.wav",
+   "transcript": {
+    "transcript": "",
+    "turns": [],
+    "latency_s": 2.65,
+    "cost_usd": 0.00073
+   },
+   "classification": {
+    "status": "no_answer",
+    "quote": "",
+    "reason": "empty transcript",
+    "rule": true,
+    "latency_s": 0.0,
+    "cost_usd": 0.0
+   },
+   "status": "no_answer",
+   "total_s": 23.0
+  },
+  {
+   "question": "Nani, are you okay?",
+   "speak": {
+    "device": "laptop",
+    "ok": true,
+    "detail": "afplay",
+    "took_s": 3.19
+   },
+   "record": {
+    "ok": true,
+    "took_s": 15.43,
+    "err": ""
+   },
+   "wav": "/Users/sahaj/Desktop/dev/remy/events/20261101_190055_restructure_drop/checkin_r2_190132.wav",
+   "transcript": {
+    "transcript": "",
+    "turns": [],
+    "latency_s": 1.83,
+    "cost_usd": 0.00075
+   },
+   "classification": {
+    "status": "no_answer",
+    "quote": "",
+    "reason": "empty transcript",
+    "rule": true,
+    "latency_s": 0.0,
+    "cost_usd": 0.0
+   },
+   "status": "no_answer",
+   "total_s": 20.45
+  }
+ ],
+ "said": null,
+ "outcome": "no_answer",
+ "alert": {
+  "kind": "urgent",
+  "reason": "No answer to two check-ins.",
+  "responses": [
+   {
+    "dry": true
+   }
+  ]
+ },
+ "timings": {
+  "clip_written": 1.22,
+  "sam_call_start": 1.78,
+  "sam_upload_s": 2.06,
+  "sam_total_s": 9.28,
+  "sam_done": 11.09,
+  "sam_parsed": 11.09,
+  "scored": 11.09,
+  "event": 11.09,
+  "checkin1_start": 11.18,
+  "checkin1_done": 34.19,
+  "checkin2_start": 34.19,
+  "checkin2_done": 54.64,
+  "spark_total_s": 53.73,
+  "triage_done": 64.93,
+  "alert_sent": 65.03
+ },
+ "cost_usd": 0.0134,
+ "triage": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down quickly in the middle of the room at 7:00pm and was still down on the floor when the clip ended.",
+  "urgency": "high",
+  "what_happened": "The person dropped quickly from standing to lying flat on the floor in about 0.5 seconds."
+ },
+ "got_up_at_s": null,
+ "still_down_at_s": null
+}

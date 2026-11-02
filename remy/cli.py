@@ -5,6 +5,7 @@
   remy setup-zones --stream 2            build zones.json (floor / rug / sofa / bed) from one camera frame
   remy test-checkin --run                one spoken check-in round; --classify TEXT; --make-prompts
   remy test-alert --test                 send a test WhatsApp message to the family list; --dry-run
+  remy replay examples/event_gmdcsa_S1_Fall_12   re-score and print a recorded event, no key needed
   remy costs                             print the API cost ledger
 """
 from __future__ import annotations
@@ -17,6 +18,7 @@ COMMANDS = {
     "setup-zones": ("remy.vision.zones_setup", "build zones.json from one camera frame with SAM 3.1"),
     "test-checkin": ("remy.checkin", "speak the prompt, record, transcribe, classify (or --classify TEXT)"),
     "test-alert": ("remy.alerts.whatsapp", "send a test WhatsApp message to the family list"),
+    "replay": ("remy.replay", "replay a recorded event folder, no API key needed"),
     "costs": ("remy.costs", "print the API cost ledger"),
 }
 
