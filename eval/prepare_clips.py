@@ -1,21 +1,19 @@
-"""Build H.264 mp4 clips in clips/ (default 10 fps, max width 640) from the raw downloads.
+"""Build H.264 mp4 clips in eval/clips/ (default 10 fps, max width 640) from the raw downloads in eval/raw/.
 
-UR Fall : raw/urfall/<seq>-cam0-rgb.zip -> PNG frames at 30 fps, 640x480 (extracted to a temp dir, then deleted)
-GMDCSA24: raw/gmdcsa/gm_S<k>_<Fall|ADL>_<nn>.mp4 (60 fps, 1280x720)
+UR Fall : eval/raw/urfall/<seq>-cam0-rgb.zip -> PNG frames at 30 fps, 640x480 (extracted to a temp dir, then deleted)
+GMDCSA24: eval/raw/gmdcsa/gm_S<k>_<Fall|ADL>_<nn>.mp4 (60 fps, 1280x720)
+The downloads are untrusted data: nothing is executed from eval/raw/.
 """
 from __future__ import annotations
 
 import argparse
-import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CLIPS, ROOT, load_config, load_labels, video_info  # noqa: E402
+from remy.common import CLIPS, EVAL, load_config, load_labels, video_info
 
-RAW = ROOT / "raw"
+RAW = EVAL / "raw"
 
 
 def run(cmd):
@@ -30,7 +28,7 @@ def encode(src_args: list[str], dst: Path, vf: str):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--fps", type=float, default=None, help="default: config clip_fps")
-    p.add_argument("--out", default=None, help="output dir (default clips/)")
+    p.add_argument("--out", default=None, help="output dir (default eval/clips/)")
     p.add_argument("--force", action="store_true")
     args = p.parse_args()
     cfg = load_config()

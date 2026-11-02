@@ -1,4 +1,4 @@
-"""Build labels.csv (clip, label, source, src_file, type, lighting, description) for the eval set.
+"""Build eval/labels.csv (clip, label, source, src_file, type, lighting, description) for the eval set.
 
 Types
   falls   : fall:standing  fall:chair  fall:bed  fall:floor-sit  fall:slow  fall:onto-bed
@@ -12,14 +12,11 @@ from __future__ import annotations
 
 import csv
 import statistics
-import sys
 from collections import defaultdict
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import LABELS_PATH, ROOT  # noqa: E402
+from remy.common import EVAL, LABELS_PATH
 
-RAW = ROOT / "raw"
+RAW = EVAL / "raw"
 
 UR_FALLS = ["01", "02", "04", "05", "07", "08", "10", "11", "13", "14", "16", "17", "19", "20", "22", "23", "25", "28"]
 UR_ADLS = ["01", "07", "08", "10", "11", "18", "19", "20", "21", "22", "23", "25", "27", "30", "31", "32", "33", "34",

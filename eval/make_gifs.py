@@ -1,16 +1,16 @@
-"""Annotated GIFs: box + centroid trail + state overlay, title with labels/verdicts."""
+"""Annotated GIFs for the report: box + centroid trail + state overlay, title with labels/verdicts.
+  python eval/make_gifs.py gmdcsa_S1_Fall_12 --out eval/out/gifs/gmdcsa_S1_Fall_12.gif --label fall
+Needs the eval extra (imageio): pip install -e ".[eval]"."""
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import cv2
 import imageio.v3 as iio
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import CLIPS, OUT, read_json  # noqa: E402
+from remy.common import CLIPS, OUT, read_json
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 

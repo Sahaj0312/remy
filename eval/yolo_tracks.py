@@ -1,6 +1,6 @@
-"""Cheap always-on baseline: YOLO pose (ultralytics) + ByteTrack IDs on the same
-5 fps clips, emitting the same per-frame track schema as sam_track.py into out/yolo/.
-Detections are linked into tracks with a simple greedy IoU/overlap matcher (common.link_detections);
+"""Eval batch: YOLO pose (ultralytics) over every clip in eval/labels.csv, emitting the same per-frame
+track schema as eval/sam_tracks.py into eval/out/yolo/.
+Detections are linked into tracks with the greedy IoU/overlap matcher (remy.vision.tracking.link_detections);
 ByteTrack was tried and rejected: its Kalman-smoothed boxes lag the fall and the ID breaks mid-fall.
 
 cx, cy = mean of confident keypoints (falls back to box center); ar = box h/w.
@@ -9,19 +9,14 @@ Every tracked person is kept under "objects"; "frames" is the primary (most-movi
 from __future__ import annotations
 
 import argparse
-import sys
 import time
-from pathlib import Path
 
 import cv2
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (  # noqa: E402
-    CLIPS, OUT, empty_frame, finalize_objects, link_detections, load_config, load_labels,
-    suppress_duplicates,
-    video_info, write_json,
-)
+from remy.common import CLIPS, OUT, load_config, load_labels, video_info, write_json
+from remy.vision.tracking import empty_frame, finalize_objects, link_detections, suppress_duplicates
+from remy.vision.yolo import load_model
 
 
 def main():
@@ -33,8 +28,7 @@ def main():
     full_cfg = load_config()
     cfg = full_cfg["yolo"]
     tcfg = full_cfg["tracking"]
-    from ultralytics import YOLO
-    model = YOLO(cfg["model"])
+    model = load_model(cfg)
     names = args.clips or [r["clip"] for r in load_labels()]
     if not args.force:
         names = [n for n in names if not (OUT / "yolo" / f"{n}.json").exists()]

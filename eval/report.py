@@ -1,13 +1,10 @@
-"""Assemble REPORT.md: per-type results, before/after tuning, YOLO trigger rate, Spark triage, latency, cost."""
+"""Assemble eval/REPORT.md: per-type results, before/after tuning, YOLO trigger rate, Spark triage, latency, cost."""
 from __future__ import annotations
 
 import statistics as st
-import sys
 from collections import Counter, defaultdict
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import OUT, ROOT, load_labels, read_json  # noqa: E402
+from remy.common import EVAL, OUT, load_labels, read_json
 
 
 def load_scores(d: str) -> dict[str, dict]:
@@ -166,7 +163,7 @@ def main():
     if yolo_docs:
         ms = [d["timing"]["per_frame_ms_mean"] for d in yolo_docs]
         L.append(f"YOLO pose: mean {st.mean(ms):.0f} ms/frame on this Mac's CPU.\n")
-    (ROOT / "REPORT.md").write_text("\n".join(L))
+    (EVAL / "REPORT.md").write_text("\n".join(L))
     print("\n".join(L))
 
 
