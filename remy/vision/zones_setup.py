@@ -1,8 +1,8 @@
 """Define floor and bed zones for a fixed camera from one frame, using SAM 3.1 concept prompts.
 
-  python scripts/setup_zones.py --frame tapo/snap_stream2_day.jpg          # -> zones.json + zones_overlay.jpg
-  python scripts/setup_zones.py --stream 2                                   # grab a frame from the Tapo stream2
-  python scripts/setup_zones.py --frame f.jpg --prompts floor,bed,sofa       # extra zones
+  remy setup-zones --stream 2                                   # grab a frame from the Tapo stream2 -> zones.json + zones_overlay.jpg
+  remy setup-zones --frame tapo/zones_frame.jpg                 # from a saved frame
+  remy setup-zones --frame f.jpg --prompts floor,rug,bed,sofa   # extra zones
 Each prompt is one SAM 3.1 image request ($2.50 per 1,000 images). Masks become polygons in zones.json
 (pixel coords of the frame size used); the overlay shows floor in green, bed in blue, others in orange.
 """
@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import base64
-import sys
 from contextlib import aclosing
 from pathlib import Path
 
@@ -20,9 +19,8 @@ import numpy as np
 from meta_sam_parser import decode_mask_to_raster, image_segmentation_format, parse_responses_stream
 from openai import AsyncOpenAI
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import META_BASE_URL, ROOT, SAM_MODEL, api_key, tapo_rtsp, write_json  # noqa: E402
-from sam_track import stream_events  # noqa: E402
+from remy.common import META_BASE_URL, ROOT, SAM_MODEL, api_key, tapo_rtsp, write_json
+from remy.vision.sam import stream_events
 
 COLORS = {"floor": (80, 200, 80), "bed": (230, 120, 40), "sofa": (40, 160, 255), "couch": (40, 160, 255)}
 SYNONYMS = {"floor": ["floor", "rug", "carpet"], "bed": ["bed", "mattress", "cot"], "sofa": ["sofa", "couch"]}
@@ -69,7 +67,7 @@ async def main_async(args):
         img = cv2.imread(args.frame)
         src = args.frame
     else:
-        from rtsp_reader import FFmpegFrames
+        from remy.camera.rtsp import FFmpegFrames
         url = tapo_rtsp(args.stream)
         rd = FFmpegFrames(url)
         ok, img = rd.read(); rd.close()
@@ -113,15 +111,16 @@ async def main_async(args):
     print(f"wrote {out_json} and {out_img}")
 
 
-def main():
-    p = argparse.ArgumentParser()
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="remy setup-zones", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--frame")
     p.add_argument("--stream", type=int, default=2)
     p.add_argument("--prompts", default="floor,bed")
     p.add_argument("--max-per-prompt", type=int, default=2)
     p.add_argument("--out", default=str(ROOT / "zones.json"))
-    asyncio.run(main_async(p.parse_args()))
+    asyncio.run(main_async(p.parse_args(argv)))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

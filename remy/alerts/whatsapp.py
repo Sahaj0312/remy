@@ -1,11 +1,12 @@
 """Family alerts over WhatsApp. Two channels, picked by config.json["alerts"]["channel"]:
   "whatsapp" : Meta WhatsApp Cloud API (.env WHATSAPP_TOKEN, WHATSAPP_PHONE_NUMBER_ID)
   "twilio"   : Twilio WhatsApp sandbox (.env TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM)
-Family numbers in fall_test/family.json (gitignored), wording in config. --dry-run logs instead of sending.
+Family numbers in <root>/family.json (gitignored), wording in config. --dry-run logs instead of sending.
 Images on Twilio need a public URL: a tiny file server + cloudflared quick tunnel is started on demand.
 
-  python scripts/alerts.py --test            # send a hello_world template + a text to every family number
-  python scripts/alerts.py --text "hi"       # free-form text (needs the 24 h window: the recipient messaged the number first)
+  remy test-alert --test            # send a hello_world template to every family number
+  remy test-alert --text "hi"       # free-form text (needs the 24 h window: the recipient messaged the number first)
+  remy test-alert --image snap.jpg --text "caption"
 """
 from __future__ import annotations
 
@@ -23,16 +24,17 @@ import subprocess
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, env_get, load_config  # noqa: E402
+from remy.common import EVENTS, ROOT, env_get, load_config
 
 GRAPH = "https://graph.facebook.com/v22.0"
 PUBLIC = ROOT / "public"
-TUNNEL_FILE = ROOT / "out" / "media_tunnel_url.txt"
+TUNNEL_DIR = ROOT / "public" / ".tunnel"
+TUNNEL_FILE = TUNNEL_DIR / "media_tunnel_url.txt"
+TUNNEL_LOG = TUNNEL_DIR / "media_tunnel.log"
 
 
 def ensure_media_tunnel(timeout_s: float = 25) -> str | None:
-    """Start media_server.py + a cloudflared quick tunnel if not running; return the public base URL."""
+    """Start remy.alerts.media_server + a cloudflared quick tunnel if not running; return the public base URL."""
     if TUNNEL_FILE.exists():
         url = TUNNEL_FILE.read_text().strip()
         try:
@@ -40,16 +42,16 @@ def ensure_media_tunnel(timeout_s: float = 25) -> str | None:
                 return url
         except Exception:
             pass
-    PUBLIC.mkdir(exist_ok=True); (ROOT / "out").mkdir(exist_ok=True)
-    if subprocess.run(["pgrep", "-f", "scripts/media_server.py"], capture_output=True).returncode != 0:
-        subprocess.Popen([str(ROOT / ".venv" / "bin" / "python"), str(ROOT / "scripts" / "media_server.py"), "8788"],
+    TUNNEL_DIR.mkdir(parents=True, exist_ok=True)
+    if subprocess.run(["pgrep", "-f", "remy.alerts.media_server"], capture_output=True).returncode != 0:
+        subprocess.Popen([sys.executable, "-m", "remy.alerts.media_server", "8788"],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(["pkill", "-f", "cloudflared tunnel --url http://localhost:8788"], capture_output=True)
-    log = open(ROOT / "out" / "media_tunnel.log", "w")
+    log = open(TUNNEL_LOG, "w")
     subprocess.Popen(["cloudflared", "tunnel", "--url", "http://localhost:8788"], stdout=log, stderr=subprocess.STDOUT)
     t0 = time.time()
     while time.time() - t0 < timeout_s:
-        txt = (ROOT / "out" / "media_tunnel.log").read_text(errors="replace")
+        txt = TUNNEL_LOG.read_text(errors="replace")
         m = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", txt)
         if m:
             url = m.group(0)
@@ -84,7 +86,7 @@ class WhatsApp:
         else:
             self.token = env_get("WHATSAPP_TOKEN", required=not self.dry)
             self.phone_id = env_get("WHATSAPP_PHONE_NUMBER_ID", required=not self.dry)
-        self.log_path = ROOT / "events" / "alerts.log"
+        self.log_path = EVENTS / "alerts.log"
 
     # ---- Twilio sandbox
     def _twilio(self, to: str, body: str, media_url: str | None = None) -> dict:
@@ -179,13 +181,15 @@ class WhatsApp:
         return out
 
 
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--test", action="store_true")
-    p.add_argument("--text")
-    p.add_argument("--image")
-    p.add_argument("--dry-run", action="store_true")
-    a = p.parse_args()
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="remy test-alert", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--test", action="store_true", help="send the hello_world template to every family number")
+    p.add_argument("--text", help="send this text (and use it as the image caption)")
+    p.add_argument("--image", help="send this image file with --text as caption")
+    p.add_argument("--dry-run", action="store_true", help="log what would be sent, send nothing")
+    a = p.parse_args(argv)
+    if not (a.test or a.text or a.image):
+        p.print_help(); return 2
     wa = WhatsApp(dry_run=a.dry_run)
     for r in wa.recipients():
         if a.test:
@@ -194,7 +198,8 @@ def main():
             print("text ->", r["name"], wa.send_text(r["number"], a.text))
         if a.image:
             print("image ->", r["name"], wa.send_image(r["number"], Path(a.image), a.text or "test"))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -1,9 +1,10 @@
-"""Muse Spark triage for SAM-flagged falls (no veto): urgency + a family summary.
+"""Muse Spark as the triage backend (no veto): urgency + a family summary, and the check-in reply classifier.
 
-For every clip the rule score flagged, send a short 10 fps burst around the drop (as a video file
-via the Files API, with a frames fallback) plus the SAM numbers, and ask for JSON:
+triage_fall: a short 10 fps burst around the drop (video file via the Files API, inline base64 on the live
+path, or JPEG frames) plus the tracker numbers -> JSON
   {"urgency": "high"|"medium"|"low", "summary_for_family": "...", "what_happened": "...", "is_lying_still": bool}
-Reads out/scores/<tracker>_<scorer>/<clip>.json, writes out/spark/<tracker>_<scorer>/<clip>.json.
+classify_reply: the transcript of the 15 s after "are you okay?" -> okay | needs_help | unclear | no_answer.
+The batch runner over the eval set is eval/spark_triage.py.
 """
 from __future__ import annotations
 
@@ -12,20 +13,16 @@ import base64
 import json
 import re
 import subprocess
-import sys
 import tempfile
 import time
-from datetime import datetime
 from pathlib import Path
 
 import cv2
+from openai import OpenAI
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (  # noqa: E402
-    CLIPS, META_BASE_URL, OUT, SPARK_USD_PER_INPUT_TOKEN, SPARK_USD_PER_OUTPUT_TOKEN,
-    api_key, load_config, load_labels, read_json, write_json,
-)
-from openai import OpenAI  # noqa: E402
+from remy import costs
+from remy.common import META_BASE_URL, SPARK_MODEL, SPARK_USD_PER_INPUT_TOKEN, SPARK_USD_PER_OUTPUT_TOKEN, api_key
+from remy.triage.base import TriageBackend
 
 SYSTEM = """You are the triage step of a home fall-alert system. A motion detector has already decided that
 the person fell; you do NOT decide whether it was a fall. Your job is to judge how serious it looks and to
@@ -160,47 +157,57 @@ def run_triage(client: OpenAI, cfg: dict, best: dict, fps: float, n_frames: int,
     return doc
 
 
-def triage(client: OpenAI, name: str, score_dir: str, cfg: dict, args) -> dict:
-    score = read_json(OUT / "scores" / score_dir / f"{name}.json")
-    tracker = score_dir.split("_")[0]
-    track = read_json(OUT / tracker / f"{name}.json")
-    best = score["best"]
-    mode = "frames" if args.frames else "video"
-    doc = run_triage(client, cfg, best, track["fps"], track["n_frames"], CLIPS / f"{name}.mp4",
-                     f"{best['end_t']:.1f} s into the clip", mode)
-    doc = {"clip": name, "score_dir": score_dir, **doc}
-    write_json(OUT / "spark" / score_dir / f"{name}.json", doc)
-    v, u = doc["verdict"], doc["usage"]
-    print(f"{name:22s} {v.get('urgency','?'):6s} still={str(v.get('is_lying_still')):5s} {doc['latency_s']:.1f}s "
-          f"in={u['input_tokens']} out={u['output_tokens']} ${doc['cost_usd']:.4f} :: {v.get('summary_for_family','')[:100]}", flush=True)
-    return doc
+# ----------------------------------------------------------------------------- check-in reply
+CLASSIFY_SYSTEM = """You classify the spoken reply of an elderly person who was just asked whether they are okay after a
+possible fall at home. The transcript comes from a room microphone and may contain background noise, TV, or other
+people. Reply with JSON only.
+- "okay": they clearly say they are fine / okay / don't need help (any language, e.g. "I'm okay", "theek hoon", "haan theek hai").
+- "needs_help": they ask for help, say they are hurt, cannot get up, or are in pain (e.g. "help", "bachao", "madad", "I can't get up").
+- "unclear": words were heard but do not answer the question (TV, unrelated speech, a question back, mumbling).
+- "no_answer": nothing meaningful was said.
+Return {"status": "...", "quote": "the words that decided it, or empty", "reason": "one short sentence"}."""
+
+CLASSIFY_SCHEMA = {"type": "object",
+                   "properties": {"status": {"type": "string", "enum": ["okay", "needs_help", "unclear", "no_answer"]},
+                                  "quote": {"type": "string"}, "reason": {"type": "string"}},
+                   "required": ["status", "quote", "reason"], "additionalProperties": False}
 
 
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("clips", nargs="*", help="default: every flagged clip")
-    p.add_argument("--score-dir", default="sam_v2", help="out/scores/<dir> to read flags from")
-    p.add_argument("--all", action="store_true", help="every clip with an event, not only flagged")
-    p.add_argument("--force", action="store_true")
-    p.add_argument("--frames", action="store_true", help="send JPEG frames instead of a video file")
-    args = p.parse_args()
-    cfg = load_config()["spark"]
-    names = args.clips
-    if not names:
-        names = [r["clip"] for r in load_labels()
-                 if (OUT / "scores" / args.score_dir / f"{r['clip']}.json").exists()
-                 and (lambda sc: (sc.get("flag") or args.all) and sc.get("best"))(read_json(OUT / "scores" / args.score_dir / f"{r['clip']}.json"))]
-    if not args.force:
-        names = [n for n in names if not (OUT / "spark" / args.score_dir / f"{n}.json").exists()]
-    print(f"{len(names)} clips to triage with {cfg['model']} ({'frames' if args.frames else 'video'})", flush=True)
-    client = OpenAI(base_url=META_BASE_URL, api_key=api_key(), timeout=300)
-    for n in names:
-        try:
-            triage(client, n, args.score_dir, cfg, args)
-        except Exception as e:
-            print(f"{n}: FAILED {type(e).__name__}: {e}", flush=True)
-            write_json(OUT / "spark" / args.score_dir / f"{n}.error.json", {"clip": n, "error": repr(e)})
+def classify_reply(client: OpenAI, model: str, transcript: str, question: str) -> dict:
+    """Spark judges the transcript with the question as context. Rules (empty, help words) run before this."""
+    text = (transcript or "").strip()
+    t0 = time.perf_counter()
+    resp = client.responses.create(
+        model=model, instructions=CLASSIFY_SYSTEM,
+        input=f'Question asked: "{question}"\nTranscript of the next 15 seconds: "{text}"',
+        reasoning={"effort": "low"}, max_output_tokens=1500,
+        text={"format": {"type": "json_schema", "name": "checkin", "schema": CLASSIFY_SCHEMA, "strict": True}})
+    lat = time.perf_counter() - t0
+    usd = resp.usage.input_tokens * SPARK_USD_PER_INPUT_TOKEN + resp.usage.output_tokens * SPARK_USD_PER_OUTPUT_TOKEN
+    costs.add("spark-classify", usd, text[:40])
+    try:
+        out = json.loads(resp.output_text)
+    except Exception:
+        out = {"status": "unclear", "quote": "", "reason": f"bad JSON: {resp.output_text[:80]}"}
+    out.update(rule=False, latency_s=round(lat, 2), cost_usd=round(usd, 5))
+    return out
 
 
-if __name__ == "__main__":
-    main()
+# ----------------------------------------------------------------------------- the backend
+class SparkTriage(TriageBackend):
+    """Muse Spark through the Meta Model API (OpenAI-compatible Responses endpoint).
+
+    cfg is the "spark" section of config.json: model, burst_before_s / burst_after_s, frames_fps, jpeg_quality,
+    reasoning_effort, live_reasoning_effort, max_output_tokens.
+    """
+    name = "spark"
+
+    def __init__(self, cfg: dict, timeout: float = 300, client: OpenAI | None = None):
+        self.cfg = cfg
+        self.client = client or OpenAI(base_url=META_BASE_URL, api_key=api_key(), timeout=timeout)
+
+    def triage_fall(self, best: dict, fps: float, n_frames: int, src: Path, event_time: str, mode: str = "video") -> dict:
+        return run_triage(self.client, self.cfg, best, fps, n_frames, src, event_time, mode)
+
+    def classify_reply(self, transcript: str, question: str) -> dict:
+        return classify_reply(self.client, self.cfg.get("model", SPARK_MODEL), transcript, question)

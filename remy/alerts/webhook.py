@@ -1,22 +1,19 @@
 """Tiny WhatsApp webhook receiver: answers Meta's GET verification and logs every POST
 (message status updates and inbound replies) to events/wa_webhook.jsonl.
-  python scripts/wa_webhook.py --port 8787      # then expose with: cloudflared tunnel --url http://localhost:8787
+  python -m remy.alerts.webhook --port 8787     # then expose with: cloudflared tunnel --url http://localhost:8787
 Verify token comes from .env WHATSAPP_VERIFY_TOKEN (default 'remy-verify').
 """
 from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, env_get  # noqa: E402
+from remy.common import EVENTS, env_get
 
-LOG = ROOT / "events" / "wa_webhook.jsonl"
+LOG = EVENTS / "wa_webhook.jsonl"
 VERIFY = env_get("WHATSAPP_VERIFY_TOKEN", required=False) or "remy-verify"
 
 
@@ -58,11 +55,12 @@ class H(BaseHTTPRequestHandler):
             print("parse error", ex, flush=True)
 
 
-def main():
-    p = argparse.ArgumentParser(); p.add_argument("--port", type=int, default=8787); a = p.parse_args()
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="python -m remy.alerts.webhook"); p.add_argument("--port", type=int, default=8787); a = p.parse_args(argv)
     print(f"webhook receiver on :{a.port}, verify token set, logging to {LOG}", flush=True)
     HTTPServer(("127.0.0.1", a.port), H).serve_forever()
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -12,6 +12,9 @@
     "live_reasoning_effort": "minimal",
     "live_burst_after_s": 1.0
   },
+  "triage": {
+    "backend": "spark"
+  },
   "yolo": {
     "model": "yolo11n-pose.pt",
     "conf": 0.25,
@@ -32,10 +35,12 @@
     "spark": "burst_before_s/after_s bound the 10 fps burst around the drop sent as a video file; frames_fps is used only with --frames. max_output_tokens includes reasoning tokens.",
     "audio.output": "camera (Tapo speaker via go2rtc) or laptop (afplay); one-line switch",
     "checkin": "language picks the prompt and Kokoro voice; help_words force needs_help before Spark; recheck_after_s = still-down time after an 'okay' that triggers another check-in",
-    "monitor": "still_down_s: seconds down after a confirmed drop before the event upgrades; floor_still_s: seconds on floor/rug barely moving (no drop needed); still_move_max_bl: centroid movement over 2 s in body lengths that still counts as 'barely moving'",
-    "alerts.family": "placeholder; real numbers live in fall_test/family.json (gitignored) with the same shape. With the WhatsApp test number each recipient must be on the app's allow-list and must message the test number first (24 h window).",
-    "alerts.channel": "twilio (WhatsApp sandbox, no Meta business checks) or whatsapp (Meta Cloud API test number; blocked by an account lock on 2026-10-31)",
-    "checkin.escalate_on_unclear": "only a clear okay is reassuring: unclear/incoherent replies escalate at once; no answer gets retries_no_answer more prompts first"
+    "monitor": "still_down_s: seconds down after a confirmed drop before the event upgrades; floor_still_s: seconds on floor/rug barely moving (no drop needed); still_move_max_bl: centroid movement over 2 s in body lengths that still counts as 'barely moving'; zones_file: zones.json at the project root, written by `remy setup-zones`",
+    "alerts.family": "placeholder; real numbers live in family.json at the project root (gitignored) with the same shape. With a WhatsApp test number each recipient must be on the app's allow-list and must message the number first (24 h window).",
+    "alerts.channel": "whatsapp (Meta Cloud API; .env WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID) or twilio (WhatsApp sandbox; .env TWILIO_*)",
+    "checkin.escalate_on_unclear": "only a clear okay is reassuring: unclear/incoherent replies escalate at once; no answer gets retries_no_answer more prompts first",
+    "triage": "which language-model backend judges the fall and classifies the reply: spark (remy/triage/spark.py). Add a backend as described in remy/triage/base.py.",
+    "yolo.model": "weights file at the project root (ultralytics downloads it on first use)"
   },
   "tracking": {
     "max_gap_s": 1.0,

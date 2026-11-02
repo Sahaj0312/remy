@@ -1,13 +1,10 @@
-"""Running API cost ledger: fall_test/costs.jsonl (one line per billed call)."""
+"""Running API cost ledger: <root>/costs.jsonl, one line per billed call."""
 from __future__ import annotations
 
 import json
-import sys
 import time
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT  # noqa: E402
+from remy.common import ROOT
 
 LEDGER = ROOT / "costs.jsonl"
 
@@ -33,5 +30,10 @@ def summary() -> dict:
     return {k: round(v, 4) for k, v in out.items()}
 
 
-if __name__ == "__main__":
+def main(argv: list[str] | None = None) -> int:
     print(json.dumps(summary(), indent=1))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

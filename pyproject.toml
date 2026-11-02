@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "remy"
+version = "0.1.0"
+description = "Camera-based fall detection for an elderly relative: YOLO trigger, SAM 3.1 confirmation, Muse Spark triage, spoken check-in, WhatsApp alerts"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Sahaj" }]
+keywords = ["fall-detection", "elderly-care", "computer-vision", "sam", "muse-spark", "whatsapp"]
+dependencies = [
+  "numpy>=1.26",
+  "opencv-python>=4.10",
+  "ultralytics>=8.3",
+  "openai>=1.60",
+  "meta-sam-parser>=0.1",
+  "requests>=2.31",
+  "kokoro-onnx>=0.4",
+  "soundfile>=0.12",
+]
+
+[project.optional-dependencies]
+eval = ["imageio>=2.34"]
+
+[project.scripts]
+remy = "remy.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Sahaj0312/remy"
+
+[tool.setuptools.packages.find]
+include = ["remy*"]

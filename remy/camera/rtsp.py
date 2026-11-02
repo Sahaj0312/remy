@@ -5,6 +5,8 @@ privacy setting (EHOSTUNREACH), while ffmpeg is allowed. Piping raw BGR frames f
 gives a predictable low-latency decode path for the live pipeline.
 
     for t_wall, frame in FFmpegFrames(url, max_width=640):   # frame: HxWx3 uint8 BGR
+
+FFmpegAudio yields mono 16 kHz PCM chunks from the same stream (used by experiments/tapo_latency.py).
         ...
 """
 from __future__ import annotations

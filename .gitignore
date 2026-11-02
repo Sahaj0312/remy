@@ -1,38 +1,44 @@
-# secrets
-fall_test/.env
+# secrets and per-home files (copy the *.example files to create them)
 .env
+config.json
+family.json
+zones.json
+zones_*.json
+zones_overlay.jpg
 
 # python
-fall_test/.venv/
+.venv/
 __pycache__/
 *.pyc
+*.egg-info/
+build/
+dist/
 
-# test footage and derived video (not pushed)
-fall_test/raw/
-fall_test/clips/
-fall_test/out/gifs/
-fall_test/out/*.log
+# footage, recordings, live events, generated audio, served snapshots
+eval/raw/
+eval/clips/
+eval/clips_5fps/
+eval/out/gifs/
+eval/out/gifs_v1/
+eval/out/*.log
+events/
+tapo/
+audio/
+public/
 *.mp4
 *.gif
 *.zip
 *.png
-
-# model weights
-*.pt
-
-.DS_Store
-
-# camera footage, recordings, live events, binaries, generated go2rtc config
-fall_test/tapo/
-fall_test/events/
-fall_test/audio/
-fall_test/tools/go2rtc/
-fall_test/tools/piper/
 *.jpg
 *.wav
+!docs/demo.gif
 
-# real family numbers
-fall_test/family.json
+# model weights and third-party binaries (go2rtc, Kokoro, Piper)
+tools/
+*.pt
+*.onnx
 
-# served snapshots for Twilio media
-fall_test/public/
+# local API cost ledger
+costs.jsonl
+
+.DS_Store

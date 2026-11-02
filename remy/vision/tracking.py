@@ -1,102 +1,14 @@
-"""Shared helpers: paths, config, API key, track-file schema."""
+"""Track-file schema and the greedy box linker shared by the YOLO and SAM paths.
+
+A track is a list of per-frame dicts {i, t, present, box, cx, cy, ar, mask_area, conf} (cx, cy normalised
+to the frame). ByteTrack was tried and rejected: its Kalman-smoothed boxes lag the fall and the ID breaks
+mid-fall, so detections are linked frame to frame by IoU / overlap instead.
+"""
 from __future__ import annotations
 
-import csv
-import json
-import os
-from pathlib import Path
+from collections import deque
 
-ROOT = Path(__file__).resolve().parents[1]
-CLIPS = ROOT / "clips"
-OUT = ROOT / "out"
-CONFIG_PATH = ROOT / "config.json"
-LABELS_PATH = ROOT / "labels.csv"
-
-META_BASE_URL = "https://api.meta.ai/v1"
-SAM_MODEL = "sam-3.1"
-SPARK_MODEL = "muse-spark-1.3"
-
-# Pricing from https://dev.meta.ai/docs/pricing-rate-limits (checked 2026-10-29)
-SAM_USD_PER_VIDEO_FRAME = 0.20 / 1000
-SAM_MIN_BILLED_FRAMES = 50
-SPARK_USD_PER_INPUT_TOKEN = 1.25 / 1_000_000
-SPARK_USD_PER_OUTPUT_TOKEN = 4.25 / 1_000_000
-
-
-def load_config() -> dict:
-    with open(CONFIG_PATH) as f:
-        return json.load(f)
-
-
-def load_labels() -> list[dict]:
-    with open(LABELS_PATH, newline="") as f:
-        return list(csv.DictReader(f))
-
-
-def env_get(*names: str, required: bool = True) -> str | None:
-    """First of `names` found in the environment, else in fall_test/.env."""
-    for name in names:
-        if os.environ.get(name):
-            return os.environ[name]
-    env_file = ROOT / ".env"
-    if env_file.exists():
-        vals = {}
-        for line in env_file.read_text().splitlines():
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            k, v = line.split("=", 1)
-            vals[k.strip()] = v.strip().strip('"').strip("'")
-        for name in names:
-            if vals.get(name):
-                return vals[name]
-    if required:
-        raise SystemExit(f"{names[0]} is not set. Export it or put {names[0]}=... in fall_test/.env")
-    return None
-
-
-def api_key() -> str:
-    """META_API_KEY (or MODEL_API_KEY) from env, else from fall_test/.env."""
-    return env_get("META_API_KEY", "MODEL_API_KEY")
-
-
-def tapo_rtsp(stream: int = 2) -> str:
-    """rtsp://user:pass@ip:554/stream<N> from TAPO_IP / TAPO_USER / TAPO_PASS."""
-    from urllib.parse import quote
-    ip, user, pw = env_get("TAPO_IP"), env_get("TAPO_USER"), env_get("TAPO_PASS")
-    return f"rtsp://{quote(user, safe='')}:{quote(pw, safe='')}@{ip}:554/stream{stream}"
-
-
-def redact(url: str) -> str:
-    import re
-    return re.sub(r"//[^@/]+@", "//<user>:<pass>@", url)
-
-
-def video_info(path: Path) -> dict:
-    """width, height, fps, n_frames via ffprobe."""
-    import subprocess
-
-    out = subprocess.run(
-        [
-            "ffprobe", "-v", "error", "-select_streams", "v:0",
-            "-count_frames",
-            "-show_entries", "stream=width,height,r_frame_rate,nb_read_frames",
-            "-of", "json", str(path),
-        ],
-        capture_output=True, text=True, check=True,
-    ).stdout
-    s = json.loads(out)["streams"][0]
-    num, den = s["r_frame_rate"].split("/")
-    return {
-        "width": int(s["width"]),
-        "height": int(s["height"]),
-        "fps": float(num) / float(den),
-        "n_frames": int(s["nb_read_frames"]),
-    }
-
-
-def sam_cost_usd(n_frames: int) -> float:
-    return max(n_frames, SAM_MIN_BILLED_FRAMES) * SAM_USD_PER_VIDEO_FRAME
+import numpy as np
 
 
 def empty_frame(i: int, fps: float) -> dict:
@@ -192,8 +104,6 @@ def finalize_objects(by_obj: dict, n_frames: int, fps: float, W: int, H: int) ->
     -> ({object_id: [frame dicts for every i]}, primary object id).
     Primary = the object whose normalized centroid moves the most (std cx + std cy),
     which prefers the subject over a seated bystander."""
-    import numpy as np
-
     objects: dict[str, list[dict]] = {}
     motion: dict[str, float] = {}
     for oid, per in by_obj.items():
@@ -222,12 +132,49 @@ def finalize_objects(by_obj: dict, n_frames: int, fps: float, W: int, H: int) ->
     return objects, primary
 
 
-def write_json(path: Path, obj) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(obj, f, indent=1)
+class OnlineTracks:
+    """Live version of the linker: feeds detections tick by tick and keeps the last keep_s seconds per track."""
 
+    def __init__(self, fps, H, W, max_gap_s, min_score, keep_s):
+        self.fps, self.H, self.W = fps, H, W
+        self.max_gap = int(round(max_gap_s * fps)); self.min_score = min_score; self.keep = int(round(keep_s * fps))
+        self.tracks: dict[str, dict] = {}; self.next_id = 1; self.tick = 0
 
-def read_json(path: Path):
-    with open(path) as f:
-        return json.load(f)
+    def update(self, dets):
+        i = self.tick
+        cands = sorted([(link_score(tr["last_box"], d["box"]), tid, j) for tid, tr in self.tracks.items()
+                        if i - tr["last_i"] <= self.max_gap for j, d in enumerate(dets)], reverse=True)
+        used_t, used_d = set(), set()
+        for sc, tid, j in cands:
+            if sc < self.min_score or tid in used_t or j in used_d:
+                continue
+            used_t.add(tid); used_d.add(j); self._push(tid, i, dets[j])
+        for j, d in enumerate(dets):
+            if j not in used_d:
+                tid = str(self.next_id); self.next_id += 1
+                self.tracks[tid] = {"frames": deque(maxlen=self.keep), "last_i": i, "last_box": d["box"]}
+                self._push(tid, i, d)
+        for tid in list(self.tracks):
+            tr = self.tracks[tid]
+            if tr["last_i"] != i:
+                tr["frames"].append(empty_frame(i, self.fps))
+            if i - tr["last_i"] > self.max_gap:
+                del self.tracks[tid]
+        self.tick += 1
+
+    def _push(self, tid, i, d):
+        tr = self.tracks[tid]; x1, y1, x2, y2 = d["box"]
+        tr["frames"].append({"i": i, "t": round(i / self.fps, 3), "present": True, "box": d["box"], "cx": d["cx_px"] / self.W,
+                             "cy": d["cy_px"] / self.H, "ar": (y2 - y1) / max(x2 - x1, 1e-6), "mask_area": None, "conf": d["conf"]})
+        tr["last_i"] = i; tr["last_box"] = d["box"]
+
+    def as_track(self, name="live"):
+        objects = {}
+        for tid, tr in self.tracks.items():
+            fr = list(tr["frames"])
+            if fr:
+                base = fr[0]["i"]
+                objects[tid] = [{**f, "i": f["i"] - base, "t": round((f["i"] - base) / self.fps, 3)} for f in fr]
+        primary = max(objects, key=lambda k: sum(f["present"] for f in objects[k])) if objects else None
+        return {"clip": name, "fps": self.fps, "height": self.H, "width": self.W, "tracker": "live-yolo",
+                "frames": objects.get(primary, []), "objects": objects}

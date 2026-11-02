@@ -11,20 +11,13 @@ hold with a get-up check:
          ends first. A clip is flagged when DROP and SHAPE pass and HOLD is ok or unknown.
 v1 is the first-round score (absolute drop + tall->wide + fixed 3 s low hold), kept for before/after.
 trigger is v2's DROP check alone with looser thresholds: what the always-on YOLO stage uses to call SAM.
-Thresholds live in config.json under score_v1 / score_v2 / trigger.
+Thresholds live in config.json under score_v1 / score_v2 / trigger. The batch runner over the eval set is eval/score_tracks.py.
 """
 from __future__ import annotations
 
-import argparse
-import json
 import math
-import sys
-from pathlib import Path
 
 import numpy as np
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import OUT, load_config, load_labels, read_json, write_json  # noqa: E402
 
 
 # ----------------------------------------------------------------------------- shared helpers
@@ -218,47 +211,3 @@ def score_track(track: dict, cfg: dict, scorer: str) -> dict:
     res["objects_scored"] = {oid: {"flag": r["flag"], "coverage": r["coverage"],
                                    "soft_score": (r.get("best") or {}).get("soft_score")} for oid, r in per_obj.items()}
     return res
-
-
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--tracker", default="sam", help="track dir under out/, e.g. sam, yolo, sam_5fps")
-    p.add_argument("--scorer", default="v2", choices=["v1", "v2", "trigger"])
-    p.add_argument("--quiet", action="store_true")
-    args = p.parse_args()
-    full = load_config()
-    cfg = {"v1": full["score_v1"], "v2": full["score_v2"], "trigger": {**full["score_v2"], **full["trigger"]}}[args.scorer]
-    out_dir = OUT / "scores" / f"{args.tracker}_{args.scorer}"
-    rows = []
-    for lab in load_labels():
-        tp = OUT / args.tracker / f"{lab['clip']}.json"
-        if not tp.exists():
-            continue
-        res = score_track(read_json(tp), cfg, args.scorer)
-        res.update(label=lab["label"], source=lab["source"], type=lab.get("type"))
-        write_json(out_dir / f"{lab['clip']}.json", res)
-        rows.append(res)
-    falls = [r for r in rows if r["label"] == "fall"]; adls = [r for r in rows if r["label"] == "adl"]
-    summary = {"tracker": args.tracker, "scorer": args.scorer, "n_scored": len(rows),
-               "falls_total": len(falls), "falls_caught": sum(r["flag"] for r in falls),
-               "adl_total": len(adls), "adl_false_alarms": sum(r["flag"] for r in adls),
-               "hold_unknown_flagged": sum(1 for r in rows if r["flag"] and r.get("hold") == "unknown"),
-               "config": cfg}
-    write_json(out_dir / "_summary.json", summary)
-    if not args.quiet:
-        for r in rows:
-            b = r.get("best") or {}
-            if args.scorer == "v1":
-                detail = (f"v={b.get('drop_speed_max','-')} drop={b.get('total_drop','-')} arpre={b.get('ar_pre','-')} "
-                          f"arpost={b.get('ar_post','-')} low={b.get('low_frac','-')} [{'D' if b.get('drop_ok') else '.'}"
-                          f"{'S' if b.get('shape_ok') else '.'}{'H' if b.get('hold_ok') else '.'}]")
-            else:
-                detail = (f"vrel={b.get('drop_speed_rel_max','-')} droprel={b.get('drop_rel','-')} body={b.get('body_len','-')} "
-                          f"arpost={b.get('ar_post','-')} hold={b.get('hold','-')}({b.get('no_getup_observed_s','-')}s) "
-                          f"[{'D' if b.get('drop_ok') else '.'}{'S' if b.get('shape_ok') else '.'}]")
-            print(f"{r['clip']:22s} {r['label']:4s} {str(r.get('type','')):20s} flag={str(r['flag']):5s} cov={r['coverage']:.2f} {detail}")
-    print(json.dumps({k: v for k, v in summary.items() if k != "config"}))
-
-
-if __name__ == "__main__":
-    main()

@@ -6,8 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, load_config  # noqa: E402
+from remy.common import AUDIO_DIR, load_config
 
 
 def speak(wav: Path, device: str | None = None, wait: bool = True) -> dict:
@@ -16,7 +15,7 @@ def speak(wav: Path, device: str | None = None, wait: bool = True) -> dict:
     wav = Path(wav).resolve()
     t0 = time.time()
     if device == "camera":
-        from tapo_speak import ensure_go2rtc, play
+        from remy.camera.go2rtc import ensure_go2rtc, play
         ensure_go2rtc("plain", False)
         ok, msg = play(wav, cfg.get("camera_codec", "pcma"), cfg.get("camera_stream", "tapo"))
         if wait:
@@ -32,5 +31,5 @@ def speak(wav: Path, device: str | None = None, wait: bool = True) -> dict:
 
 
 if __name__ == "__main__":
-    print(speak(sys.argv[1] if len(sys.argv) > 1 else ROOT / "audio" / "are_you_okay.wav",
+    print(speak(sys.argv[1] if len(sys.argv) > 1 else AUDIO_DIR / "are_you_okay.wav",
                 sys.argv[2] if len(sys.argv) > 2 else None))

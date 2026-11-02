@@ -1,4 +1,4 @@
-"""Live fall pipeline v2.
+"""The live monitor: watch a camera (or a clip) and handle a fall end to end.
 
 capture (webcam / RTSP / file) -> YOLO pose 5 fps + greedy tracks -> rolling 10 fps buffer
   -> candidate drop: clip cut at once, SAM 3.1 runs while YOLO watches for a get-up (no fixed wait)
@@ -10,8 +10,9 @@ EVENT -> Spark triage (inline base64 burst, async) + still-down watcher (YOLO + 
       -> still down 60 s after an okay: check in again.
 Every step is timestamped in events/<id>/log.txt and event.json.
 
-  python scripts/live.py --source tapo
-  python scripts/live.py --source clips/gmdcsa_S1_Fall_12.mp4 --realtime --audio-out laptop --alerts-dry-run
+  remy run --source tapo
+  remy run --source eval/clips/gmdcsa_S1_Fall_12.mp4 --realtime --no-zones --audio-out laptop --alerts-dry-run
+  remy run --source 0 --no-api                       # laptop webcam, YOLO trigger only, no API calls
 """
 from __future__ import annotations
 
@@ -19,7 +20,6 @@ import argparse
 import asyncio
 import json
 import subprocess
-import sys
 import threading
 import time
 from collections import deque
@@ -29,85 +29,19 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import costs  # noqa: E402
-from common import (  # noqa: E402
-    META_BASE_URL, ROOT, api_key, empty_frame, link_score, load_config, redact, sam_cost_usd, suppress_duplicates,
-    video_info, write_json,
-)
-from fall_score import score_track  # noqa: E402
-from zones import Zones  # noqa: E402
-
-EVENTS = ROOT / "events"
+from remy import costs
+from remy.common import EVENTS, ROOT, load_config, redact, sam_cost_usd, video_info, write_json
+from remy.vision.score import score_track
+from remy.vision.tracking import OnlineTracks
+from remy.vision.yolo import detect as yolo_detect, load_model
+from remy.vision.zones import Zones
 
 
 def now_str() -> str:
     return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
 
-# ----------------------------------------------------------------------------- tracking (from v1)
-class OnlineTracks:
-    def __init__(self, fps, H, W, max_gap_s, min_score, keep_s):
-        self.fps, self.H, self.W = fps, H, W
-        self.max_gap = int(round(max_gap_s * fps)); self.min_score = min_score; self.keep = int(round(keep_s * fps))
-        self.tracks: dict[str, dict] = {}; self.next_id = 1; self.tick = 0
-
-    def update(self, dets):
-        i = self.tick
-        cands = sorted([(link_score(tr["last_box"], d["box"]), tid, j) for tid, tr in self.tracks.items()
-                        if i - tr["last_i"] <= self.max_gap for j, d in enumerate(dets)], reverse=True)
-        used_t, used_d = set(), set()
-        for sc, tid, j in cands:
-            if sc < self.min_score or tid in used_t or j in used_d:
-                continue
-            used_t.add(tid); used_d.add(j); self._push(tid, i, dets[j])
-        for j, d in enumerate(dets):
-            if j not in used_d:
-                tid = str(self.next_id); self.next_id += 1
-                self.tracks[tid] = {"frames": deque(maxlen=self.keep), "last_i": i, "last_box": d["box"]}
-                self._push(tid, i, d)
-        for tid in list(self.tracks):
-            tr = self.tracks[tid]
-            if tr["last_i"] != i:
-                tr["frames"].append(empty_frame(i, self.fps))
-            if i - tr["last_i"] > self.max_gap:
-                del self.tracks[tid]
-        self.tick += 1
-
-    def _push(self, tid, i, d):
-        tr = self.tracks[tid]; x1, y1, x2, y2 = d["box"]
-        tr["frames"].append({"i": i, "t": round(i / self.fps, 3), "present": True, "box": d["box"], "cx": d["cx_px"] / self.W,
-                             "cy": d["cy_px"] / self.H, "ar": (y2 - y1) / max(x2 - x1, 1e-6), "mask_area": None, "conf": d["conf"]})
-        tr["last_i"] = i; tr["last_box"] = d["box"]
-
-    def as_track(self, name="live"):
-        objects = {}
-        for tid, tr in self.tracks.items():
-            fr = list(tr["frames"])
-            if fr:
-                base = fr[0]["i"]
-                objects[tid] = [{**f, "i": f["i"] - base, "t": round((f["i"] - base) / self.fps, 3)} for f in fr]
-        primary = max(objects, key=lambda k: sum(f["present"] for f in objects[k])) if objects else None
-        return {"clip": name, "fps": self.fps, "height": self.H, "width": self.W, "tracker": "live-yolo",
-                "frames": objects.get(primary, []), "objects": objects}
-
-
-def yolo_detect(model, img, ycfg, tcfg):
-    res = model.predict(img, verbose=False, conf=ycfg["conf"], imgsz=ycfg["imgsz"], classes=[0])[0]
-    dets = []
-    if res.boxes is not None and len(res.boxes):
-        boxes = res.boxes.xyxy.cpu().numpy(); confs = res.boxes.conf.cpu().numpy()
-        for j in range(len(boxes)):
-            x1, y1, x2, y2 = boxes[j]; cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
-            if res.keypoints is not None and len(res.keypoints) > j and res.keypoints.conf is not None:
-                kxy = res.keypoints.xy[j].cpu().numpy(); kc = res.keypoints.conf[j].cpu().numpy(); good = kc >= ycfg["kp_conf"]
-                if good.sum() >= 3:
-                    cx, cy = kxy[good, 0].mean(), kxy[good, 1].mean()
-            dets.append({"box": [float(v) for v in (x1, y1, x2, y2)], "cx_px": float(cx), "cy_px": float(cy), "mask_area_px": None,
-                         "conf": round(float(confs[j]), 3)})
-    return suppress_duplicates(dets, tcfg["dup_max_overlap"])
-
-
+# ----------------------------------------------------------------------------- clip buffer
 def resample(frames, fps):
     if len(frames) < 2:
         return frames
@@ -242,16 +176,16 @@ class Flow(threading.Thread):
         self.log(f"clip {info['n_frames']} frames ({info['n_frames']/info['fps']:.1f}s) written, SAM upload starting while YOLO watches for a get-up")
         if self.args.no_api:
             self.log("[dry run] SAM skipped"); self.result.update(dry_run=True); return False
-        import sam_track
+        from remy.vision import sam
 
         async def run_sam():
-            async with sam_track.AsyncOpenAI(base_url=META_BASE_URL, api_key=api_key(), timeout=600) as api:
-                return await sam_track.segment_video(api, clip, "one_bit", False)
+            async with sam.make_client(timeout=600) as api:
+                return await sam.segment_video(api, clip, "one_bit", False)
         self.mark("sam_call_start")
         result, st = asyncio.run(run_sam())
         self.timings["sam_upload_s"] = round(st["upload_s"], 2); self.timings["sam_total_s"] = round(st["total_s"], 2); self.mark("sam_done")
         self.cost += sam_cost_usd(info["n_frames"]); costs.add("sam-live", sam_cost_usd(info["n_frames"]), self.dir.name)
-        frames_t, meta, objects = sam_track.result_to_frames(result, info["n_frames"], info["fps"], info["width"], info["height"], use_masks=False)
+        frames_t, meta, objects = sam.result_to_frames(result, info["n_frames"], info["fps"], info["width"], info["height"], use_masks=False)
         self.mark("sam_parsed")
         track = {"clip": self.dir.name, "fps": info["fps"], "height": info["height"], "width": info["width"], "n_frames": info["n_frames"],
                  "tracker": "sam-3.1", "frames": frames_t, "objects": objects, "meta": meta}
@@ -291,8 +225,7 @@ class Flow(threading.Thread):
         try:
             if self.args.no_api:
                 return
-            from spark_verify import run_triage
-            from openai import OpenAI
+            from remy.triage import get_backend
             clip = self.dir / "clip.mp4"
             if not clip.exists():        # floor-still: cut the last 6 s from the buffer
                 write_clip(self.clip_from_buffer(self.state.t - 6.0), self.args.buffer_fps, clip)
@@ -301,15 +234,15 @@ class Flow(threading.Thread):
                                                 "drop_rel": 0.0, "drop_speed_rel_max": 0.0, "time_to_floor_s": 0.0, "shape_ok": True,
                                                 "ar_post": 0.0, "hold": "unknown", "no_getup_observed_s": float(self.drop.get("for_s", 0))}
             spark_cfg = dict(self.cfg["spark"]); spark_cfg["burst_after_s"] = spark_cfg.get("live_burst_after_s", 1.0)
-            client = OpenAI(base_url=META_BASE_URL, api_key=api_key(), timeout=120)
+            backend = get_backend({**self.cfg, "spark": spark_cfg}, timeout=120)
             t0 = time.time()
-            doc = run_triage(client, spark_cfg, best, info["fps"], info["n_frames"], clip, self.when, "inline")
+            doc = backend.triage_fall(best, info["fps"], info["n_frames"], clip, self.when, "inline")
             self.triage = doc["verdict"]; self.timings["spark_total_s"] = round(time.time() - t0, 2); self.mark("triage_done")
             self.cost += doc["cost_usd"]; costs.add("spark-triage", doc["cost_usd"], self.dir.name)
-            self.log(f"Spark triage ({self.timings['spark_total_s']}s incl. burst cut, inline base64): urgency={self.triage['urgency']} "
+            self.log(f"{backend.name} triage ({self.timings['spark_total_s']}s incl. burst cut, inline base64): urgency={self.triage['urgency']} "
                      f"lying_still={self.triage['is_lying_still']} :: {self.triage['summary_for_family']}")
         except Exception as e:
-            self.log(f"Spark triage failed: {type(e).__name__}: {e}")
+            self.log(f"triage failed: {type(e).__name__}: {e}")
             self.triage = {"urgency": "unknown", "summary_for_family": "", "what_happened": "", "is_lying_still": None}
 
     def summary_text(self, wait_s=12.0) -> str:
@@ -336,8 +269,8 @@ class Flow(threading.Thread):
 
     # ---- check-in + alerts
     def run_checkin_and_alert(self):
-        from alerts import WhatsApp
-        from checkin import ask_once
+        from remy.alerts import WhatsApp
+        from remy.checkin import ask_once
         ck = self.cfg["checkin"]; wa = WhatsApp(dry_run=self.args.alerts_dry_run)
         said, outcome, rounds = None, None, []
         if self.args.no_checkin:
@@ -393,7 +326,7 @@ class Flow(threading.Thread):
             time.sleep(0.5)
 
     def recheck_after_okay(self, wa, snap):
-        from checkin import ask_once
+        from remy.checkin import ask_once
         ck = self.cfg["checkin"]; limit = ck["recheck_after_s"]
         while self.got_up_at is None:
             if self.state.t - self.event_t >= limit:
@@ -416,9 +349,9 @@ class Flow(threading.Thread):
 
 
 # ----------------------------------------------------------------------------- main loop
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--source", required=True)
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="remy run", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--source", required=True, help="tapo | <rtsp url> | <webcam index> | <video file>")
     p.add_argument("--realtime", action="store_true")
     p.add_argument("--yolo-fps", type=float, default=5.0)
     p.add_argument("--buffer-fps", type=float, default=10.0)
@@ -436,16 +369,16 @@ def main():
     p.add_argument("--label", default="live")
     p.add_argument("--save-candidates", action="store_true")
     p.add_argument("--no-zones", action="store_true", help="ignore zones.json (e.g. when simulating with a clip from another room)")
-    args = p.parse_args()
+    args = p.parse_args(argv)
     cfg = load_config(); trig_cfg = {**cfg["score_v2"], **cfg["trigger"]}; mon = cfg["monitor"]
 
     src = int(args.source) if args.source.isdigit() else args.source
     if src == "tapo":
-        from common import tapo_rtsp
+        from remy.common import tapo_rtsp
         src = tapo_rtsp(2)
     is_file = isinstance(src, str) and Path(src).exists()
     if isinstance(src, str) and src.startswith(("rtsp", "http")):
-        from rtsp_reader import FFmpegFrames
+        from remy.camera.rtsp import FFmpegFrames
         rd = FFmpegFrames(src, max_width=args.max_width); src_fps = rd.src_fps if 0 < rd.src_fps <= 60 else 15.0
         class _Cap:
             def read(self): return rd.read()
@@ -456,8 +389,7 @@ def main():
         if not cap.isOpened():
             raise SystemExit(f"cannot open source {args.source}")
         src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    from ultralytics import YOLO
-    model = YOLO(cfg["yolo"]["model"]); EVENTS.mkdir(exist_ok=True)
+    model = load_model(cfg["yolo"]); EVENTS.mkdir(exist_ok=True)
     print(f"[{now_str()}] source {redact(str(args.source))} ({src_fps:.1f} fps), yolo {args.yolo_fps:g} fps, buffer {args.buffer_s:g}s, "
           f"{'DRY RUN' if args.no_api else 'SAM+Spark live'}, audio out {args.audio_out or cfg['audio']['output']}, "
           f"alerts {'DRY' if args.alerts_dry_run else cfg['alerts']['channel']}, floor rule {mon['floor_still_s']}s, still-down {mon['still_down_s']}s", flush=True)
@@ -543,7 +475,8 @@ def main():
           f"session cost ${sum(f.cost for f in flows):.4f}, ledger total ${costs.total():.2f}", flush=True)
     for f in flows:
         print(json.dumps({k: f.result.get(k) for k in ("kind", "event", "time", "outcome", "said")}, ensure_ascii=False), "timings", f.timings)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
