@@ -53,7 +53,8 @@ flowchart LR
    otherwise. If she is still on the floor a minute after saying okay, it asks again.
 
 Every event writes a folder under `events/` with the clip, snapshot, SAM track, score, triage, transcripts and a
-timestamped log.
+timestamped log. A dropped camera stream is reopened with back-off instead of ending the run, and once a day the
+family gets a short "Remy is watching" message with uptime and the event count, so silence means nothing happened.
 
 ## Which Meta model does what
 
@@ -80,6 +81,11 @@ The eight misses are falls from sitting on the floor (3), onto a bed (2) and fro
 fall with a poor track. Their peak speed is the same as lying down on purpose. The one false alarm is push-ups.
 Spark rated the 33 flagged clips: 25 high, 8 medium, none low. Full tables per clip type are in
 [`eval/REPORT.md`](eval/REPORT.md).
+
+The thresholds were tuned on this same set, so these numbers are in-sample. [`eval/SENSITIVITY.md`](eval/SENSITIVITY.md)
+re-scores the committed tracks over a grid around the chosen point: the speed threshold is the knob that matters
+(0.40 gives 34/40 with 2 false alarms, 0.45 gives 32/40 with 1, 0.55 gives 26/40 with 1), while the drop-distance
+threshold barely moves anything between 0.10 and 0.20 body lengths. The neighbourhood is flat, not a knife edge.
 
 ### Live, on the camera (31 Oct 2026)
 
@@ -169,13 +175,14 @@ with a `_comment` block that explains each one.
 remy/            the package
   monitor.py     the live loop: capture, trigger, confirm, event flow (remy run)
   cli.py         remy setup-zones | run | test-checkin | test-alert | costs
-  camera/        rtsp.py (ffmpeg frames/audio), audio_in.py (mic), audio_out.py (speak), go2rtc.py (speaker)
+  camera/        capture.py (one source, reconnects), rtsp.py (ffmpeg frames/audio), audio_in.py (mic), audio_out.py (speak), go2rtc.py (speaker)
   vision/        yolo.py, tracking.py, sam.py, score.py (v1, v2, trigger), zones.py, zones_setup.py
   triage/        base.py (the interface), spark.py (Muse Spark backend)
   checkin/       tts.py (Kokoro), transcribe.py (Muse Voice Transcribe), classify + ask_once
-  alerts/        whatsapp.py (Meta Cloud API or Twilio sandbox), webhook.py, media_server.py
+  alerts/        whatsapp.py (Meta Cloud API or Twilio sandbox), heartbeat.py, webhook.py, media_server.py
   common.py, costs.py
-eval/            labels.csv, the batch scripts, committed tracks/scores/verdicts, REPORT.md
+tests/           pytest: scorer on synthetic falls, linker, zones, reply rules, reconnect, heartbeat (`pip install -e ".[dev]" && pytest`)
+eval/            labels.csv, the batch scripts, committed tracks/scores/verdicts, REPORT.md, SENSITIVITY.md
 docs/            hardware-setup.md
 infra/           go2rtc.template.yaml (filled from .env at run time)
 experiments/     probes and the v1 live loop, each with a one-line note
@@ -204,7 +211,7 @@ experiments/     probes and the v1 live loop, each with a one-line note
 3. Permanent WhatsApp token, a real sender number, an approved utility template.
 4. Try Glimmer as a triage backend through `remy/triage/base.py`.
 5. A sitting-fall rule and a second camera for the bedroom.
-6. Run as a service (launchd) with restart; a night-mode live test.
+6. Run as a service (launchd) that restarts the process when it exits after a long outage; a night-mode live test.
 
 ## Built during the Meta AI Hackathon (Oct 26 to Nov 4, 2026)
 
