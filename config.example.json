@@ -40,7 +40,9 @@
     "alerts.channel": "whatsapp (Meta Cloud API; .env WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID) or twilio (WhatsApp sandbox; .env TWILIO_*)",
     "checkin.escalate_on_unclear": "only a clear okay is reassuring: unclear/incoherent replies escalate at once; no answer gets retries_no_answer more prompts first",
     "triage": "which language-model backend judges the fall and classifies the reply: spark (remy/triage/spark.py). Add a backend as described in remy/triage/base.py.",
-    "yolo.model": "weights file at the project root (ultralytics downloads it on first use)"
+    "yolo.model": "weights file at the project root (ultralytics downloads it on first use)",
+    "alerts.heartbeat": "once a day at `hour` (local time) the family gets a short 'Remy is watching' message with uptime, events in the last 24 h and camera reconnects. A monitor started after that hour waits for the next day, so restarts never message anyone. Off for file sources.",
+    "monitor.reconnect": "a dropped camera stream is reopened with back-off (2, 4, 8 ... 60 s); `remy run --max-outage-s` sets when to give up and exit so a supervisor can restart"
   },
   "tracking": {
     "max_gap_s": 1.0,
@@ -133,6 +135,10 @@
       }
     ],
     "calm_prefix": "✅",
-    "urgent_prefix": "🚨 URGENT:"
+    "urgent_prefix": "🚨 URGENT:",
+    "heartbeat": {
+      "enabled": true,
+      "hour": 9
+    }
   }
 }

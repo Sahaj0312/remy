@@ -8,7 +8,8 @@ EVENT -> Spark triage (inline base64 burst, async) + still-down watcher (YOLO + 
       -> spoken check-in (Kokoro prompt on camera or laptop) -> 15 s mic -> transcribe -> Spark classify
       -> okay: calm WhatsApp; needs_help / twice unclear or no answer: urgent WhatsApp with snapshot
       -> still down 60 s after an okay: check in again.
-Every step is timestamped in events/<id>/log.txt and event.json.
+Every step is timestamped in events/<id>/log.txt and event.json. A dropped stream is reopened with back-off
+(remy.camera.capture) and a daily heartbeat tells the family the monitor is alive (config alerts.heartbeat).
 
   remy run --source tapo
   remy run --source eval/clips/gmdcsa_S1_Fall_12.mp4 --realtime --no-zones --audio-out laptop --alerts-dry-run
@@ -30,6 +31,8 @@ import cv2
 import numpy as np
 
 from remy import costs
+from remy.alerts.heartbeat import heartbeat_due, heartbeat_start_state, heartbeat_text
+from remy.camera.capture import Capture
 from remy.common import EVENTS, ROOT, load_config, redact, sam_cost_usd, video_info, write_json
 from remy.vision.score import score_track
 from remy.vision.tracking import OnlineTracks
@@ -69,6 +72,15 @@ class State:
         self.lock = threading.Lock(); self.zones = zones; self.fps = yolo_fps; self.H = H
         self.history: deque = deque(maxlen=int(60 * yolo_fps))     # per YOLO tick
         self.buffer: deque | None = None; self.t = 0.0; self.wall = time.time(); self.t0_wall = time.time()
+        self.cooldown_until_wall = 0.0      # set by a flow when it raises an event; the main loop holds the trigger until then
+        self.last_event_t = None            # stream time of the last raised event, for de-duplicating one fall
+
+    def reset(self):
+        """After a camera reconnect: forget the short-term history, the event bookkeeping stays."""
+        with self.lock:
+            self.history.clear()
+            if self.buffer is not None:
+                self.buffer.clear()
 
     def push(self, t, wall, det):
         rec = {"t": t, "wall": wall, "present": det is not None}
@@ -109,6 +121,7 @@ class Flow(threading.Thread):
         self.dir = EVENTS / f"{stamp}_{args.label}_{kind}"; self.dir.mkdir(parents=True, exist_ok=True)
         self.t_start = time.time(); self.lines = []; self.timings = {}; self.cost = 0.0
         self.triage = None; self.got_up_at = None; self.still_down_at = None; self.done = False
+        self.released = False               # the main loop lifts the trigger cooldown once, when a flow ends without an event
         self.result = {"kind": kind, "event": False}
 
     # ---- logging
@@ -192,7 +205,7 @@ class Flow(threading.Thread):
         score = score_track(track, self.cfg["score_v2"], "v2"); self.mark("scored")
         threading.Thread(target=lambda: (write_json(self.dir / "sam_track.json", track), write_json(self.dir / "score.json", score)), daemon=True).start()
         self.result["score"] = score.get("best"); self.result["sam_flag"] = score["flag"]
-        last_ev = getattr(self.state, "last_event_t", None)
+        last_ev = self.state.last_event_t
         if last_ev is not None and abs(d["drop_v"] - last_ev) < 20.0:
             self.log(f"SAM {'confirms' if score['flag'] else 'rejects'} the drop, but an event was already raised for this fall -> duplicate, no event")
             return False
@@ -336,8 +349,7 @@ class Flow(threading.Thread):
                 r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log)
                 self.result.setdefault("checkin_rounds", []).append(r)
                 if r["status"] == "okay":
-                    self.log("re-check: okay")
-                    wa.send_text  # no new alert on a second okay
+                    self.log("re-check: okay (no new alert)")
                 else:
                     reason = "Still on the floor a minute after saying she was okay; " + (
                         "asked for help." if r["status"] == "needs_help" else "no clear answer this time.")
@@ -369,38 +381,38 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--label", default="live")
     p.add_argument("--save-candidates", action="store_true")
     p.add_argument("--no-zones", action="store_true", help="ignore zones.json (e.g. when simulating with a clip from another room)")
+    p.add_argument("--no-reconnect", action="store_true", help="exit when the stream drops instead of reconnecting")
+    p.add_argument("--max-outage-s", type=float, default=600.0, help="give up reconnecting after this long without a frame")
     args = p.parse_args(argv)
     cfg = load_config(); trig_cfg = {**cfg["score_v2"], **cfg["trigger"]}; mon = cfg["monitor"]
 
-    src = int(args.source) if args.source.isdigit() else args.source
-    if src == "tapo":
-        from remy.common import tapo_rtsp
-        src = tapo_rtsp(2)
-    is_file = isinstance(src, str) and Path(src).exists()
-    if isinstance(src, str) and src.startswith(("rtsp", "http")):
-        from remy.camera.rtsp import FFmpegFrames
-        rd = FFmpegFrames(src, max_width=args.max_width); src_fps = rd.src_fps if 0 < rd.src_fps <= 60 else 15.0
-        class _Cap:
-            def read(self): return rd.read()
-            def release(self): rd.close()
-        cap = _Cap()
-    else:
-        cap = cv2.VideoCapture(src)
-        if not cap.isOpened():
-            raise SystemExit(f"cannot open source {args.source}")
-        src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    def log(msg):
+        print(f"[{now_str()}] {msg}", flush=True)
+
+    cap = Capture(args.source, max_width=args.max_width, reconnect=not args.no_reconnect, max_outage_s=args.max_outage_s, log=log)
+    is_file, src_fps = cap.is_file, cap.src_fps
     model = load_model(cfg["yolo"]); EVENTS.mkdir(exist_ok=True)
-    print(f"[{now_str()}] source {redact(str(args.source))} ({src_fps:.1f} fps), yolo {args.yolo_fps:g} fps, buffer {args.buffer_s:g}s, "
-          f"{'DRY RUN' if args.no_api else 'SAM+Spark live'}, audio out {args.audio_out or cfg['audio']['output']}, "
-          f"alerts {'DRY' if args.alerts_dry_run else cfg['alerts']['channel']}, floor rule {mon['floor_still_s']}s, still-down {mon['still_down_s']}s", flush=True)
+    hb_cfg = cfg["alerts"].get("heartbeat") or {}
+    hb_on = bool(hb_cfg.get("enabled")) and not is_file
+    log(f"source {redact(str(args.source))} ({src_fps:.1f} fps), yolo {args.yolo_fps:g} fps, buffer {args.buffer_s:g}s, "
+        f"{'DRY RUN' if args.no_api else 'SAM+Spark live'}, audio out {args.audio_out or cfg['audio']['output']}, "
+        f"alerts {'DRY' if args.alerts_dry_run else cfg['alerts']['channel']}, floor rule {mon['floor_still_s']}s, still-down {mon['still_down_s']}s, "
+        f"heartbeat {'at %02d:00' % hb_cfg.get('hour', 9) if hb_on else 'off'}")
 
     state = None; tracks = None; buffer = deque(maxlen=int(args.buffer_s * args.buffer_fps) + 5)
     last_buf = last_yolo = -1e9; last_drop_v = -1e9; last_cancelled_v = None; cooldown_until = -1e9
-    pending = None; flows: list[Flow] = []; floor_since = None; t0_wall = time.time(); i = 0; yolo_ms = []
+    flows: list[Flow] = []; floor_since = None; t0_wall = time.time(); i = 0; yolo_ms = []
+    started = datetime.now(); hb_last_date = heartbeat_start_state(started, int(hb_cfg.get('hour', 9))); hb_next_check = 0.0; wa_hb = None
     while True:
         ok, frame = cap.read()
         if not ok:
             break
+        if cap.take_reconnected():
+            # the stream was down: the buffer and tracks span the gap, so start them again
+            if state is not None:
+                state.reset(); tracks = OnlineTracks(args.yolo_fps, state.H, tracks.W, cfg["tracking"]["max_gap_s"], cfg["tracking"]["min_link_score"], keep_s=8.0)
+            floor_since = None; last_buf = last_yolo = -1e9
+            log("tracks and buffer reset after the reconnect")
         t_v = i / src_fps if is_file else time.time() - t0_wall
         if is_file and args.realtime:
             lag = t_v - (time.time() - t0_wall)
@@ -427,8 +439,8 @@ def main(argv: list[str] | None = None) -> int:
             active = [f for f in flows if not f.done]
             # a flow that finished without an event only blocks the trigger for a couple of seconds
             for f in flows:
-                if f.done and not f.result.get("event") and not getattr(f, "_released", False):
-                    f._released = True; cooldown_until = min(cooldown_until, t_v + args.reject_cooldown_s)
+                if f.done and not f.result.get("event") and not f.released:
+                    f.released = True; cooldown_until = min(cooldown_until, t_v + args.reject_cooldown_s)
             tr = tracks.as_track()
             # ---- drop trigger (allowed while another flow is still waiting on SAM, so a real fall right after
             #      a false candidate is not lost; never while an event is being handled)
@@ -448,7 +460,7 @@ def main(argv: list[str] | None = None) -> int:
                     snap = min(buffer, key=lambda tf: abs(tf[0] - drop_v))[1]
                     fl = Flow("drop", state, args, cfg, (W, H), drop={"drop_v": drop_v, "drop_wall": wall - (t_v - drop_v), "obj": res["object_id"], "best": b}, snapshot=snap)
                     flows.append(fl); fl.start(); cooldown_until = t_v + args.reject_cooldown_s
-            if getattr(state, "cooldown_until_wall", 0) > wall:          # an event was raised: hold the trigger
+            if state.cooldown_until_wall > wall:          # an event was raised: hold the trigger
                 cooldown_until = max(cooldown_until, t_v + (state.cooldown_until_wall - wall))
             # ---- floor-zone rule (no drop needed)
             if state.zones is not None and not active and t_v >= cooldown_until:
@@ -466,13 +478,29 @@ def main(argv: list[str] | None = None) -> int:
                 else:
                     floor_since = None
         i += 1
+        # ---- daily heartbeat (checked twice a minute, sent once a day)
+        if hb_on and wall >= hb_next_check:
+            hb_next_check = wall + 30
+            now = datetime.now()
+            if heartbeat_due(now, int(hb_cfg.get("hour", 9)), hb_last_date):
+                hb_last_date = now.date()
+                try:
+                    if wa_hb is None:
+                        from remy.alerts import WhatsApp
+                        wa_hb = WhatsApp(dry_run=args.alerts_dry_run)
+                    n_ev = sum(1 for f in flows if f.result.get("event") and wall - getattr(f, "event_wall", 0) < 86400)
+                    text = heartbeat_text(cfg["alerts"]["person_name"], started, now, n_ev, cap.reconnects)
+                    resp = [wa_hb.send_text(r["number"], text) for r in wa_hb.recipients()]
+                    log(f"heartbeat -> {len(resp)} recipient(s){' [dry run]' if wa_hb.dry else ''}: {text}")
+                except Exception as e:
+                    log(f"heartbeat failed: {type(e).__name__}: {e}")
         if args.duration and t_v >= args.duration:
             break
     cap.release()
     for f in flows:
         f.join(timeout=240)
-    print(f"[{now_str()}] done: {i} frames, YOLO {np.mean(yolo_ms):.0f} ms/frame, {sum(f.result.get('event', False) for f in flows)} event(s), "
-          f"session cost ${sum(f.cost for f in flows):.4f}, ledger total ${costs.total():.2f}", flush=True)
+    print(f"[{now_str()}] done: {i} frames, YOLO {np.mean(yolo_ms) if yolo_ms else 0:.0f} ms/frame, {sum(f.result.get('event', False) for f in flows)} event(s), "
+          f"{cap.reconnects} camera reconnect(s), session cost ${sum(f.cost for f in flows):.4f}, ledger total ${costs.total():.2f}", flush=True)
     for f in flows:
         print(json.dumps({k: f.result.get(k) for k in ("kind", "event", "time", "outcome", "said")}, ensure_ascii=False), "timings", f.timings)
     return 0
