@@ -22,19 +22,20 @@ Build for Your World
 ## 5. Use of Meta products
 
 > remy is a fall detector for my grandmother, built from scratch during the hackathon (first commit Oct 29). It runs
-> on a Tapo camera and a laptop and uses four Meta models at runtime, each load-bearing:
+> on a Tapo camera and a laptop and uses three Meta models at runtime, each load-bearing:
 >
 > 1. **SAM 3.1 (Meta Model API)**: video tracking of "person" in the 5-second clip around a candidate drop. The fall
 >    decision is made on the SAM track (drop in body lengths, ends horizontal, no get-up). SAM 3.1 image segmentation
 >    also builds the room zones (floor, rug, sofa, bed) from one frame at setup.
-> 2. **Muse Spark Open (open weights, served by Fireworks)**: the default triage backend. It sees the JPEG frames
->    around the drop plus the tracker numbers and returns urgency and the one-line note the family reads.
->    `config.json` → `triage.backend = "spark_open"`, code in `remy/triage/spark_open.py`.
-> 3. **Muse Spark 1.3 (Meta Model API)**: classifies the spoken reply to "Nani, are you okay?" as okay / needs help /
->    unclear / no answer, with the question as context, so any wording or language counts. It is also the alternative
->    triage backend (inline video burst). The two backends are compared clip for clip in `eval/TRIAGE_COMPARE.md`.
-> 4. **Muse Voice Transcribe (Meta Model API)**: speech to text of the 15 seconds after the prompt, from the camera
+> 2. **Muse Spark 1.3 (Meta Model API)**: sees an inline video burst around the drop plus the tracker numbers and
+>    returns urgency and the one-line note the family reads; and classifies the spoken reply to "Nani, are you okay?"
+>    as okay / needs help / unclear / no answer, with the question as context, so any wording or language counts.
+> 3. **Muse Voice Transcribe (Meta Model API)**: speech to text of the 15 seconds after the prompt, from the camera
 >    microphone.
+>
+> Muse Spark Open (open weights, via Fireworks) was evaluated as a drop-in alternative for the triage stage, clip for
+> clip against Spark 1.3 (`eval/TRIAGE_COMPARE.md`): within one step of urgency on 29 of 33 clips, 24 of 24 on reply
+> transcripts. It is kept as an optional backend, not the default.
 >
 > Deterministic stages sit between the models: a local YOLO pose trigger decides when to call SAM, a rule on the SAM
 > track decides whether it was a fall, help words short-circuit the classifier, and a floor-zone rule raises an event
@@ -42,9 +43,8 @@ Build for Your World
 > a threshold sensitivity sweep, a 41-test suite, and three staged falls on the real camera with the right WhatsApp
 > message each time.
 >
-> **Bonus categories:** Best Build on Meta Open Weight Models (Muse Spark Open is the triage stage); Best Agentic
-> Use-Case (the system detects, confirms, asks, listens, decides, escalates and re-checks on its own, end to end,
-> with no person in the loop); Most Viral Project on X; Community Vote.
+> **Bonus categories:** Best Agentic Use-Case (the system detects, confirms, asks, listens, decides, escalates and
+> re-checks on its own, end to end, with no person in the loop); Most Viral Project on X; Community Vote.
 >
 > **Keyless verification for judges:** `remy replay examples/event_gmdcsa_S1_Fall_12` replays a recorded event and
 > re-scores its stored SAM track; `python eval/score_tracks.py --tracker sam --scorer v2` reproduces the eval from
@@ -63,8 +63,8 @@ Post before the deadline, paste the URL. Draft:
 Second post in the thread, for the technical crowd:
 
 > Under the hood: YOLO pose at 5 fps on a laptop → fast drop cuts a 5 s clip → SAM 3.1 tracks the person → a rule
-> in body lengths confirms the fall → Muse Spark Open (open weights) writes the family note → Muse Voice Transcribe
-> hears the reply → Muse Spark judges it. 32/40 falls, 1/60 false alarms on 100 public clips, 80% out of sample,
+> in body lengths confirms the fall → Muse Spark writes the family note → Muse Voice Transcribe hears the reply →
+> Muse Spark judges it. 32/40 falls, 1/60 false alarms on 100 public clips, 80% out of sample,
 > ~$0.02 per event.
 
 ## Before the freeze

@@ -13,7 +13,7 @@
     "live_burst_after_s": 1.0
   },
   "triage": {
-    "backend": "spark_open",
+    "backend": "spark",
     "reply_backend": "spark"
   },
   "spark_open": {
@@ -51,11 +51,11 @@
     "alerts.family": "placeholder; real numbers live in family.json at the project root (gitignored) with the same shape. With a WhatsApp test number each recipient must be on the app's allow-list and must message the number first (24 h window).",
     "alerts.channel": "whatsapp (Meta Cloud API; .env WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID) or twilio (WhatsApp sandbox; .env TWILIO_*)",
     "checkin.escalate_on_unclear": "only a clear okay is reassuring: unclear/incoherent replies escalate at once; no answer gets retries_no_answer more prompts first",
-    "triage": "backend judges the fall and writes the family note; reply_backend classifies the spoken reply (default: the same). spark = Muse Spark 1.3 on the Meta Model API; spark_open = Muse Spark Open (open weights) on Fireworks. The note is off the critical path, so the open model takes it; the reply is on it, so the faster hosted model keeps that. spark_open falls back to spark with a warning when FIREWORKS_API_KEY is missing.",
+    "triage": "backend judges the fall and writes the family note; reply_backend classifies the spoken reply. spark = Muse Spark 1.3 on the Meta Model API (the default for both). spark_open = Muse Spark Open (open weights) on Fireworks, kept as an alternative that was compared clip for clip in eval/TRIAGE_COMPARE.md; it falls back to spark with a warning when FIREWORKS_API_KEY is missing.",
     "yolo.model": "weights file at the project root (ultralytics downloads it on first use)",
     "alerts.heartbeat": "once a day at `hour` (local time) the family gets a short 'Remy is watching' message with uptime, events in the last 24 h and camera reconnects. A monitor started after that hour waits for the next day, so restarts never message anyone. Off for file sources.",
     "monitor.reconnect": "a dropped camera stream is reopened with back-off (2, 4, 8 ... 60 s); `remy run --max-outage-s` sets when to give up and exit so a supervisor can restart",
-    "spark_open": "Muse Spark Open (Meta's open-weight reasoning model) on a partner endpoint, OpenAI-compatible; the burst goes as JPEG frames at frames_fps. Set triage.backend to spark_open to use it live. Any OpenAI-compatible host works: change base_url, model and api_key_env."
+    "spark_open": "Muse Spark Open on a partner endpoint, OpenAI-compatible; the burst goes as JPEG frames at frames_fps. Not used unless triage.backend or reply_backend says spark_open. Any OpenAI-compatible host works: change base_url, model and api_key_env."
   },
   "tracking": {
     "max_gap_s": 1.0,

@@ -13,12 +13,11 @@ Transcribe write the note, hear the reply and judge it. Evaluated on 100 public 
 - **Provenance:** built from scratch during the hackathon window. The first commit is Oct 29; every commit in
   this repository is hackathon work. The only thing that existed before was the camera on the shelf.
 - **Meta models at runtime:** SAM 3.1 (Meta Model API) tracks the person in the candidate clip and segments the
-  room zones · Muse Spark Open (open weights, Fireworks serverless) judges the fall and writes the family note ·
-  Muse Spark 1.3 (Meta Model API) classifies the spoken reply, and is the alternative triage backend · Muse Voice
-  Transcribe (Meta Model API) turns the reply into text. The two Spark backends are compared clip for clip in
-  [`eval/TRIAGE_COMPARE.md`](eval/TRIAGE_COMPARE.md).
-- **Bonus categories targeted:** Best Build on Meta Open Weight Models (Muse Spark Open is the triage stage,
-  `triage.backend = "spark_open"`) · Best Agentic Use-Case (it detects, confirms, asks, listens, decides, escalates
+  room zones · Muse Spark 1.3 (Meta Model API) judges the fall, writes the family note and classifies the spoken
+  reply · Muse Voice Transcribe (Meta Model API) turns the reply into text. Muse Spark Open (open weights, via
+  Fireworks) was evaluated as a drop-in alternative for the triage stage, clip for clip against Spark 1.3, in
+  [`eval/TRIAGE_COMPARE.md`](eval/TRIAGE_COMPARE.md); it is not in the default pipeline.
+- **Bonus categories targeted:** Best Agentic Use-Case (it detects, confirms, asks, listens, decides, escalates
   and re-checks without a person in the loop) · Most Viral Project on X · Community Vote.
 - **3-minute demo video:** link to come.
 - **Keyless verification:** `remy replay examples/event_gmdcsa_S1_Fall_12` replays a recorded live event and
@@ -82,13 +81,14 @@ family gets a short "Remy is watching" message with uptime and the event count, 
 | model | used for | where |
 |---|---|---|
 | SAM 3.1 | video tracking of "person" in the candidate clip (box per frame); image segmentation of floor / rug / sofa / bed for the zones | `remy/vision/sam.py`, `remy/vision/zones_setup.py` |
-| Muse Spark Open (open weights, via Fireworks) | urgency and the family note from JPEG frames around the drop + tracker numbers; the default triage backend | `remy/triage/spark_open.py` |
-| Muse Spark 1.3 (Meta Model API) | classifies the spoken reply (fast, on the critical path); the alternative triage backend, from an inline video burst | `remy/triage/spark.py` |
+| Muse Spark 1.3 (Meta Model API) | urgency and the family note from an inline video burst + tracker numbers; classifying the spoken reply | `remy/triage/spark.py` |
 | Muse Voice Transcribe 1.0 | speech to text of the 15 s after the prompt | `remy/checkin/transcribe.py` |
+| Muse Spark Open (open weights, via Fireworks) | evaluated as an alternative triage backend on the same clips; available with `triage.backend = "spark_open"`, off by default | `remy/triage/spark_open.py` |
 
 Both Spark backends implement the two-method interface in `remy/triage/base.py`; `triage.backend` and
-`triage.reply_backend` in config pick who does what, and Glimmer would be a third class behind the same interface.
-YOLO11n-pose (ultralytics) runs locally as the always-on first stage, and Kokoro (local ONNX TTS) speaks the prompt.
+`triage.reply_backend` in config pick who does what, and a self-hosted model would be a third class behind the same
+interface. YOLO11n-pose (ultralytics) runs locally as the always-on first stage, and Kokoro (local ONNX TTS) speaks
+the prompt.
 
 ## Results
 
@@ -131,7 +131,9 @@ Spark Open is the more conservative judge: it rates the slow falls onto mats low
 high. The two agree on urgency within one step on 29 of 33 clips, and on lying-still on 23 to 26, which is the
 same spread Spark 1.3 shows against itself between video and frames. The notes read alike. On 24 fixed reply
 transcripts both classify 24 of 24 as a careful listener would; Spark 1.3 does it in about 1.5 s, Spark Open in
-about 2.5 s, which is why the reply stays on Spark 1.3 and the note, off the critical path, goes to Spark Open.
+about 2.5 s. Spark 1.3 stays the live backend for both jobs: it is faster and it sees the video. The point of the
+comparison is that the open model could take the triage stage on hardware you run, with no loss a family would
+notice.
 
 ### Live, on the camera (31 Oct 2026)
 
@@ -155,7 +157,7 @@ Lying down on the sofa and walking around raised nothing. All alerts arrived on 
 | recording window | 15 s fixed |
 | transcription | 2 s |
 | reply classification | 2 s |
-| triage note (runs in parallel) | Spark Open 8 s median; Spark 1.3 5 to 7 s, one 54 s outlier seen |
+| Spark triage (runs in parallel) | 5 to 7 s, one 54 s outlier seen |
 
 So an "okay" message lands about 30 s after the fall and an urgent one after two silent rounds at about 50 s.
 SAM is the floor for confirmation; the fixed recording window is the next biggest piece.
@@ -187,8 +189,8 @@ brew install ffmpeg espeak-ng                         # ffmpeg for the camera, e
 cp .env.example .env && cp config.example.json config.json
 ```
 
-Then fill in `.env` (Meta API key, Fireworks key for Spark Open, camera account, WhatsApp token) and put the real
-numbers in `family.json`. Without a Fireworks key the triage falls back to Spark 1.3 with a one-line warning.
+Then fill in `.env` (Meta API key, camera account, WhatsApp token) and put the real numbers in `family.json`. A
+Fireworks key is only needed if you switch the triage backend to Spark Open.
 
 ```json
 {"family": [{"name": "Sahaj", "number": "+1XXXXXXXXXX"}]}
@@ -251,8 +253,8 @@ experiments/     probes and the v1 live loop, each with a one-line note
 - **Night.** The eval has 16 night clips; the full live flow has not run in infrared yet.
 - **WhatsApp test number.** Recipients must message the number first, the window is 24 h, and the temporary token
   expires daily. A real deployment needs a permanent token and an approved message template.
-- **Triage latency.** Spark Open takes about 8 s for the note, Spark 1.3 about 5, and one 54 s Spark 1.3 call was
-  seen. It runs in parallel, so the check-in is not delayed, but the note can arrive after the alert text is composed.
+- **Triage latency.** Spark takes about 5 s for the note and one 54 s call was seen. It runs in parallel, so the
+  check-in is not delayed, but the note can arrive after the alert text is composed.
 - **Urgency is a judgment call.** The two Spark backends disagree by one step on a third of the clips. The family
   message does not depend on it today; only the note's wording does.
 
@@ -261,7 +263,8 @@ experiments/     probes and the v1 live loop, each with a one-line note
 1. Stop recording on silence after speech instead of a fixed 15 s; the okay message would land near 20 s.
 2. Fuzzy help-word matching and a mic range test, so "help" is heard from the floor.
 3. Permanent WhatsApp token, a real sender number, an approved utility template.
-4. Glimmer on a GPU at home behind the same triage interface. It fits in 24 GB, so the note would never leave the house.
+4. The self-hosted version: SAM 3.1 and an open-weight judge (Glimmer or Spark Open) on one GPU you run, behind the
+   same interfaces, so no clip reaches a model vendor. The comparison above says the judge would hold up.
 5. A sitting-fall rule and a second camera for the bedroom.
 6. Run as a service (launchd) that restarts the process when it exits after a long outage; a night-mode live test.
 
@@ -282,8 +285,8 @@ From the commit history:
   three correct alerts.
 - **Nov 1.** The scripts folder became this package with a `remy` command, the evaluation moved to `eval/`, and
   this README. Then a test suite, stream reconnect, the daily heartbeat and the threshold sensitivity sweep.
-- **Nov 2.** The out-of-sample check, Muse Spark Open as a second triage backend with a clip-for-clip comparison
-  against Spark 1.3, `remy replay` with a shipped example event, and the submission header above.
+- **Nov 2.** The out-of-sample check, Muse Spark Open evaluated as an alternative triage backend with a clip-for-clip
+  comparison against Spark 1.3, `remy replay` with a shipped example event, and the submission header above.
 
 ## Data and licenses
 

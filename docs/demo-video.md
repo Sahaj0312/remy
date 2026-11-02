@@ -69,7 +69,7 @@ Trim the waits; keep the timestamps visible so nobody thinks it is faked.
 > It notices a fall, asks if she is okay, and tells the family what she said. Nani lives in a house where nobody is
 > in the room most of the day. Pendants get left on the table. The camera was already there.
 
-The terminal now names every model as it runs: `SAM 3.1 confirms`, `Muse Spark Open triage`, `check-in: Muse Voice
+The terminal now names every model as it runs: `SAM 3.1 confirms`, `Muse Spark 1.3 triage`, `check-in: Muse Voice
 Transcribe`, `classified okay (Muse Spark 1.3)`. Keep those lines readable; the rubric wants the live Meta calls
 visible on screen.
 
@@ -90,18 +90,18 @@ terminal and the phone side by side.
 > A small pose model watches the room on the laptop at five frames a second. When it sees a fast drop, it cuts
 > the five seconds around it and sends that clip to SAM 3.1, which tracks the person frame by frame. That takes
 > about nine seconds. A rule on the track checks that the drop was fast in body lengths, that she ended up
-> horizontal, and that she has not got up. Muse Spark Open, Meta's open-weight model, looks at the frames around
-> the drop and writes the one-line note for the family. The camera's own speaker asks the question. Muse Voice
-> Transcribe turns the answer into text, and Muse Spark decides whether that text is a clear "I'm okay". Only a
-> clear okay is reassuring. Anything else escalates.
+> horizontal, and that she has not got up. Muse Spark looks at a short burst and writes the one-line note for
+> the family. The camera's own speaker asks the question. Muse Voice Transcribe turns the answer into text, and
+> Spark decides whether that text is a clear "I'm okay". Only a clear okay is reassuring. Anything else escalates.
 
 **2:05 to 2:35, how well it works.** The eval table, the latency table, the `pytest` terminal, the reconnect
 lines, `SENSITIVITY.md`.
 
 > On a hundred public clips it catches thirty-two of forty falls with one false alarm, push-ups, and eighty
 > percent out of sample. The misses are slow falls from sitting or onto a bed; those look like lying down, and the
-> floor rule is the answer for now. I ran the open-weight Spark and the hosted Spark on the same thirty-three
-> clips: they agree within one step on twenty-nine. On the real camera, every staged fall got the right message. The camera microphone is the weak link: it
+> floor rule is the answer for now. I also ran Meta's open-weight Spark on the same thirty-three clips: it agrees
+> with the hosted one within a step on twenty-nine, so the judge could run on hardware I control later. On the
+> real camera, every staged fall got the right message. The camera microphone is the weak link: it
 > misheard "help" once, so the policy escalates on anything unclear. One event costs about two cents in API calls.
 > The whole project so far is under three dollars.
 
