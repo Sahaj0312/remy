@@ -55,20 +55,23 @@ After the session, each event is in `events/<time>_demo_*/` with `clip.mp4`, `sn
 
 Times are targets. Speak plainly; the footage carries it.
 
-**0:00 to 0:15, the hook.** Camera view: you walk in and fall onto the rug. Cut to the terminal: `candidate
-drop`, `SAM confirms`, `EVENT raised ... drop->event 9.3s`. The camera speaker says "Nani, are you okay?". You:
-"Yeah, I'm okay." The phone shows the calm message. Trim the waits; show the timestamps so nobody thinks it is
-faked.
+**0:00 to 0:10, hook and provenance.** The rules want one clear provenance sentence, spoken and on screen, inside
+the first ten seconds. Camera view: you walk in and fall onto the rug. Caption from the first frame:
+"remy · built from scratch Oct 29 to Nov 4, 2026 · github.com/Sahaj0312/remy".
 
-> This is remy. A camera in my grandmother's living room that notices a fall, asks if she is okay, and tells the
-> family what she said.
+> This is remy, a fall detector for my grandmother. I built all of it from scratch during this hackathon, starting
+> October 29.
 
-**0:15 to 0:30, why.** The camera on the shelf. The empty room.
+**0:10 to 0:30, the hook pays off.** Terminal: `candidate drop`, `SAM 3.1 confirms`, `EVENT raised ... drop->event
+9.3s`. The camera speaker says "Nani, are you okay?". You: "Yeah, I'm okay." The phone shows the calm message.
+Trim the waits; keep the timestamps visible so nobody thinks it is faked.
 
-> My Nani lives in a house where nobody is in the room most of the day. Pendants get left on the table. The camera
-> was already there. I built this during the Meta hackathon, between October 29 and November 4.
+> It notices a fall, asks if she is okay, and tells the family what she said. Nani lives in a house where nobody is
+> in the room most of the day. Pendants get left on the table. The camera was already there.
 
-Caption: "Everything shown was built Oct 29 to Nov 4, 2026. github.com/Sahaj0312/remy"
+The terminal now names every model as it runs: `SAM 3.1 confirms`, `Muse Spark Open triage`, `check-in: Muse Voice
+Transcribe`, `classified okay (Muse Spark 1.3)`. Keep those lines readable; the rubric wants the live Meta calls
+visible on screen.
 
 **0:30 to 1:25, what it does.** Scenarios C, D, E, A in that order, each trimmed to 10 to 15 s with the
 terminal and the phone side by side.
@@ -87,16 +90,18 @@ terminal and the phone side by side.
 > A small pose model watches the room on the laptop at five frames a second. When it sees a fast drop, it cuts
 > the five seconds around it and sends that clip to SAM 3.1, which tracks the person frame by frame. That takes
 > about nine seconds. A rule on the track checks that the drop was fast in body lengths, that she ended up
-> horizontal, and that she has not got up. Muse Spark looks at a short burst and writes the one-line note for
-> the family. The camera's own speaker asks the question. Muse Voice Transcribe turns the answer into text, and
-> Spark decides whether that text is a clear "I'm okay". Only a clear okay is reassuring. Anything else escalates.
+> horizontal, and that she has not got up. Muse Spark Open, Meta's open-weight model, looks at the frames around
+> the drop and writes the one-line note for the family. The camera's own speaker asks the question. Muse Voice
+> Transcribe turns the answer into text, and Muse Spark decides whether that text is a clear "I'm okay". Only a
+> clear okay is reassuring. Anything else escalates.
 
 **2:05 to 2:35, how well it works.** The eval table, the latency table, the `pytest` terminal, the reconnect
 lines, `SENSITIVITY.md`.
 
-> On a hundred public clips it catches thirty-two of forty falls with one false alarm, push-ups. The misses are
-> slow falls from sitting or onto a bed; those look like lying down, and the floor rule is the answer for now.
-> On the real camera, every staged fall got the right message. The camera microphone is the weak link: it
+> On a hundred public clips it catches thirty-two of forty falls with one false alarm, push-ups, and eighty
+> percent out of sample. The misses are slow falls from sitting or onto a bed; those look like lying down, and the
+> floor rule is the answer for now. I ran the open-weight Spark and the hosted Spark on the same thirty-three
+> clips: they agree within one step on twenty-nine. On the real camera, every staged fall got the right message. The camera microphone is the weak link: it
 > misheard "help" once, so the policy escalates on anything unclear. One event costs about two cents in API calls.
 > The whole project so far is under three dollars.
 
