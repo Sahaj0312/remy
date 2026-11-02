@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-22",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  18
+ ],
+ "burst_s": 1.9,
+ "n_images": 10,
+ "event_time": "1.2 s into the clip",
+ "numbers": {
+  "drop_rel": 0.405,
+  "drop_speed_rel_max": 0.764,
+  "time_to_floor_s": 0.8,
+  "ar_post": 0.336,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.6
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell forward from the chair onto the floor at 1.2s into the clip and is still lying on the floor without getting up.\",\"what_happened\":\"A person seated on a chair leaned forward and fell onto the floor, ending in a horizontal lying position next to the chair.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 6.08,
+ "usage": {
+  "input_tokens": 4569,
+  "output_tokens": 405,
+  "reasoning_tokens": 318
+ },
+ "cost_usd": 0.00743,
+ "response_id": "chatcmpl-e89d3badeb5042fd848bd80b31c22520",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell forward from the chair onto the floor at 1.2s into the clip and is still lying on the floor without getting up.",
+  "what_happened": "A person seated on a chair leaned forward and fell onto the floor, ending in a horizontal lying position next to the chair.",
+  "is_lying_still": true
+ }
+}

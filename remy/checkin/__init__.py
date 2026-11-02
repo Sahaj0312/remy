@@ -33,7 +33,7 @@ def question_text(cfg: dict) -> str:
 def _backend(backend=None):
     if backend is None:
         from remy.triage import get_backend
-        backend = get_backend(load_config(), timeout=60)
+        backend = get_backend(load_config(), role="reply", timeout=60)
     return backend
 
 
@@ -46,7 +46,10 @@ def classify(transcript: str, cfg: dict, question: str, backend=None) -> dict:
     for w in cfg["help_words"]:
         if w.lower() in low:
             return {"status": "needs_help", "quote": w, "reason": f"help word '{w}' heard", "rule": True, "latency_s": 0.0, "cost_usd": 0.0}
-    return _backend(backend).classify_reply(text, question)
+    be = _backend(backend)
+    out = be.classify_reply(text, question)
+    out.setdefault("backend", getattr(be, "label", be.__class__.__name__))
+    return out
 
 
 def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=print, backend=None) -> dict:
@@ -64,9 +67,9 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
     r = record_mic(cfg["record_s"], rec)
     log(f"check-in: recorded {cfg['record_s']}s mic -> {rec.name} ({r['took_s']}s)")
     tr = transcribe_wav(rec) if r["ok"] else {"transcript": "", "error": r["err"], "latency_s": 0}
-    log(f"check-in: transcript ({tr.get('latency_s')}s): {tr.get('transcript')!r}")
+    log(f"check-in: Muse Voice Transcribe ({tr.get('latency_s')}s): {tr.get('transcript')!r}")
     cl = classify(tr.get("transcript", ""), cfg, question, backend)
-    log(f"check-in: classified {cl['status']} ({'rule' if cl.get('rule') else 'spark'}, {cl.get('latency_s')}s): {cl.get('reason')}")
+    log(f"check-in: classified {cl['status']} ({'rule' if cl.get('rule') else cl.get('backend', 'model')}, {cl.get('latency_s')}s): {cl.get('reason')}")
     return {"question": question, "speak": sp, "record": r, "wav": str(rec), "transcript": tr, "classification": cl,
             "status": cl["status"], "total_s": round(time.time() - t0, 2)}
 

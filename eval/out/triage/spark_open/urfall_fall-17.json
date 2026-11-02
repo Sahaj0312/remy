@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-17",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  4,
+  31
+ ],
+ "burst_s": 2.8,
+ "n_images": 14,
+ "event_time": "3.0 s into the clip",
+ "numbers": {
+  "drop_rel": 0.715,
+  "drop_speed_rel_max": 1.085,
+  "time_to_floor_s": 1.1,
+  "ar_post": 0.721,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.1
+ },
+ "raw_text": "{\"urgency\":\"medium\",\"summary_for_family\":\"Went down quickly in the middle of the room near the desk at 3.0s into the clip and is lying on the floor. Still down as the clip ended after about 0.1 seconds.\",\"what_happened\":\"Person walked forward from the door, bent forward and lowered to the floor ending horizontal on their back.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 16.7,
+ "usage": {
+  "input_tokens": 6157,
+  "output_tokens": 922,
+  "reasoning_tokens": 826
+ },
+ "cost_usd": 0.01161,
+ "response_id": "chatcmpl-e94102c6ef8546628a651664ff4fc1f2",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down quickly in the middle of the room near the desk at 3.0s into the clip and is lying on the floor. Still down as the clip ended after about 0.1 seconds.",
+  "what_happened": "Person walked forward from the door, bent forward and lowered to the floor ending horizontal on their back.",
+  "is_lying_still": true
+ }
+}

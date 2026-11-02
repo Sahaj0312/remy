@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-11",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  2,
+  42
+ ],
+ "burst_s": 4.1,
+ "event_time": "2.3 s into the clip",
+ "numbers": {
+  "drop_rel": 0.3,
+  "drop_speed_rel_max": 0.588,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.685,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.9
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"He went down to the floor in the office next to the chair at 2.3 seconds and has been lying still on his back.\", \"urgency\": \"high\", \"what_happened\": \"He bent forward from standing, dropped to his hands and knees, then rolled onto his side and back to lie flat on the floor.\"}",
+ "status": "completed",
+ "latency_s": 3.46,
+ "usage": {
+  "input_tokens": 8944,
+  "output_tokens": 709,
+  "reasoning_tokens": 615
+ },
+ "cost_usd": 0.01419,
+ "response_id": "resp_6ae8f43b3ee9ecb29b084cea",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "He went down to the floor in the office next to the chair at 2.3 seconds and has been lying still on his back.",
+  "urgency": "high",
+  "what_happened": "He bent forward from standing, dropped to his hands and knees, then rolled onto his side and back to lie flat on the floor."
+ }
+}

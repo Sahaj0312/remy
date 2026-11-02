@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-05",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  12,
+  49
+ ],
+ "burst_s": 3.8,
+ "n_images": 19,
+ "event_time": "3.8 s into the clip",
+ "numbers": {
+  "drop_rel": 0.729,
+  "drop_speed_rel_max": 1.007,
+  "time_to_floor_s": 1.1,
+  "ar_post": 0.676,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.1
+ },
+ "raw_text": "{\"urgency\":\"medium\",\"summary_for_family\":\"Went down quickly in the middle of the office floor at about 3.8 seconds into the clip and rolled onto his back, still moving afterwards.\",\"what_happened\":\"The person walked forward, bent down, fell forward onto hands and knees and then rolled onto his side and back.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 7.98,
+ "usage": {
+  "input_tokens": 8142,
+  "output_tokens": 483,
+  "reasoning_tokens": 396
+ },
+ "cost_usd": 0.01223,
+ "response_id": "chatcmpl-9935aabfe19a400e8d7de545fc41505f",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down quickly in the middle of the office floor at about 3.8 seconds into the clip and rolled onto his back, still moving afterwards.",
+  "what_happened": "The person walked forward, bent down, fell forward onto hands and knees and then rolled onto his side and back.",
+  "is_lying_still": false
+ }
+}

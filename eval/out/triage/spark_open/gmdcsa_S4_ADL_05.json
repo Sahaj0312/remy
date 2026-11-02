@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S4_ADL_05",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  24,
+  73
+ ],
+ "burst_s": 5.0,
+ "n_images": 25,
+ "event_time": "4.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.315,
+  "drop_speed_rel_max": 0.571,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.552,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.7
+ },
+ "raw_text": "{\"urgency\":\"low\",\"summary_for_family\":\"Went down in a controlled way near the bed in the doorway at 4.6s into the clip and is moving - looks like push-up exercise, not a hard fall.\",\"what_happened\":\"Person bent over and intentionally lowered to the floor and continued moving up and down on hands and feet.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 7.93,
+ "usage": {
+  "input_tokens": 8224,
+  "output_tokens": 613,
+  "reasoning_tokens": 523
+ },
+ "cost_usd": 0.01289,
+ "response_id": "chatcmpl-6dd973c36eee4e3c9fae53ab28056484",
+ "verdict": {
+  "urgency": "low",
+  "summary_for_family": "Went down in a controlled way near the bed in the doorway at 4.6s into the clip and is moving - looks like push-up exercise, not a hard fall.",
+  "what_happened": "Person bent over and intentionally lowered to the floor and continued moving up and down on hands and feet.",
+  "is_lying_still": false
+ }
+}

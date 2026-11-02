@@ -1,0 +1,36 @@
+{
+ "clip": "gmdcsa_S3_Fall_12",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  3,
+  42
+ ],
+ "burst_s": 4.0,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.25,
+  "drop_speed_rel_max": 0.543,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.568,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.8
+ },
+ "raw_text": "{\"is_lying_still\": false, \"summary_for_family\": \"Went down slowly beside the bed at 2.4 seconds and is now lying on the floor mat but still moving.\", \"urgency\": \"low\", \"what_happened\": \"The person sank from standing by the bed to sitting and then lay back onto the mat.\"}",
+ "status": "completed",
+ "latency_s": 4.76,
+ "usage": {
+  "input_tokens": 6705,
+  "output_tokens": 740,
+  "reasoning_tokens": 658
+ },
+ "cost_usd": 0.01153,
+ "response_id": "resp_6ae8f45ba2ea6d8dda034705",
+ "verdict": {
+  "is_lying_still": false,
+  "summary_for_family": "Went down slowly beside the bed at 2.4 seconds and is now lying on the floor mat but still moving.",
+  "urgency": "low",
+  "what_happened": "The person sank from standing by the bed to sitting and then lay back onto the mat."
+ }
+}

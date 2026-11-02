@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-01",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  13,
+  52
+ ],
+ "burst_s": 4.0,
+ "event_time": "3.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.711,
+  "drop_speed_rel_max": 1.033,
+  "time_to_floor_s": 1.1,
+  "ar_post": 0.584,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.3
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down quickly in the office near the desks at 3.9s into the clip and is lying still on the floor.\", \"urgency\": \"high\", \"what_happened\": \"The person walked forward, crouched down, then fell forward onto the floor and ended lying on their side.\"}",
+ "status": "completed",
+ "latency_s": 5.31,
+ "usage": {
+  "input_tokens": 8545,
+  "output_tokens": 737,
+  "reasoning_tokens": 648
+ },
+ "cost_usd": 0.01381,
+ "response_id": "resp_6ae8f4317a843a4ec80048f4",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down quickly in the office near the desks at 3.9s into the clip and is lying still on the floor.",
+  "urgency": "high",
+  "what_happened": "The person walked forward, crouched down, then fell forward onto the floor and ended lying on their side."
+ }
+}

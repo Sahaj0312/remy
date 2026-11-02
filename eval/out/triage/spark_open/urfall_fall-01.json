@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-01",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  13,
+  52
+ ],
+ "burst_s": 4.0,
+ "n_images": 20,
+ "event_time": "3.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.711,
+  "drop_speed_rel_max": 1.033,
+  "time_to_floor_s": 1.1,
+  "ar_post": 0.584,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.3
+ },
+ "raw_text": "{\"urgency\":\"medium\",\"summary_for_family\":\"Went down in the office near the desks at 3.9s and is still on the floor on their side.\",\"what_happened\":\"A person walking forward in the office crouched and rolled onto the floor and remained lying there.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 11.55,
+ "usage": {
+  "input_tokens": 8539,
+  "output_tokens": 757,
+  "reasoning_tokens": 679
+ },
+ "cost_usd": 0.01389,
+ "response_id": "chatcmpl-6432c92d986b459496e1bf8d79ec0396",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down in the office near the desks at 3.9s and is still on the floor on their side.",
+  "what_happened": "A person walking forward in the office crouched and rolled onto the floor and remained lying there.",
+  "is_lying_still": true
+ }
+}

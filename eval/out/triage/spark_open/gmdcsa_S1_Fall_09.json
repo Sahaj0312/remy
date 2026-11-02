@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S1_Fall_09",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  44
+ ],
+ "burst_s": 4.5,
+ "n_images": 23,
+ "event_time": "1.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.591,
+  "drop_speed_rel_max": 0.846,
+  "time_to_floor_s": 1.0,
+  "ar_post": 0.497,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.5
+ },
+ "raw_text": "{\"urgency\": \"medium\", \"summary_for_family\": \"Went down to the floor in the center of the room near the blue doors at 1.9s into the clip and has been lying there for 2.5 seconds without getting up.\", \"what_happened\": \"The person bent forward and lowered to hands and knees before ending lying curled on the floor.\", \"is_lying_still\": true}",
+ "status": "completed",
+ "latency_s": 9.43,
+ "usage": {
+  "input_tokens": 7614,
+  "output_tokens": 618,
+  "reasoning_tokens": 520
+ },
+ "cost_usd": 0.01214,
+ "response_id": "chatcmpl-52daa72b87ed4942983d181eb884f19e",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down to the floor in the center of the room near the blue doors at 1.9s into the clip and has been lying there for 2.5 seconds without getting up.",
+  "what_happened": "The person bent forward and lowered to hands and knees before ending lying curled on the floor.",
+  "is_lying_still": true
+ }
+}

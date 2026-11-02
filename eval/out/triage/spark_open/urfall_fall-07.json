@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-07",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  14,
+  51
+ ],
+ "burst_s": 3.8,
+ "n_images": 19,
+ "event_time": "3.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.538,
+  "drop_speed_rel_max": 0.857,
+  "time_to_floor_s": 1.0,
+  "ar_post": 0.646,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.2
+ },
+ "raw_text": "{\"urgency\": \"medium\", \"summary_for_family\": \"Went down to the floor near the desks at about 3.9 seconds into the clip and rolled onto their back. They have been down for about a second but are moving and shifting on the floor.\", \"what_happened\": \"The person crouched, lowered to hands and knees, and then rolled onto the floor ending on their back.\", \"is_lying_still\": false}",
+ "status": "completed",
+ "latency_s": 8.78,
+ "usage": {
+  "input_tokens": 8142,
+  "output_tokens": 584,
+  "reasoning_tokens": 480
+ },
+ "cost_usd": 0.01266,
+ "response_id": "chatcmpl-b1bb66e371af409fb145b241f702f46c",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down to the floor near the desks at about 3.9 seconds into the clip and rolled onto their back. They have been down for about a second but are moving and shifting on the floor.",
+  "what_happened": "The person crouched, lowered to hands and knees, and then rolled onto the floor ending on their back.",
+  "is_lying_still": false
+ }
+}

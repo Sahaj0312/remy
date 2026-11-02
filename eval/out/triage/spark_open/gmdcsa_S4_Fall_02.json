@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S4_Fall_02",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  29
+ ],
+ "burst_s": 3.0,
+ "n_images": 15,
+ "event_time": "2.2 s into the clip",
+ "numbers": {
+  "drop_rel": 0.372,
+  "drop_speed_rel_max": 0.601,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.359,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.7
+ },
+ "raw_text": "{\"urgency\": \"low\", \"summary_for_family\": \"Went down from the bed to the floor at 2.2s and is now lying on the floor near the bed. Movement was slow and controlled using hands, not a hard fall.\", \"what_happened\": \"Person rolled to the edge of the bed and lowered themselves to the floor on hands and knees in a controlled manner.\", \"is_lying_still\": false}",
+ "status": "completed",
+ "latency_s": 8.67,
+ "usage": {
+  "input_tokens": 6554,
+  "output_tokens": 530,
+  "reasoning_tokens": 429
+ },
+ "cost_usd": 0.01044,
+ "response_id": "chatcmpl-dc1202c8f5b14a358fd43b277b162bd9",
+ "verdict": {
+  "urgency": "low",
+  "summary_for_family": "Went down from the bed to the floor at 2.2s and is now lying on the floor near the bed. Movement was slow and controlled using hands, not a hard fall.",
+  "what_happened": "Person rolled to the edge of the bed and lowered themselves to the floor on hands and knees in a controlled manner.",
+  "is_lying_still": false
+ }
+}

@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S4_Fall_10",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  8,
+  50
+ ],
+ "burst_s": 4.3,
+ "n_images": 22,
+ "event_time": "2.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.313,
+  "drop_speed_rel_max": 0.658,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.452,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.1
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell forward out of the chair onto the floor around 2.9s into the clip and has been lying still on the floor near the doorway for about 2 seconds.\",\"what_happened\":\"A person seated in a chair reading leaned forward and collapsed out of the chair onto the floor, ending horizontal and remaining down.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 5.68,
+ "usage": {
+  "input_tokens": 7309,
+  "output_tokens": 334,
+  "reasoning_tokens": 240
+ },
+ "cost_usd": 0.01056,
+ "response_id": "chatcmpl-ed3134f0129d4afeb8337fcd2a2327bb",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell forward out of the chair onto the floor around 2.9s into the clip and has been lying still on the floor near the doorway for about 2 seconds.",
+  "what_happened": "A person seated in a chair reading leaned forward and collapsed out of the chair onto the floor, ending horizontal and remaining down.",
+  "is_lying_still": true
+ }
+}

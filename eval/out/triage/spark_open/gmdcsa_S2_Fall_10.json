@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S2_Fall_10",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  9,
+  66
+ ],
+ "burst_s": 5.8,
+ "n_images": 29,
+ "event_time": "3.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.532,
+  "drop_speed_rel_max": 0.709,
+  "time_to_floor_s": 1.2,
+  "ar_post": 0.351,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\": \"medium\", \"summary_for_family\": \"Fell from standing onto the mat in front of the bed about 3.6 seconds into the clip and ended up on his back, still moving slightly on the floor.\", \"what_happened\": \"A standing adult bent forward and lowered to the floor onto a mat near the bed, then rolled onto his back.\", \"is_lying_still\": false}",
+ "status": "completed",
+ "latency_s": 7.97,
+ "usage": {
+  "input_tokens": 9443,
+  "output_tokens": 531,
+  "reasoning_tokens": 434
+ },
+ "cost_usd": 0.01406,
+ "response_id": "chatcmpl-101e4b5c505b4b52ad43f4cb0b245d61",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Fell from standing onto the mat in front of the bed about 3.6 seconds into the clip and ended up on his back, still moving slightly on the floor.",
+  "what_happened": "A standing adult bent forward and lowered to the floor onto a mat near the bed, then rolled onto his back.",
+  "is_lying_still": false
+ }
+}

@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-25",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  1,
+  27
+ ],
+ "burst_s": 2.7,
+ "n_images": 14,
+ "event_time": "2.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.594,
+  "drop_speed_rel_max": 1.313,
+  "time_to_floor_s": 0.9,
+  "ar_post": 0.659,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.2
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell forward quickly in the office at 2.5s and is lying face-down on the floor in the center of the room.\",\"what_happened\":\"The person walked toward the camera, pitched forward, caught themselves briefly on hands and then went prone on the floor.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 7.78,
+ "usage": {
+  "input_tokens": 6157,
+  "output_tokens": 485,
+  "reasoning_tokens": 401
+ },
+ "cost_usd": 0.00976,
+ "response_id": "chatcmpl-a364232c18fe44b4b29bb107f1f4d83e",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell forward quickly in the office at 2.5s and is lying face-down on the floor in the center of the room.",
+  "what_happened": "The person walked toward the camera, pitched forward, caught themselves briefly on hands and then went prone on the floor.",
+  "is_lying_still": true
+ }
+}

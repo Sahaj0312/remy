@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S1_Fall_15",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  6,
+  57
+ ],
+ "burst_s": 5.2,
+ "n_images": 26,
+ "event_time": "2.7 s into the clip",
+ "numbers": {
+  "drop_rel": 0.258,
+  "drop_speed_rel_max": 0.53,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.326,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell from the chair to the floor at 2.7 seconds into the clip near the blue doors and has been lying still on the floor for about 3 seconds without getting up.\",\"what_happened\":\"A person seated on a chair leaned forward and fell to the floor, ending lying on their side.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 10.43,
+ "usage": {
+  "input_tokens": 10920,
+  "output_tokens": 656,
+  "reasoning_tokens": 565
+ },
+ "cost_usd": 0.01644,
+ "response_id": "chatcmpl-7bf33e3313014b758e1ae05ab19536bc",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell from the chair to the floor at 2.7 seconds into the clip near the blue doors and has been lying still on the floor for about 3 seconds without getting up.",
+  "what_happened": "A person seated on a chair leaned forward and fell to the floor, ending lying on their side.",
+  "is_lying_still": true
+ }
+}

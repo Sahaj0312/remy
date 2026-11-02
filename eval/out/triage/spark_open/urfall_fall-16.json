@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-16",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  17
+ ],
+ "burst_s": 1.8,
+ "n_images": 9,
+ "event_time": "1.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.288,
+  "drop_speed_rel_max": 0.625,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.367,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.1
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell forward from the chair onto the office floor at 1.6s into the clip and is lying on their side. Still down at the end of the clip.\",\"what_happened\":\"The person pitched forward from a seated position on the chair and went to the floor onto hands and knees before rolling to their side.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 7.44,
+ "usage": {
+  "input_tokens": 4172,
+  "output_tokens": 663,
+  "reasoning_tokens": 569
+ },
+ "cost_usd": 0.00803,
+ "response_id": "chatcmpl-9a8d16402c9249ec9a6a4c91babda3ba",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell forward from the chair onto the office floor at 1.6s into the clip and is lying on their side. Still down at the end of the clip.",
+  "what_happened": "The person pitched forward from a seated position on the chair and went to the floor onto hands and knees before rolling to their side.",
+  "is_lying_still": true
+ }
+}

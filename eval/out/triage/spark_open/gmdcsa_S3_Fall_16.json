@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S3_Fall_16",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  2,
+  52
+ ],
+ "burst_s": 5.1,
+ "n_images": 26,
+ "event_time": "2.2 s into the clip",
+ "numbers": {
+  "drop_rel": 0.216,
+  "drop_speed_rel_max": 0.535,
+  "time_to_floor_s": 0.5,
+  "ar_post": 0.505,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\":\"medium\",\"summary_for_family\":\"Went down slowly onto the floor mat in the bedroom at 2.2s and is now lying face-down on the mat. Has stayed still for about 3 seconds since the drop.\",\"what_happened\":\"Person slowly crouched and rolled backward onto the floor mat to a prone lying position.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 15.3,
+ "usage": {
+  "input_tokens": 8528,
+  "output_tokens": 982,
+  "reasoning_tokens": 892
+ },
+ "cost_usd": 0.01483,
+ "response_id": "chatcmpl-51dc3e3a628d4f158ffcffa0cb6d55b0",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down slowly onto the floor mat in the bedroom at 2.2s and is now lying face-down on the mat. Has stayed still for about 3 seconds since the drop.",
+  "what_happened": "Person slowly crouched and rolled backward onto the floor mat to a prone lying position.",
+  "is_lying_still": true
+ }
+}

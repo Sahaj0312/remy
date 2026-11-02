@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S2_Fall_02",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  16,
+  65
+ ],
+ "burst_s": 5.0,
+ "n_images": 25,
+ "event_time": "3.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.182,
+  "drop_speed_rel_max": 0.488,
+  "time_to_floor_s": 0.4,
+  "ar_post": 0.295,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\":\"low\",\"summary_for_family\":\"Went down slowly onto the mat in the center of the bedroom around 3.5s into the clip and is lying on his side, looking around and moving slightly.\",\"what_happened\":\"The person bent forward and lowered themselves in a controlled motion onto the mat on the floor and remained lying on their side.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 11.34,
+ "usage": {
+  "input_tokens": 8223,
+  "output_tokens": 842,
+  "reasoning_tokens": 750
+ },
+ "cost_usd": 0.01386,
+ "response_id": "chatcmpl-7f472adaf2bd42548e1f78d5062a9385",
+ "verdict": {
+  "urgency": "low",
+  "summary_for_family": "Went down slowly onto the mat in the center of the bedroom around 3.5s into the clip and is lying on his side, looking around and moving slightly.",
+  "what_happened": "The person bent forward and lowered themselves in a controlled motion onto the mat on the floor and remained lying on their side.",
+  "is_lying_still": false
+ }
+}

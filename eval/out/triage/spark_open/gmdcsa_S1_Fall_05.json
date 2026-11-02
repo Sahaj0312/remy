@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S1_Fall_05",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  2,
+  54
+ ],
+ "burst_s": 5.3,
+ "n_images": 27,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.333,
+  "drop_speed_rel_max": 0.624,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.426,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\": \"medium\", \"summary_for_family\": \"Went down slowly to the floor near the blue door at 2.4 seconds into the clip and has been lying still on his side for about 3 seconds.\", \"what_happened\": \"The person walked a few steps then gradually lowered to knees and hands before rolling onto the side on the floor.\", \"is_lying_still\": true}",
+ "status": "completed",
+ "latency_s": 7.0,
+ "usage": {
+  "input_tokens": 8833,
+  "output_tokens": 553,
+  "reasoning_tokens": 458
+ },
+ "cost_usd": 0.01339,
+ "response_id": "chatcmpl-e807eac2be764fc4a81b8bc1622f9dbc",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down slowly to the floor near the blue door at 2.4 seconds into the clip and has been lying still on his side for about 3 seconds.",
+  "what_happened": "The person walked a few steps then gradually lowered to knees and hands before rolling onto the side on the floor.",
+  "is_lying_still": true
+ }
+}

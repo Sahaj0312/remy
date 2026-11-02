@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-14",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  19
+ ],
+ "burst_s": 2.0,
+ "n_images": 10,
+ "event_time": "1.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.302,
+  "drop_speed_rel_max": 0.614,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.329,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.4
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell forward from the chair to the floor at 1.5s and is still down on the floor at the end of the clip.\",\"what_happened\":\"Person pitched forward off the chair and went to a prone position on the floor.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 10.32,
+ "usage": {
+  "input_tokens": 4569,
+  "output_tokens": 626,
+  "reasoning_tokens": 548
+ },
+ "cost_usd": 0.00837,
+ "response_id": "chatcmpl-fe819fe65c26491aac824f0adec480b0",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell forward from the chair to the floor at 1.5s and is still down on the floor at the end of the clip.",
+  "what_happened": "Person pitched forward off the chair and went to a prone position on the floor.",
+  "is_lying_still": false
+ }
+}

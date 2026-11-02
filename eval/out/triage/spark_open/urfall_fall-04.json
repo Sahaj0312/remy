@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-04",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  31
+ ],
+ "burst_s": 3.2,
+ "n_images": 16,
+ "event_time": "1.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.391,
+  "drop_speed_rel_max": 0.662,
+  "time_to_floor_s": 0.8,
+  "ar_post": 0.423,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.6
+ },
+ "raw_text": "{\"urgency\":\"medium\",\"summary_for_family\":\"Went down quickly from the chair onto the floor in the office at 1.5s into the clip and stayed down for about 1.6 seconds. He ended up lying on the floor and was still moving slightly at the end of the clip.\",\"what_happened\":\"The person leaned forward from a seated position on the chair and fell forward onto the floor, ending in a horizontal lying position.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 8.01,
+ "usage": {
+  "input_tokens": 6951,
+  "output_tokens": 631,
+  "reasoning_tokens": 521
+ },
+ "cost_usd": 0.01137,
+ "response_id": "chatcmpl-829d19020091458f960f41aaf563201a",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down quickly from the chair onto the floor in the office at 1.5s into the clip and stayed down for about 1.6 seconds. He ended up lying on the floor and was still moving slightly at the end of the clip.",
+  "what_happened": "The person leaned forward from a seated position on the chair and fell forward onto the floor, ending in a horizontal lying position.",
+  "is_lying_still": false
+ }
+}

@@ -1,0 +1,36 @@
+{
+ "clip": "gmdcsa_S3_Fall_05",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  17,
+  69
+ ],
+ "burst_s": 5.3,
+ "event_time": "3.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.336,
+  "drop_speed_rel_max": 0.649,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.564,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"is_lying_still\": false, \"summary_for_family\": \"He went down slowly onto the mat in the middle of the bedroom at 3.9s and stayed down for 3 seconds, shifting his hand near his face.\", \"urgency\": \"medium\", \"what_happened\": \"He bent his knees from standing, sat down, then lay back onto the mat and remained on his back.\"}",
+ "status": "completed",
+ "latency_s": 7.46,
+ "usage": {
+  "input_tokens": 8853,
+  "output_tokens": 1441,
+  "reasoning_tokens": 1346
+ },
+ "cost_usd": 0.01719,
+ "response_id": "resp_6ae8f458e05ed252c1a74903",
+ "verdict": {
+  "is_lying_still": false,
+  "summary_for_family": "He went down slowly onto the mat in the middle of the bedroom at 3.9s and stayed down for 3 seconds, shifting his hand near his face.",
+  "urgency": "medium",
+  "what_happened": "He bent his knees from standing, sat down, then lay back onto the mat and remained on his back."
+ }
+}

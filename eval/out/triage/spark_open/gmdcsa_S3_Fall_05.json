@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S3_Fall_05",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  17,
+  69
+ ],
+ "burst_s": 5.3,
+ "n_images": 27,
+ "event_time": "3.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.336,
+  "drop_speed_rel_max": 0.649,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.564,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\":\"medium\",\"summary_for_family\":\"Went down slowly onto the checkered mat in the center of the room near the bed at 3.9s into the clip and is now lying on his back. He is moving slightly with a hand to his head.\",\"what_happened\":\"A person standing on a floor mat slowly lowered into a crouch and then reclined backward onto the mat, ending lying horizontal.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 9.8,
+ "usage": {
+  "input_tokens": 8833,
+  "output_tokens": 630,
+  "reasoning_tokens": 525
+ },
+ "cost_usd": 0.01372,
+ "response_id": "chatcmpl-a182d7d6f84847fb8ea9f9304b1d9727",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down slowly onto the checkered mat in the center of the room near the bed at 3.9s into the clip and is now lying on his back. He is moving slightly with a hand to his head.",
+  "what_happened": "A person standing on a floor mat slowly lowered into a crouch and then reclined backward onto the mat, ending lying horizontal.",
+  "is_lying_still": false
+ }
+}

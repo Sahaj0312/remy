@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S3_Fall_12",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  3,
+  42
+ ],
+ "burst_s": 4.0,
+ "n_images": 20,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.25,
+  "drop_speed_rel_max": 0.543,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.568,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.8
+ },
+ "raw_text": "{\"urgency\":\"low\",\"summary_for_family\":\"Lowered slowly to the mat by the bed at 2.4s into the clip and rolled onto their back on the mat. They are moving and appear to be doing a controlled lie-down, not a hard fall.\",\"what_happened\":\"Person bent over the bed and slowly lowered to a seated then supine position on the floor mat.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 7.73,
+ "usage": {
+  "input_tokens": 6699,
+  "output_tokens": 435,
+  "reasoning_tokens": 337
+ },
+ "cost_usd": 0.01022,
+ "response_id": "chatcmpl-4c47fc189559467aa9f3d8587a1c7777",
+ "verdict": {
+  "urgency": "low",
+  "summary_for_family": "Lowered slowly to the mat by the bed at 2.4s into the clip and rolled onto their back on the mat. They are moving and appear to be doing a controlled lie-down, not a hard fall.",
+  "what_happened": "Person bent over the bed and slowly lowered to a seated then supine position on the floor mat.",
+  "is_lying_still": false
+ }
+}

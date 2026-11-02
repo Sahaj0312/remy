@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S4_Fall_12",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  45
+ ],
+ "burst_s": 4.6,
+ "n_images": 23,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.544,
+  "drop_speed_rel_max": 0.845,
+  "time_to_floor_s": 1.0,
+  "ar_post": 0.665,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.1
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell quickly from the bed onto the floor at 2.4s into the clip and has been lying face-down still for 2.1 seconds.\",\"what_happened\":\"Person sitting on the edge of the bed leaned forward and fell onto the floor, ending prone and motionless.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 5.71,
+ "usage": {
+  "input_tokens": 7614,
+  "output_tokens": 438,
+  "reasoning_tokens": 351
+ },
+ "cost_usd": 0.01138,
+ "response_id": "chatcmpl-0a25246713484bbfad01351a8fababdf",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell quickly from the bed onto the floor at 2.4s into the clip and has been lying face-down still for 2.1 seconds.",
+  "what_happened": "Person sitting on the edge of the bed leaned forward and fell onto the floor, ending prone and motionless.",
+  "is_lying_still": true
+ }
+}

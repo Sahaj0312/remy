@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-19",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  32
+ ],
+ "burst_s": 3.3,
+ "n_images": 17,
+ "event_time": "2.0 s into the clip",
+ "numbers": {
+  "drop_rel": 0.74,
+  "drop_speed_rel_max": 1.467,
+  "time_to_floor_s": 1.0,
+  "ar_post": 0.62,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.2
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Went down quickly onto the floor in the middle of the room near the desk at 2.0 seconds and is still lying face-down without getting up.\",\"what_happened\":\"Person walking forward then pitched forward rapidly and fell face-down onto the floor, ending horizontal and still.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 6.46,
+ "usage": {
+  "input_tokens": 7348,
+  "output_tokens": 433,
+  "reasoning_tokens": 348
+ },
+ "cost_usd": 0.01103,
+ "response_id": "chatcmpl-44fa88f97a4649d7a392e721df1500e9",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Went down quickly onto the floor in the middle of the room near the desk at 2.0 seconds and is still lying face-down without getting up.",
+  "what_happened": "Person walking forward then pitched forward rapidly and fell face-down onto the floor, ending horizontal and still.",
+  "is_lying_still": true
+ }
+}

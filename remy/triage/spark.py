@@ -201,6 +201,7 @@ class SparkTriage(TriageBackend):
     reasoning_effort, live_reasoning_effort, max_output_tokens.
     """
     name = "spark"
+    label = "Muse Spark 1.3"
 
     def __init__(self, cfg: dict, timeout: float = 300, client: OpenAI | None = None):
         self.cfg = cfg

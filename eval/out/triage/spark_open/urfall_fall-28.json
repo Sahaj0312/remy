@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-28",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  21
+ ],
+ "burst_s": 2.2,
+ "n_images": 11,
+ "event_time": "1.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.423,
+  "drop_speed_rel_max": 0.735,
+  "time_to_floor_s": 0.8,
+  "ar_post": 0.307,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.2
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell quickly from the chair to the floor at 1.9s and is lying on the floor without getting up yet.\",\"what_happened\":\"Person seated on chair leaned forward, lost balance and fell to the floor ending in a wide horizontal position.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 7.94,
+ "usage": {
+  "input_tokens": 4966,
+  "output_tokens": 529,
+  "reasoning_tokens": 449
+ },
+ "cost_usd": 0.00846,
+ "response_id": "chatcmpl-1cd0e4a0b13644519cc766efaf14ab37",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell quickly from the chair to the floor at 1.9s and is lying on the floor without getting up yet.",
+  "what_happened": "Person seated on chair leaned forward, lost balance and fell to the floor ending in a wide horizontal position.",
+  "is_lying_still": true
+ }
+}

@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-16",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  17
+ ],
+ "burst_s": 1.8,
+ "event_time": "1.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.288,
+  "drop_speed_rel_max": 0.625,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.367,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.1
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Slid off the chair onto the floor at 1.6s and is still down on the floor.\", \"urgency\": \"high\", \"what_happened\": \"The person leaned forward from sitting on the chair and went down to the floor ending horizontal on their side.\"}",
+ "status": "completed",
+ "latency_s": 4.45,
+ "usage": {
+  "input_tokens": 4156,
+  "output_tokens": 840,
+  "reasoning_tokens": 758
+ },
+ "cost_usd": 0.00877,
+ "response_id": "resp_6ae8f441ba9e21312b8a47c0",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Slid off the chair onto the floor at 1.6s and is still down on the floor.",
+  "urgency": "high",
+  "what_happened": "The person leaned forward from sitting on the chair and went down to the floor ending horizontal on their side."
+ }
+}

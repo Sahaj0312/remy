@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-20",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  36
+ ],
+ "burst_s": 3.7,
+ "n_images": 19,
+ "event_time": "1.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.223,
+  "drop_speed_rel_max": 0.521,
+  "time_to_floor_s": 0.5,
+  "ar_post": 0.743,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.1
+ },
+ "raw_text": "{\"urgency\":\"medium\",\"summary_for_family\":\"Went down from the chair to the floor in the office at 1.5 seconds into the clip and is still on the floor but moving and trying to shift position.\",\"what_happened\":\"The person slid forward off the chair and lowered to the floor beside the chair.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 5.21,
+ "usage": {
+  "input_tokens": 8142,
+  "output_tokens": 375,
+  "reasoning_tokens": 291
+ },
+ "cost_usd": 0.01177,
+ "response_id": "chatcmpl-742ee718b73d495388ed8fdf40dd007d",
+ "verdict": {
+  "urgency": "medium",
+  "summary_for_family": "Went down from the chair to the floor in the office at 1.5 seconds into the clip and is still on the floor but moving and trying to shift position.",
+  "what_happened": "The person slid forward off the chair and lowered to the floor beside the chair.",
+  "is_lying_still": false
+ }
+}

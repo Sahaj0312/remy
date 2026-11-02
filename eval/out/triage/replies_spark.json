@@ -1,0 +1,194 @@
+[
+ {
+  "transcript": "Yeah.",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "'Yeah' affirmatively answers are you okay.",
+  "latency_s": 3.19,
+  "cost_usd": 0.00291
+ },
+ {
+  "transcript": "I'm fine",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker clearly states they are fine.",
+  "latency_s": 1.16,
+  "cost_usd": 0.00129
+ },
+ {
+  "transcript": "yes yes I'm alright",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker confirms they are alright.",
+  "latency_s": 1.01,
+  "cost_usd": 0.0012
+ },
+ {
+  "transcript": "no no I'm fine, just slipped",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker clearly says they are fine.",
+  "latency_s": 1.73,
+  "cost_usd": 0.00181
+ },
+ {
+  "transcript": "all good",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker confirms they are fine.",
+  "latency_s": 1.61,
+  "cost_usd": 0.00164
+ },
+ {
+  "transcript": "haan main theek hoon",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker clearly says they are fine.",
+  "latency_s": 1.31,
+  "cost_usd": 0.00168
+ },
+ {
+  "transcript": "theek hai",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Says they are fine in Hindi.",
+  "latency_s": 1.5,
+  "cost_usd": 0.00165
+ },
+ {
+  "transcript": "I'm okay, don't worry",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker clearly states they are fine.",
+  "latency_s": 0.86,
+  "cost_usd": 0.00111
+ },
+ {
+  "transcript": "help",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Person explicitly asked for help.",
+  "latency_s": 1.5,
+  "cost_usd": 0.0019
+ },
+ {
+  "transcript": "help me please",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Explicit request for help.",
+  "latency_s": 1.01,
+  "cost_usd": 0.00193
+ },
+ {
+  "transcript": "bachao",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Says 'bachao' asking to be rescued.",
+  "latency_s": 1.33,
+  "cost_usd": 0.00163
+ },
+ {
+  "transcript": "I can't get up",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "States inability to get up indicating need for help.",
+  "latency_s": 1.29,
+  "cost_usd": 0.0013
+ },
+ {
+  "transcript": "my hip hurts a lot",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Reports hip pain indicating injury and need for help.",
+  "latency_s": 1.36,
+  "cost_usd": 0.00169
+ },
+ {
+  "transcript": "call someone",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "The speaker asks for someone to be called, indicating need for help.",
+  "latency_s": 2.47,
+  "cost_usd": 0.00309
+ },
+ {
+  "transcript": "it hurts",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Reports pain indicating possible injury.",
+  "latency_s": 1.24,
+  "cost_usd": 0.00145
+ },
+ {
+  "transcript": "Hello?",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Question back that does not confirm okay or need help.",
+  "latency_s": 1.92,
+  "cost_usd": 0.00231
+ },
+ {
+  "transcript": "what time is it",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Question back does not answer wellness check.",
+  "latency_s": 1.55,
+  "cost_usd": 0.0018
+ },
+ {
+  "transcript": "and now the weather for tomorrow",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Speech is TV weather report unrelated to question.",
+  "latency_s": 1.01,
+  "cost_usd": 0.0013
+ },
+ {
+  "transcript": "hmm",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Mumbling does not clearly confirm being okay.",
+  "latency_s": 2.29,
+  "cost_usd": 0.00285
+ },
+ {
+  "transcript": "who is that",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Reply is a question back and does not confirm being okay.",
+  "latency_s": 1.63,
+  "cost_usd": 0.00224
+ },
+ {
+  "transcript": "the news at six",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Phrase is unrelated background speech and does not answer the question.",
+  "latency_s": 1.4,
+  "cost_usd": 0.00182
+ },
+ {
+  "transcript": "I'm not okay",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Person explicitly states they are not okay.",
+  "latency_s": 2.11,
+  "cost_usd": 0.00292
+ },
+ {
+  "transcript": "not really",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Answer denies being okay when asked.",
+  "latency_s": 2.16,
+  "cost_usd": 0.0027
+ },
+ {
+  "transcript": "ow ow ow",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Repeated cries of pain indicate hurt.",
+  "latency_s": 1.64,
+  "cost_usd": 0.00185
+ }
+]

@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S2_Fall_11",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  45,
+  97
+ ],
+ "burst_s": 5.3,
+ "n_images": 27,
+ "event_time": "6.7 s into the clip",
+ "numbers": {
+  "drop_rel": 0.353,
+  "drop_speed_rel_max": 0.687,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.345,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell off the bed onto the floor mat around 6.7 seconds into the clip and has been lying on their back without getting up for about 3 seconds.\",\"what_happened\":\"The person was leaning over the edge of the bed and then rolled off, dropping to the floor and ending flat on their back.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 8.04,
+ "usage": {
+  "input_tokens": 8833,
+  "output_tokens": 492,
+  "reasoning_tokens": 399
+ },
+ "cost_usd": 0.01313,
+ "response_id": "chatcmpl-19e7ab40bc7042a58ed85345fb3d3441",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell off the bed onto the floor mat around 6.7 seconds into the clip and has been lying on their back without getting up for about 3 seconds.",
+  "what_happened": "The person was leaning over the edge of the bed and then rolled off, dropping to the floor and ending flat on their back.",
+  "is_lying_still": true
+ }
+}

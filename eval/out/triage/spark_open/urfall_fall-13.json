@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-13",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  27
+ ],
+ "burst_s": 2.8,
+ "n_images": 14,
+ "event_time": "2.6 s into the clip",
+ "numbers": {
+  "drop_rel": 0.781,
+  "drop_speed_rel_max": 0.988,
+  "time_to_floor_s": 1.2,
+  "ar_post": 0.508,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.1
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Went down fast from standing near the center of the room by the door at 2.6 seconds into the clip and ended flat on the floor. Still down as the clip ends.\",\"what_happened\":\"Standing person pitched forward and dropped rapidly to the floor, ending prone and horizontal.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 13.4,
+ "usage": {
+  "input_tokens": 6157,
+  "output_tokens": 775,
+  "reasoning_tokens": 688
+ },
+ "cost_usd": 0.01099,
+ "response_id": "chatcmpl-4d57161e2a4d4b7bb29a3b65dbb2d04f",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Went down fast from standing near the center of the room by the door at 2.6 seconds into the clip and ended flat on the floor. Still down as the clip ends.",
+  "what_happened": "Standing person pitched forward and dropped rapidly to the floor, ending prone and horizontal.",
+  "is_lying_still": true
+ }
+}

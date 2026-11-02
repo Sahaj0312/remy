@@ -1,0 +1,194 @@
+[
+ {
+  "transcript": "Yeah.",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Affirmative reply directly answering the wellness check.",
+  "latency_s": 4.62,
+  "cost_usd": 0.0015
+ },
+ {
+  "transcript": "I'm fine",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker clearly states they are fine in response to wellness check.",
+  "latency_s": 2.55,
+  "cost_usd": 0.00121
+ },
+ {
+  "transcript": "yes yes I'm alright",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker clearly affirms they are alright in response to wellness check.",
+  "latency_s": 1.74,
+  "cost_usd": 0.00087
+ },
+ {
+  "transcript": "no no I'm fine, just slipped",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker explicitly states they are fine after slipping.",
+  "latency_s": 1.97,
+  "cost_usd": 0.00096
+ },
+ {
+  "transcript": "all good",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Transcript is a clear affirmative that they are fine.",
+  "latency_s": 1.62,
+  "cost_usd": 0.00102
+ },
+ {
+  "transcript": "haan main theek hoon",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Speaker clearly states they are fine in Hindi.",
+  "latency_s": 3.48,
+  "cost_usd": 0.00146
+ },
+ {
+  "transcript": "theek hai",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "Phrase means 'it's okay/fine' in Hindi/Urdu, indicating no help needed.",
+  "latency_s": 2.76,
+  "cost_usd": 0.00115
+ },
+ {
+  "transcript": "I'm okay, don't worry",
+  "expected": "okay",
+  "status": "okay",
+  "reason": "clearly states they are fine and do not need help",
+  "latency_s": 1.62,
+  "cost_usd": 0.00098
+ },
+ {
+  "transcript": "help",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Single word 'help' is a direct request for assistance after being asked if okay.",
+  "latency_s": 1.76,
+  "cost_usd": 0.00109
+ },
+ {
+  "transcript": "help me please",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Direct request for help in response to wellness check.",
+  "latency_s": 2.4,
+  "cost_usd": 0.00125
+ },
+ {
+  "transcript": "bachao",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Says 'bachao' (help/save me in Hindi) indicating needs help.",
+  "latency_s": 2.11,
+  "cost_usd": 0.00111
+ },
+ {
+  "transcript": "I can't get up",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Speaker states they cannot get up, indicating they need assistance.",
+  "latency_s": 1.94,
+  "cost_usd": 0.00109
+ },
+ {
+  "transcript": "my hip hurts a lot",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Speaker reports significant pain indicating injury and need for help.",
+  "latency_s": 1.43,
+  "cost_usd": 0.0009
+ },
+ {
+  "transcript": "call someone",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Speaker asks to call someone, indicating they need assistance after the fall check.",
+  "latency_s": 3.48,
+  "cost_usd": 0.00161
+ },
+ {
+  "transcript": "it hurts",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Speaker indicates they are in pain and likely needs assistance.",
+  "latency_s": 2.05,
+  "cost_usd": 0.00113
+ },
+ {
+  "transcript": "Hello?",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Response is a question back and does not answer whether they are okay.",
+  "latency_s": 2.72,
+  "cost_usd": 0.00127
+ },
+ {
+  "transcript": "what time is it",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Transcript is an unrelated question that does not answer whether they are okay or need help.",
+  "latency_s": 1.98,
+  "cost_usd": 0.00104
+ },
+ {
+  "transcript": "and now the weather for tomorrow",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Transcript is unrelated TV weather forecast and does not answer the wellness check",
+  "latency_s": 2.42,
+  "cost_usd": 0.00112
+ },
+ {
+  "transcript": "hmm",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Mumbling sound does not clearly confirm being okay or ask for help.",
+  "latency_s": 5.03,
+  "cost_usd": 0.00199
+ },
+ {
+  "transcript": "who is that",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Response is a question back and does not confirm being okay or ask for help.",
+  "latency_s": 2.7,
+  "cost_usd": 0.00121
+ },
+ {
+  "transcript": "the news at six",
+  "expected": "unclear",
+  "status": "unclear",
+  "reason": "Transcript is unrelated TV audio and does not answer the wellness question.",
+  "latency_s": 4.49,
+  "cost_usd": 0.00179
+ },
+ {
+  "transcript": "I'm not okay",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Explicitly states they are not okay, indicating distress after possible fall.",
+  "latency_s": 3.73,
+  "cost_usd": 0.00149
+ },
+ {
+  "transcript": "not really",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Answer to 'are you okay?' indicates they are not okay and may need help.",
+  "latency_s": 3.86,
+  "cost_usd": 0.00186
+ },
+ {
+  "transcript": "ow ow ow",
+  "expected": "needs_help",
+  "status": "needs_help",
+  "reason": "Repeated pain vocalizations indicate the person is hurt and likely needs help.",
+  "latency_s": 3.89,
+  "cost_usd": 0.00156
+ }
+]

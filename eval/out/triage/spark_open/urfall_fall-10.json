@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-10",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  42
+ ],
+ "burst_s": 4.3,
+ "n_images": 22,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.423,
+  "drop_speed_rel_max": 0.645,
+  "time_to_floor_s": 0.9,
+  "ar_post": 0.474,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.8
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell forward off the chair onto the floor at 2.4s into the clip and ended on his back near the chair, still moving legs but has not gotten up after 1.8s.\",\"what_happened\":\"A seated person leaned forward from a chair, lowered to hands and knees and rolled onto the floor ending in a horizontal lying position.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 6.16,
+ "usage": {
+  "input_tokens": 9333,
+  "output_tokens": 510,
+  "reasoning_tokens": 409
+ },
+ "cost_usd": 0.01383,
+ "response_id": "chatcmpl-b467b1df564049cfb4a12ce7eed2bb53",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell forward off the chair onto the floor at 2.4s into the clip and ended on his back near the chair, still moving legs but has not gotten up after 1.8s.",
+  "what_happened": "A seated person leaned forward from a chair, lowered to hands and knees and rolled onto the floor ending in a horizontal lying position.",
+  "is_lying_still": false
+ }
+}

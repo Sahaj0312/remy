@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-08",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  29
+ ],
+ "burst_s": 3.0,
+ "n_images": 15,
+ "event_time": "1.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.304,
+  "drop_speed_rel_max": 0.607,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.453,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.0
+ },
+ "raw_text": "{\"urgency\": \"low\", \"summary_for_family\": \"Slid slowly off the chair onto the floor near the desk at 1.9s and ended lying on his side, cushioned by hands and knees.\", \"what_happened\": \"Person seated on a chair leaned forward, lowered to hands and knees and then rolled onto their side on the floor in a slow, controlled descent.\", \"is_lying_still\": true}",
+ "status": "completed",
+ "latency_s": 9.58,
+ "usage": {
+  "input_tokens": 6554,
+  "output_tokens": 638,
+  "reasoning_tokens": 538
+ },
+ "cost_usd": 0.0109,
+ "response_id": "chatcmpl-7de1eeb5a1894db4974443ace8cd4008",
+ "verdict": {
+  "urgency": "low",
+  "summary_for_family": "Slid slowly off the chair onto the floor near the desk at 1.9s and ended lying on his side, cushioned by hands and knees.",
+  "what_happened": "Person seated on a chair leaned forward, lowered to hands and knees and then rolled onto their side on the floor in a slow, controlled descent.",
+  "is_lying_still": true
+ }
+}

@@ -1,0 +1,36 @@
+{
+ "clip": "gmdcsa_S4_Fall_12",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  45
+ ],
+ "burst_s": 4.6,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.544,
+  "drop_speed_rel_max": 0.845,
+  "time_to_floor_s": 1.0,
+  "ar_post": 0.665,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.1
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Fell forward off the bed onto the floor at 2.4 seconds into the clip and is lying still.\", \"urgency\": \"high\", \"what_happened\": \"The person sitting on the bed pitched forward and landed face-down on the floor in front of the bed, remaining prone.\"}",
+ "status": "completed",
+ "latency_s": 2.82,
+ "usage": {
+  "input_tokens": 7626,
+  "output_tokens": 531,
+  "reasoning_tokens": 445
+ },
+ "cost_usd": 0.01179,
+ "response_id": "resp_6ae8f4572a336df5acdf4a6f",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Fell forward off the bed onto the floor at 2.4 seconds into the clip and is lying still.",
+  "urgency": "high",
+  "what_happened": "The person sitting on the bed pitched forward and landed face-down on the floor in front of the bed, remaining prone."
+ }
+}

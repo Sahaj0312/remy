@@ -1,0 +1,38 @@
+{
+ "clip": "gmdcsa_S2_Fall_04",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  24,
+  75
+ ],
+ "burst_s": 5.2,
+ "n_images": 26,
+ "event_time": "4.5 s into the clip",
+ "numbers": {
+  "drop_rel": 0.259,
+  "drop_speed_rel_max": 0.503,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.639,
+  "hold": "ok",
+  "no_getup_observed_s": 3.0
+ },
+ "raw_text": "{\"urgency\":\"low\",\"summary_for_family\":\"Lowered slowly onto the mat in the center of the room around 4.5 seconds into the clip and is still moving and adjusting on the floor.\",\"what_happened\":\"Person slowly lowered from standing to sitting and then to lying on the floor mat in a controlled manner.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 6.92,
+ "usage": {
+  "input_tokens": 8528,
+  "output_tokens": 430,
+  "reasoning_tokens": 346
+ },
+ "cost_usd": 0.01249,
+ "response_id": "chatcmpl-33f581c101344694aa0b996f32a3e60e",
+ "verdict": {
+  "urgency": "low",
+  "summary_for_family": "Lowered slowly onto the mat in the center of the room around 4.5 seconds into the clip and is still moving and adjusting on the floor.",
+  "what_happened": "Person slowly lowered from standing to sitting and then to lying on the floor mat in a controlled manner.",
+  "is_lying_still": false
+ }
+}

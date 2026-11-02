@@ -1,0 +1,36 @@
+{
+ "clip": "gmdcsa_S1_Fall_09",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  44
+ ],
+ "burst_s": 4.5,
+ "event_time": "1.9 s into the clip",
+ "numbers": {
+  "drop_rel": 0.591,
+  "drop_speed_rel_max": 0.846,
+  "time_to_floor_s": 1.0,
+  "ar_post": 0.497,
+  "hold": "unknown",
+  "no_getup_observed_s": 2.5
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Went down face-first on the floor in front of the blue door 1.9 seconds into the clip and has been lying still for 2.5 seconds.\", \"urgency\": \"high\", \"what_happened\": \"The standing person bent forward and fell face-down to the floor, ending horizontal and still.\"}",
+ "status": "completed",
+ "latency_s": 3.12,
+ "usage": {
+  "input_tokens": 7626,
+  "output_tokens": 647,
+  "reasoning_tokens": 556
+ },
+ "cost_usd": 0.01228,
+ "response_id": "resp_6ae8f44c055f9b9f95124969",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Went down face-first on the floor in front of the blue door 1.9 seconds into the clip and has been lying still for 2.5 seconds.",
+  "urgency": "high",
+  "what_happened": "The standing person bent forward and fell face-down to the floor, ending horizontal and still."
+ }
+}

@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-02",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  2,
+  36
+ ],
+ "burst_s": 3.5,
+ "n_images": 18,
+ "event_time": "2.4 s into the clip",
+ "numbers": {
+  "drop_rel": 0.378,
+  "drop_speed_rel_max": 0.717,
+  "time_to_floor_s": 0.7,
+  "ar_post": 0.385,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.2
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Fell forward off the chair onto the floor around 2.4 seconds into the clip and ended up on his back near the chair. He is still down after about a second and moving a little but has not gotten up.\",\"what_happened\":\"Person pitched forward off a chair, caught himself briefly on his hands, then rolled onto his side and back on the carpet.\",\"is_lying_still\":false}",
+ "status": "completed",
+ "latency_s": 10.87,
+ "usage": {
+  "input_tokens": 7745,
+  "output_tokens": 748,
+  "reasoning_tokens": 644
+ },
+ "cost_usd": 0.01286,
+ "response_id": "chatcmpl-1c4e309c3d3644428ebb2c91f32fc539",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Fell forward off the chair onto the floor around 2.4 seconds into the clip and ended up on his back near the chair. He is still down after about a second and moving a little but has not gotten up.",
+  "what_happened": "Person pitched forward off a chair, caught himself briefly on his hands, then rolled onto his side and back on the carpet.",
+  "is_lying_still": false
+ }
+}

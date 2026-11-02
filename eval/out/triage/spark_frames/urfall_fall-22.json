@@ -1,0 +1,36 @@
+{
+ "clip": "urfall_fall-22",
+ "model": "muse-spark-1.3",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  0,
+  18
+ ],
+ "burst_s": 1.9,
+ "event_time": "1.2 s into the clip",
+ "numbers": {
+  "drop_rel": 0.405,
+  "drop_speed_rel_max": 0.764,
+  "time_to_floor_s": 0.8,
+  "ar_post": 0.336,
+  "hold": "unknown",
+  "no_getup_observed_s": 0.6
+ },
+ "raw_text": "{\"is_lying_still\": true, \"summary_for_family\": \"Fell off the chair onto the floor in the office at 1.2s and is still lying on their back.\", \"urgency\": \"high\", \"what_happened\": \"The seated person leaned forward, slid off the chair, and came to rest horizontal on the floor.\"}",
+ "status": "completed",
+ "latency_s": 4.72,
+ "usage": {
+  "input_tokens": 4555,
+  "output_tokens": 728,
+  "reasoning_tokens": 644
+ },
+ "cost_usd": 0.00879,
+ "response_id": "resp_6ae8f448938ca1c8985f499c",
+ "verdict": {
+  "is_lying_still": true,
+  "summary_for_family": "Fell off the chair onto the floor in the office at 1.2s and is still lying on their back.",
+  "urgency": "high",
+  "what_happened": "The seated person leaned forward, slid off the chair, and came to rest horizontal on the floor."
+ }
+}

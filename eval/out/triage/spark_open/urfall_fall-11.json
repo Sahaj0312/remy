@@ -1,0 +1,38 @@
+{
+ "clip": "urfall_fall-11",
+ "model": "accounts/fireworks/models/muse-spark-open",
+ "backend": "spark_open",
+ "mode": "frames",
+ "file_id": null,
+ "burst_frames": [
+  2,
+  42
+ ],
+ "burst_s": 4.1,
+ "n_images": 21,
+ "event_time": "2.3 s into the clip",
+ "numbers": {
+  "drop_rel": 0.3,
+  "drop_speed_rel_max": 0.588,
+  "time_to_floor_s": 0.6,
+  "ar_post": 0.685,
+  "hold": "unknown",
+  "no_getup_observed_s": 1.9
+ },
+ "raw_text": "{\"urgency\":\"high\",\"summary_for_family\":\"Went down quickly in the office near the chair at 2.3 seconds into the clip and has been lying still on the floor without getting up.\",\"what_happened\":\"The person lost balance from a standing position and fell backward onto the floor, ending lying on their back.\",\"is_lying_still\":true}",
+ "status": "completed",
+ "latency_s": 3.72,
+ "usage": {
+  "input_tokens": 8936,
+  "output_tokens": 293,
+  "reasoning_tokens": 208
+ },
+ "cost_usd": 0.01242,
+ "response_id": "chatcmpl-b1e587e6d2184aacbe968aa080a2ad1b",
+ "verdict": {
+  "urgency": "high",
+  "summary_for_family": "Went down quickly in the office near the chair at 2.3 seconds into the clip and has been lying still on the floor without getting up.",
+  "what_happened": "The person lost balance from a standing position and fell backward onto the floor, ending lying on their back.",
+  "is_lying_still": true
+ }
+}

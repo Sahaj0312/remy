@@ -18,7 +18,8 @@ from pathlib import Path
 
 
 class TriageBackend(ABC):
-    name: str = "base"
+    name: str = "base"            # the config key
+    label: str = "model"          # what the log and the family-facing text call it
 
     @abstractmethod
     def triage_fall(self, best: dict, fps: float, n_frames: int, src: Path, event_time: str, mode: str = "video") -> dict:
