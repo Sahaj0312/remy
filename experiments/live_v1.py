@@ -1,4 +1,6 @@
-"""Live pipeline skeleton: webcam / RTSP / file -> always-on YOLO pose -> rolling buffer ->
+"""[experiment, superseded by remy/monitor.py] Live pipeline v1, kept for the before/after story:
+a fixed 3 s wait after the drop, SAM on the buffered clip, Spark triage, no zones, no check-in, no alerts.
+Live pipeline skeleton: webcam / RTSP / file -> always-on YOLO pose -> rolling buffer ->
 on a candidate drop: wait no_getup_s (cancel if the person gets up) -> SAM 3.1 on the buffered clip ->
 fall score v2 -> Spark triage -> print the event, save clip + snapshot + json under events/.
 
@@ -24,14 +26,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import (  # noqa: E402
-    META_BASE_URL, ROOT, api_key, empty_frame, link_score, load_config, sam_cost_usd,
-    suppress_duplicates, video_info, write_json,
-)
-from fall_score import score_track  # noqa: E402
-
-EVENTS = ROOT / "events"
+from remy.common import EVENTS, META_BASE_URL, api_key, load_config, sam_cost_usd, video_info, write_json
+from remy.vision.score import score_track
+from remy.vision.tracking import empty_frame, link_score, suppress_duplicates
 
 
 def log(msg: str):
@@ -162,8 +159,8 @@ class Pipeline:
     def handle(self, clip_frames, fps, drop_wall: float, drop_virtual: float, snapshot, label: str):
         """Runs in a worker thread: SAM -> score -> Spark -> event."""
         from openai import AsyncOpenAI, OpenAI
-        import sam_track
-        from spark_verify import run_triage
+        from remy.vision import sam as sam_track
+        from remy.triage.spark import run_triage
         t_trigger = time.time()
         ev_dir = EVENTS / f"{datetime.fromtimestamp(drop_wall).strftime('%Y%m%d_%H%M%S')}_{label}"
         ev_dir.mkdir(parents=True, exist_ok=True)
@@ -254,12 +251,12 @@ def main():
 
     src = int(args.source) if args.source.isdigit() else args.source
     if src == "tapo":                       # shortcut: Tapo stream2 from .env
-        from common import tapo_rtsp
+        from remy.common import tapo_rtsp
         src = tapo_rtsp(2)
     is_file = isinstance(src, str) and Path(src).exists()
     if isinstance(src, str) and src.startswith(("rtsp", "http")):
         # ffmpeg subprocess reader: Python sockets are blocked from the LAN by macOS Local Network privacy
-        from rtsp_reader import FFmpegFrames
+        from remy.camera.rtsp import FFmpegFrames
         rd = FFmpegFrames(src, max_width=args.max_width)
         src_fps = rd.src_fps if 0 < rd.src_fps <= 60 else 15.0
         class _Cap:
@@ -271,7 +268,7 @@ def main():
         if not cap.isOpened():
             raise SystemExit(f"cannot open source {args.source}")
         src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    from common import redact
+    from remy.common import redact
     log(f"source opened: {redact(str(args.source))} ({src_fps:.1f} fps reported), yolo {args.yolo_fps:g} fps, buffer {args.buffer_s:g}s @ {args.buffer_fps:g} fps, "
         f"wait {post_s:g}s after a drop, {'DRY RUN' if args.no_api else 'SAM+Spark live'}")
     from ultralytics import YOLO

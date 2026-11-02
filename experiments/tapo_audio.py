@@ -1,8 +1,9 @@
-"""Record the Tapo C200 microphone and transcribe with Muse Voice Transcribe.
+"""[experiment] Record the Tapo C200 microphone and transcribe with Muse Voice Transcribe; prints audio levels too.
+The pipeline uses remy.camera.audio_in.record_mic + remy.checkin.transcribe.transcribe_wav instead.
 
-  python scripts/tapo_audio.py --seconds 15 --tag normal     # record -> tapo/audio_normal_<ts>.wav, then transcribe
-  python scripts/tapo_audio.py --seconds 15 --tag quiet
-  python scripts/tapo_audio.py --transcribe tapo/audio_normal_x.wav   # transcribe an existing wav
+  python experiments/tapo_audio.py --seconds 15 --tag normal     # record -> tapo/audio_normal_<ts>.wav, then transcribe
+  python experiments/tapo_audio.py --seconds 15 --tag quiet
+  python experiments/tapo_audio.py --transcribe tapo/audio_normal_x.wav   # transcribe an existing wav
 Recording: ffmpeg pulls the RTSP audio track (stream1), mono 16-bit PCM at 16 kHz (what the API accepts).
 Transcription: POST https://api.meta.ai/v1/asr/transcribe (multipart: request JSON + audio wav), $0.18 per hour.
 """
@@ -19,8 +20,7 @@ from pathlib import Path
 import numpy as np
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import META_BASE_URL, ROOT, api_key, redact, tapo_rtsp, write_json  # noqa: E402
+from remy.common import META_BASE_URL, ROOT, api_key, redact, tapo_rtsp, write_json
 
 OUT_DIR = ROOT / "tapo"
 

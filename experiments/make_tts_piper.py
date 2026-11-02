@@ -1,10 +1,11 @@
-"""Regenerate audio/are_you_okay.wav (piper, en_US-lessac-medium) with 1 s of leading silence
-(the C200 drops the first second of two-way audio) and an 8 kHz A-law copy."""
+"""[experiment, superseded by Kokoro in remy/checkin/tts.py] Regenerate audio/are_you_okay.wav with Piper
+(en_US-lessac-medium from tools/piper/) with 1 s of leading silence (the C200 drops the first second of
+two-way audio) and an 8 kHz A-law copy. Needs: pip install piper-tts."""
 import subprocess, sys, wave
-from pathlib import Path
+
 from piper import PiperVoice
 
-ROOT = Path(__file__).resolve().parents[1]
+from remy.common import ROOT
 text = sys.argv[1] if len(sys.argv) > 1 else "Are you okay?"
 voice = PiperVoice.load(str(ROOT / "tools" / "piper" / "en_US-lessac-medium.onnx"))
 (ROOT / "audio").mkdir(exist_ok=True)

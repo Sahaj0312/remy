@@ -1,9 +1,9 @@
-"""Probe the Tapo C200 RTSP streams: resolution, fps, time to first frame, frame jitter,
+"""[experiment] Probe the Tapo C200 RTSP streams: resolution, fps, time to first frame, frame jitter,
 glass-to-glass latency (flash test), and snapshots.
 
-  python scripts/tapo_probe.py                      # both streams, 10 s each, snapshots to tapo/
-  python scripts/tapo_probe.py --streams 2 --tag night --seconds 4   # one night snapshot
-  python scripts/tapo_probe.py --flash              # latency: point the camera at this laptop's screen first
+  python experiments/tapo_probe.py                      # both streams, 10 s each, snapshots to tapo/
+  python experiments/tapo_probe.py --streams 2 --tag night --seconds 4   # one night snapshot
+  python experiments/tapo_probe.py --flash              # latency: point the camera at this laptop's screen first
 """
 from __future__ import annotations
 
@@ -18,9 +18,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, redact, tapo_rtsp, write_json  # noqa: E402
-from rtsp_reader import FFmpegFrames, probe as ffprobe_json  # noqa: E402
+from remy.camera.rtsp import FFmpegFrames, probe as ffprobe_json
+from remy.common import ROOT, redact, tapo_rtsp, write_json
 
 OUT_DIR = ROOT / "tapo"
 

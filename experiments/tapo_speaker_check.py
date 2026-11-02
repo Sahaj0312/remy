@@ -1,6 +1,6 @@
-"""Self-check of the camera speaker: record the camera mic while go2rtc plays the phrase through
+"""[experiment] Self-check of the camera speaker: record the camera mic while go2rtc plays the phrase through
 the camera, then transcribe the recording. If the transcript contains the phrase, the speaker works.
-  python scripts/tapo_speaker_check.py --audio pcma
+  python experiments/tapo_speaker_check.py --audio pcma
 """
 from __future__ import annotations
 
@@ -11,17 +11,18 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, tapo_rtsp  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling experiment module
 from tapo_audio import transcribe  # noqa: E402
-from tapo_speak import API, ensure_go2rtc, play, stream_info  # noqa: E402
+
+from remy.camera.go2rtc import ensure_go2rtc, play, stream_info  # noqa: E402
+from remy.common import AUDIO_DIR, ROOT, tapo_rtsp  # noqa: E402
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--audio", default="pcma")
     p.add_argument("--auth", default="plain", choices=["plain", "md5", "sha256"])
-    p.add_argument("--wav", default=str(ROOT / "audio" / "are_you_okay.wav"))
+    p.add_argument("--wav", default=str(AUDIO_DIR / "are_you_okay.wav"))
     p.add_argument("--record-s", type=float, default=12)
     p.add_argument("--restart", action="store_true")
     args = p.parse_args()

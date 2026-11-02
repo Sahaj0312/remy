@@ -1,6 +1,6 @@
-"""Audio round-trip latency of the Tapo stream: play a beep on this Mac at a known time and
+"""[experiment] Audio round-trip latency of the Tapo stream: play a beep on this Mac at a known time and
 detect it in the camera's RTSP audio. Reports how far the stream lags real time (audio path).
-  python scripts/tapo_latency.py --stream 2 --repeats 3
+  python experiments/tapo_latency.py --stream 2 --repeats 3
 """
 from __future__ import annotations
 
@@ -13,11 +13,10 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, tapo_rtsp  # noqa: E402
-from rtsp_reader import FFmpegAudio  # noqa: E402
+from remy.camera.rtsp import FFmpegAudio
+from remy.common import AUDIO_DIR, tapo_rtsp
 
-BEEP = ROOT / "audio" / "beep.wav"
+BEEP = AUDIO_DIR / "beep.wav"
 
 
 def make_beep():
@@ -32,7 +31,7 @@ def main():
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--gap", type=float, default=4.0)
     args = p.parse_args()
-    make_beep()
+    AUDIO_DIR.mkdir(exist_ok=True); make_beep()
     au = FFmpegAudio(tapo_rtsp(args.stream))
     chunks: list[tuple[float, float]] = []      # (wall time, rms dBFS)
     stop = threading.Event()
