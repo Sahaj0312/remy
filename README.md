@@ -26,7 +26,7 @@ Transcribe write the note, hear the reply and judge it. Evaluated on 100 public 
 
 ![demo](docs/demo.gif)
 
-*Demo GIF to come: a staged fall on the rug, the check-in, and the WhatsApp message.*
+*Nov 3, live: a fall on the rug, SAM 3.1 confirms, the camera asks, she answers, the family gets the message.*
 
 ## Why
 
@@ -141,9 +141,26 @@ about 2.5 s. Spark 1.3 stays the live backend for both jobs: it is faster and it
 comparison is that the open model could take the triage stage on hardware you run, with no loss a family would
 notice.
 
+### Live, on the camera (3 Nov 2026)
+
+The filming day, with the final code: four staged scenarios in the living room, times measured from the moment
+of hitting the rug. Every alert carried the video (the fall with the room's sound, then her answer).
+
+| scenario | SAM confirmed | prompt spoken | heard | WhatsApp sent |
+|---|---|---|---|---|
+| sat down on the sofa, feet up on the coffee table | skipped at the trigger: hips on the sofa | | | nothing |
+| fall, answered after a 3 s pause | 5.4 s | 10.7 s | "Yep, yep, I'm I'm okay." → okay | 27 s, calm |
+| fall, silent | 5.9 s | 11.2 s | nothing, twice | 57 s, urgent |
+| fall, shouted "Help! Help me!" | 6.0 s | 11.3 s | a voice, no words → unclear | 20 s, urgent, with the shout |
+
+Two earlier takes that day found two bugs, both fixed before these runs: the check-in opened its own connection to
+the camera microphone and the C200 refused it (it serves three RTSP sessions, and a recording took the third), so
+a silent round ended at once; and the drop path did not consult the zones at all, so a fast sit-down that SAM
+confirmed as a drop became an event. The zone rule now uses the hip midpoint from the pose model.
+
 ### Live, on the camera (31 Oct 2026)
 
-Staged falls onto a rug in the living room, times measured from the moment of hitting the rug.
+The first live test, with the fixed 15 s window and a photo instead of a video.
 
 | scenario | SAM confirmed | prompt spoken | heard | WhatsApp sent |
 |---|---|---|---|---|
@@ -165,16 +182,16 @@ Lying down on the sofa and walking around raised nothing. All alerts arrived on 
 | reply classification | 2 s |
 | Spark triage (runs in parallel) | 5 to 7 s, one 54 s outlier seen |
 
-With the fixed 15 s window the "okay" message landed 31 s after the fall. On the real recordings the silence
-stop ends a "yeah" round at 4 to 6 s instead of 15 ([`eval/SILENCE_STOP.md`](eval/SILENCE_STOP.md)), which puts
-the okay message near 20 s; the live confirmation of that number is on the to-do list. Silent rounds still take
-the full 15 s, so an urgent after two of them stays near 50 s. SAM is the floor for confirmation, and sending
+With the fixed 15 s window the "okay" message landed 31 s after the fall. The silence stop ends a "yeah" round
+4 to 6 s in ([`eval/SILENCE_STOP.md`](eval/SILENCE_STOP.md)); on Nov 3 the okay message landed at 27 s with a
+3 s pause before the answer, and would land near 22 s without it. Silent rounds still take the full 15 s, so an
+urgent after two of them stays near 55 s; speech the transcriber cannot read escalates after one round, at 20 s. SAM is the floor for confirmation, and sending
 less video does not move it: a controlled run of the same clip at 5 fps, shorter, or at 480 px saves about a
 second each, inside the 6 to 12 s run-to-run noise. The only large cut left there is running SAM yourself.
 
 ### Cost
 
-Everything so far, two evaluation rounds and all live tests included, is $2.55 of API calls. One live event costs
+Everything so far, two evaluation rounds, the backend comparison and all live tests included, is $4.17 of API calls. One live event costs
 about $0.02: SAM $0.010 (50-frame minimum), Spark triage $0.003, two transcriptions $0.0015, one classification
 $0.0014. A false candidate that SAM rejects costs $0.01. YOLO, tracking, scoring and TTS run locally.
 
@@ -257,9 +274,10 @@ experiments/     probes and the v1 live loop, each with a one-line note
 
 - **Falls that look like lying down.** From sitting on the floor, onto a bed, from a bed: 7 of the 8 eval misses.
   The drop is too slow for the rule; the floor rule catches the floor cases only after 20 s of stillness.
-- **Hearing.** The camera mic is narrowband and far from the floor. In the live test one "help" was not heard at
-  all and the second came back as "Hello?". The policy escalates on both, so the alert still went out, but the
-  message said "no clear answer" instead of "asked for help".
+- **Hearing.** The camera mic is narrowband and far from the floor. A calm "I'm okay" comes through; a shouted
+  "Help! Help me!" came back from the transcriber as no words at all (as "Happy." with the gain lowered). The
+  policy escalates on a voice with no words, so the urgent alert still went out in 20 s with the sound of the
+  shout in the video, but the message said "answered, but not clearly" instead of "asked for help".
 - **Latency floor.** SAM takes 5.5 to 9.5 s on the live clip, most of it fixed cost; a smaller clip does not help.
   Nothing in the flow can be faster than that without running SAM locally.
 - **One camera.** The bedroom is visible only through a doorway. Falls there are far and small.
@@ -303,6 +321,12 @@ From the commit history:
   video: the fall with the room's sound, then her answer.
 - **Nov 2.** The out-of-sample check, Muse Spark Open evaluated as an alternative triage backend with a clip-for-clip
   comparison against Spark 1.3, `remy replay` with a shipped example event, and the submission header above.
+  Better spoken lines (recorded, imported), and the camera stopped saying her name.
+- **Nov 3.** A local page that shows the monitor at work, for the video. Filming found two bugs: the check-in
+  opened a fourth connection to the camera, which the C200 refuses (three RTSP sessions), so it now records from
+  the monitor's own microphone stream; and the drop path never looked at the zones, so a fast sit-down became an
+  event twice. The zone rule now places a person by the hips from the pose model, and a drop that ends on the
+  sofa or bed makes no SAM call. Then the four scenarios above.
 
 ## Data and licenses
 

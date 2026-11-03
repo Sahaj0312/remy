@@ -40,8 +40,8 @@ Build for Your World
 > Deterministic stages sit between the models: a local YOLO pose trigger decides when to call SAM, a rule on the SAM
 > track decides whether it was a fall, help words short-circuit the classifier, and a floor-zone rule raises an event
 > with no visible drop. Evaluation: 100 public clips (32/40 falls, 1/60 false alarms in-sample; 80% out-of-sample),
-> a threshold sensitivity sweep, a 41-test suite, and three staged falls on the real camera with the right WhatsApp
-> message each time.
+> a threshold sensitivity sweep, a 67-test suite, and four staged scenarios on the real camera on the last day
+> (sofa quiet; a clear okay at 27 s; a silent fall urgent at 57 s; a shout urgent at 20 s with the audio).
 >
 > **Bonus categories:** Best Agentic Use-Case (the system detects, confirms, asks, listens, decides, escalates and
 > re-checks on its own, end to end, with no person in the loop); Most Viral Project on X; Community Vote.

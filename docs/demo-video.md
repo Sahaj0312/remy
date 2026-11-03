@@ -79,17 +79,19 @@ The terminal now names every model as it runs: `SAM 3.1 confirms`, `Muse Spark 1
 Transcribe`, `classified okay (Muse Spark 1.3)`. Keep those lines readable; the rubric wants the live Meta calls
 visible on screen.
 
-**0:30 to 1:25, what it does.** Scenarios C, D, E, A in that order, each trimmed to 10 to 15 s with the
-terminal and the phone side by side.
+**0:30 to 1:25, what it does.** Scenarios C, D, A in that order, each trimmed to 10 to 15 s with the page
+and the phone side by side. (Filmed Nov 3: B calm at 27 s, C urgent at 57 s, D urgent at 20 s, A quiet.)
 
-> It stops listening two seconds after she stops talking, so a clear okay reaches the family about twenty
-> seconds after the fall. If she does not answer, it asks again, then sends an urgent message with the video of the fall.
+> It stops listening two seconds after she stops talking, so a clear okay reaches the family under thirty
+> seconds after the fall. If she does not answer, it asks again, then sends an urgent message with the video of
+> the fall.
 >
-> A help word skips the second question. The family hears she asked for help.
+> This time I shouted "help". The camera microphone heard a voice but the transcriber made no words of it. That
+> still escalates, at once: the family gets an urgent message twenty seconds after the fall, with the sound of
+> the shout in it.
 >
-> This one has no visible drop. She sat down on the floor and stayed still, so after twenty seconds it asks anyway.
->
-> And lying on the sofa is not a fall. The sofa and the bed are zones it learned from one frame.
+> And lying on the sofa is not a fall. The sofa and the bed are zones it learned from one frame, and the pose
+> model's hips decide where she is, so feet up on the coffee table do not count.
 
 **1:25 to 2:05, how it works.** The diagram, then the log with timings, then `zones_overlay.jpg`.
 
@@ -107,9 +109,9 @@ lines, `SENSITIVITY.md`.
 > percent out of sample. The misses are slow falls from sitting or onto a bed; those look like lying down, and the
 > floor rule is the answer for now. I also ran Meta's open-weight Spark on the same thirty-three clips: it agrees
 > with the hosted one within a step on twenty-nine, so the judge could run on hardware I control later. On the
-> real camera, every staged fall got the right message. The camera microphone is the weak link: it
-> misheard "help" once, so the policy escalates on anything unclear. One event costs about two cents in API calls.
-> The whole project so far is under three dollars.
+> real camera, every staged fall got a message that matched what happened. The camera microphone is the weak
+> link: a shouted "help" came through as no words, so the policy escalates on anything unclear, with the audio.
+> One event costs about two cents in API calls. The whole project so far is about four dollars.
 
 **2:35 to 2:55, privacy and what is next.**
 
@@ -123,8 +125,11 @@ lines, `SENSITIVITY.md`.
 
 ## Editing notes
 
-- Side-by-side layout for the scenarios: camera view left, terminal top right, phone bottom right. The
-  timestamps in the terminal and the phone's clock are the proof it is live.
+- Footage from Nov 3: `tapo/cuts/{A_sofa,B_fall_okay,C_fall_silent,D_fall_help}.mp4` (camera, 1080p, with room
+  sound; the fall is 8 to 10 s into each cut), the page screen recordings, the phone screen recording, and each
+  event's own `clip.mp4`, `answer_r1.mp4` and `alert.mp4` under `events/`.
+- Side-by-side layout for the scenarios: camera view left, the page top right, phone bottom right. The
+  timestamps in the page banner and the phone's clock are the proof it is live.
 - Never speed up the audio of the check-in; the question and the answer are the demo.
 - Subtitles for every spoken line from the room; the camera speaker is quiet on a phone recording.
 - Keep the honest lines (the misheard "help", the slow-fall misses). Judges trust a demo that admits a limit.
