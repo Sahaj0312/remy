@@ -55,8 +55,8 @@ flowchart LR
 ```
 
 1. **Watch.** `ffmpeg` pulls the RTSP stream (Python sockets are blocked from the LAN on macOS). YOLO pose runs at
-   5 fps on the laptop and keeps a 12 s rolling buffer at 10 fps. Room zones (floor, rug, sofa, bed) come from one
-   SAM 3.1 image query at setup time.
+   5 fps on the laptop and keeps a 12 s rolling buffer of frames at 10 fps, and the room's audio over the same
+   span, in memory only. Room zones (floor, rug, sofa, bed) come from one SAM 3.1 image query at setup time.
 2. **Trigger.** A loose rule fires on any fast downward move of the body centroid, measured in body lengths so the
    distance to the camera does not matter. The clip from 4 s before the drop to 1 s after is cut at once.
 3. **Confirm.** SAM 3.1 tracks the person in that clip. Score v2 checks the drop again on the clean track, that the
@@ -71,8 +71,10 @@ flowchart LR
    text, Spark decides whether that text is a clear "I'm fine". Only a clear okay is reassuring. Silence gets one
    more prompt; anything unclear escalates at once; a help word escalates without asking Spark; speech-level
    sound that the transcriber could not turn into words counts as unclear, because she tried to answer.
-7. **Alert.** WhatsApp to every number in `family.json`. Calm text for an okay. Urgent text plus a snapshot
-   otherwise. If she is still on the floor a minute after saying okay, it asks again.
+7. **Alert.** WhatsApp to every number in `family.json`, as one short video with the message as its caption:
+   the five seconds of the fall with the room's sound, then her answer with her face, when she spoke. Calm
+   wording for an okay, urgent otherwise. If she said nothing, the video is the fall alone and the message says
+   she did not respond when asked. If she is still on the floor a minute after saying okay, it asks again.
 
 Every event writes a folder under `events/` with the clip, snapshot, SAM track, score, triage, transcripts and a
 timestamped log. A dropped camera stream is reopened with back-off instead of ending the run, and once a day the
@@ -180,7 +182,8 @@ $0.0014. A false candidate that SAM rejects costs $0.01. YOLO, tracking, scoring
   2.5 s burst sent to Spark. Nothing streams continuously to any service.
 - Audio is recorded only for the 15 s after the prompt and sent for transcription. The microphone is otherwise
   not read.
-- The family gets one snapshot, and only with an urgent alert.
+- The family gets one short video per alert: the fall with the room's sound, and her answer. Nothing else from
+  the buffers is kept or sent.
 - Events, clips and recordings stay in `events/` on the machine. Keys, phone numbers, the camera's zones and the
   real config are gitignored; the repository holds `.env.example`, `config.example.json` and a placeholder number.
 - What Meta keeps from API calls is governed by the Meta Model API terms, not by this project.
@@ -232,7 +235,7 @@ remy/            the package
   monitor.py     the live loop: capture, trigger, confirm, event flow (remy run)
   replay.py      re-score and print a recorded event folder (remy replay)
   cli.py         remy setup-zones | run | test-checkin | test-alert | replay | costs
-  camera/        capture.py (one source, reconnects), rtsp.py (ffmpeg frames/audio), audio_in.py (mic), silence.py (stop when she has answered), audio_out.py (speak), go2rtc.py (speaker)
+  camera/        capture.py (one source, reconnects), rtsp.py (ffmpeg frames/audio), audio_in.py (mic, room audio buffer), silence.py (stop when she has answered), clips.py (clips with sound, stitching), audio_out.py (speak), go2rtc.py (speaker)
   vision/        yolo.py, tracking.py, sam.py, score.py (v1, v2, trigger), zones.py, zones_setup.py
   triage/        base.py (the interface), spark.py (Muse Spark 1.3), spark_open.py (Muse Spark Open via Fireworks)
   checkin/       tts.py (Kokoro), transcribe.py (Muse Voice Transcribe), classify + ask_once
@@ -292,7 +295,8 @@ From the commit history:
 - **Nov 1.** The scripts folder became this package with a `remy` command, the evaluation moved to `eval/`, and
   this README. Then a test suite, stream reconnect, the daily heartbeat and the threshold sensitivity sweep.
   The recording now stops two seconds after she stops talking, the mic opens while the prompt plays, and speech
-  the transcriber cannot understand escalates instead of waiting for a second prompt.
+  the transcriber cannot understand escalates instead of waiting for a second prompt. Alerts became a short
+  video: the fall with the room's sound, then her answer.
 - **Nov 2.** The out-of-sample check, Muse Spark Open evaluated as an alternative triage backend with a clip-for-clip
   comparison against Spark 1.3, `remy replay` with a shipped example event, and the submission header above.
 
