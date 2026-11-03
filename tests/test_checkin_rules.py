@@ -14,7 +14,7 @@ class FakeBackend:
 
 
 def test_question_text_fills_in_the_name(cfg):
-    assert question_text(cfg["checkin"]) == "Nani, are you okay?"
+    assert question_text(cfg["checkin"]) == "Are you okay? Can you hear me?"
 
 
 def test_empty_transcript_is_no_answer_without_a_model_call(cfg):
@@ -34,9 +34,9 @@ def test_help_words_force_needs_help_in_any_case_and_language(cfg):
 
 def test_other_speech_goes_to_the_backend(cfg):
     be = FakeBackend("unclear")
-    r = classify("what time is it", cfg["checkin"], "Nani, are you okay?", backend=be)
+    r = classify("what time is it", cfg["checkin"], "Are you okay?", backend=be)
     assert r["status"] == "unclear" and r["rule"] is False
-    assert be.calls == [("what time is it", "Nani, are you okay?")]
+    assert be.calls == [("what time is it", "Are you okay?")]
 
 
 def test_okay_wording_is_the_backend_call_not_a_keyword(cfg):

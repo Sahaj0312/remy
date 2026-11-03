@@ -28,7 +28,7 @@ Build for Your World
 >    decision is made on the SAM track (drop in body lengths, ends horizontal, no get-up). SAM 3.1 image segmentation
 >    also builds the room zones (floor, rug, sofa, bed) from one frame at setup.
 > 2. **Muse Spark 1.3 (Meta Model API)**: sees an inline video burst around the drop plus the tracker numbers and
->    returns urgency and the one-line note the family reads; and classifies the spoken reply to "Nani, are you okay?"
+>    returns urgency and the one-line note the family reads; and classifies the spoken reply to "Are you okay?"
 >    as okay / needs help / unclear / no answer, with the question as context, so any wording or language counts.
 > 3. **Muse Voice Transcribe (Meta Model API)**: speech to text of the 15 seconds after the prompt, from the camera
 >    microphone.
@@ -55,7 +55,7 @@ Build for Your World
 Post before the deadline, paste the URL. Draft:
 
 > My grandmother lives alone most of the day. So during the @Meta AI hackathon I built remy: a $30 camera notices a
-> fall, SAM 3.1 confirms it, the camera asks "Nani, are you okay?", Muse Spark listens, and the family gets a
+> fall, SAM 3.1 confirms it, the camera asks "Are you okay?", Muse Spark listens, and the family gets a
 > WhatsApp with what she said. 30 s from fall to message. Open source.
 >
 > [video] github.com/Sahaj0312/remy

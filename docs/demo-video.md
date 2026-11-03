@@ -65,7 +65,7 @@ the first ten seconds. Camera view: you walk in and fall onto the rug. Caption f
 > October 29.
 
 **0:10 to 0:30, the hook pays off.** Terminal: `candidate drop`, `SAM 3.1 confirms`, `EVENT raised ... drop->event
-9.3s`. The camera speaker says "Nani, are you okay?". You: "Yeah, I'm okay." The phone shows the calm message.
+9.3s`. The camera speaker asks "Are you okay? Can you hear me?". You: "Yeah, I'm okay." The phone shows the calm message.
 Trim the waits; keep the timestamps visible so nobody thinks it is faked.
 
 > It notices a fall, asks if she is okay, and tells the family what she said. Nani lives in a house where nobody is

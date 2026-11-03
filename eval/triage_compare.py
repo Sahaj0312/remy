@@ -28,7 +28,7 @@ REPLIES = [
     ("hmm", "unclear"), ("who is that", "unclear"), ("the news at six", "unclear"),
     ("I'm not okay", "needs_help"), ("not really", "needs_help"), ("ow ow ow", "needs_help"),
 ]
-QUESTION = "Nani, are you okay?"
+QUESTION = "Are you okay? Can you hear me?"
 
 
 def flagged_clips() -> list[str]:

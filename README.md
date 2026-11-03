@@ -1,7 +1,7 @@
 # remy
 
 A fall detector for one elderly person at home, built on a cheap Wi-Fi camera and the Meta Model API.
-It watches the room, confirms a fall, asks "Nani, are you okay?" through the camera speaker, listens to
+It watches the room, confirms a fall, asks "Are you okay?" through the camera speaker, listens to
 the answer, and tells the family on WhatsApp what happened and what she said. It is a multi-model pipeline
 with deterministic checks between the models: a local pose model and a rule decide when to call SAM 3.1,
 a second rule on the SAM track decides whether it was a fall, and only then do Muse Spark and Muse Voice
@@ -66,7 +66,7 @@ flowchart LR
    the sofa or bed does not.
 5. **Triage.** Muse Spark gets a 2.5 s burst around the drop plus the tracker numbers and writes the one-line note
    for the family ("Went down fast by the coffee table at 5:45pm and hasn't moved").
-6. **Check-in.** The camera speaker says "Nani, are you okay?" (a second, different line if she did not answer, and
+6. **Check-in.** The camera speaker asks "Are you okay? Can you hear me?" (a second, different line if she did not answer, and
    "I can see you're on the floor" for the floor rule). The camera mic records until she has answered
    (speech followed by two seconds of quiet), or for 15 s if nothing is said. Muse Voice Transcribe turns it into
    text, Spark decides whether that text is a clear "I'm fine". Only a clear okay is reassuring. Silence gets one

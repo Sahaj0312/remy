@@ -6,7 +6,7 @@ from remy.checkin.tts import LINE_KEYS, available_keys, line_text, prompt_path
 
 def test_every_line_has_text_with_the_name_filled_in(cfg):
     ck = cfg["checkin"]
-    assert question_text(ck) == "Nani, are you okay?"
+    assert question_text(ck) == "Are you okay? Can you hear me?"
     for key in LINE_KEYS:
         t = line_text(ck, key)
         assert "{name}" not in t and t.strip()
