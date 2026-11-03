@@ -8,8 +8,10 @@ hackathon, and judges must be able to tell what that is. Everything in remy qual
 1. Message the test number from your phone (any text) so the 24 h free-form window is open. Then check:
    `remy test-alert --text "demo starting"`. If that fails with a window error, message the number again.
 2. Tapo app: speaker volume to maximum, privacy mode off, lights on in the room, daytime.
-3. Terminal: big font, dark theme, window wide enough that log lines do not wrap. Start screen recording
-   (cmd+shift+5, record the terminal window only).
+3. The live page instead of the terminal: `remy run` serves http://127.0.0.1:8790 with the camera view (boxes,
+   zones, state banner), the state card, the last message sent, the model chips lighting up, and the log. Open
+   it in a browser window sized 16:9 (1600x900 is good), full screen it, and screen record that window
+   (cmd+shift+5). Keep the terminal open too for the full log.
 4. Phone: open the WhatsApp chat with the test number, start iOS screen recording (Control Center). Keep it
    running the whole session; it is cheaper to cut later than to miss a message arriving. Tap each video when it
    lands so the recording shows it playing with sound. Before the first scenario, send yourself one test video so

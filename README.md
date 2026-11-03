@@ -216,7 +216,7 @@ remy test-checkin --import ask.wav --as ask   # swap one line for a better recor
 remy setup-zones --stream 2             # floor / rug / sofa / bed -> zones.json, check zones_overlay.jpg
 remy test-alert --dry-run --test        # alert path without sending; drop --dry-run to send
 remy test-checkin --run                 # one spoken check-in round on the camera
-remy run --source tapo                  # watch
+remy run --source tapo                  # watch; a local page at http://127.0.0.1:8790 shows the camera, state and log
 ```
 
 To try it without a camera, simulate with a clip from the eval set (`--no-zones` because the room differs):
@@ -237,6 +237,7 @@ with a `_comment` block that explains each one.
 remy/            the package
   monitor.py     the live loop: capture, trigger, confirm, event flow (remy run)
   replay.py      re-score and print a recorded event folder (remy replay)
+  web.py         the local page: annotated camera view, state, last message, log (remy run --web)
   cli.py         remy setup-zones | run | test-checkin | test-alert | replay | costs
   camera/        capture.py (one source, reconnects), rtsp.py (ffmpeg frames/audio), audio_in.py (mic, room audio buffer), silence.py (stop when she has answered), clips.py (clips with sound, stitching), audio_out.py (speak), go2rtc.py (speaker)
   vision/        yolo.py, tracking.py, sam.py, score.py (v1, v2, trigger), zones.py, zones_setup.py

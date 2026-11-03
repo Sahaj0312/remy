@@ -40,6 +40,7 @@ from remy.vision.score import score_track
 from remy.vision.tracking import OnlineTracks
 from remy.vision.yolo import detect as yolo_detect, load_model
 from remy.vision.zones import Zones
+from remy.web import WebView, annotate
 
 
 def now_str() -> str:
@@ -57,6 +58,7 @@ class State:
         self.cooldown_until_wall = 0.0      # set by a flow when it raises an event; the main loop holds the trigger until then
         self.last_event_t = None            # stream time of the last raised event, for de-duplicating one fall
         self.audio: MicStream | None = None # rolling room audio over the same span as the frame buffer (camera sources only)
+        self.web: WebView | None = None     # the local page, when --web is on
 
     def reset(self):
         """After a camera reconnect: forget the short-term history, the event bookkeeping stays."""
@@ -111,6 +113,8 @@ class Flow(threading.Thread):
     def log(self, msg):
         line = f"[{now_str()}] [+{time.time() - self.t_start:6.2f}s] {msg}"
         print(line, flush=True); self.lines.append(line)
+        if self.state.web is not None:
+            self.state.web.line(line)
         with open(self.dir / "log.txt", "a") as f:
             f.write(line + "\n")
 
@@ -442,6 +446,32 @@ class Flow(threading.Thread):
             time.sleep(0.5)
 
 
+# ----------------------------------------------------------------------------- the page's view of the flows
+def web_status(flows: list, wall: float):
+    """(state, since_wall, last alert text, events) for the local page, read off the flows."""
+    n_ev = sum(1 for f in flows if f.result.get("event"))
+    alert_text = None
+    for f in reversed(flows):
+        al = f.result.get("alert")
+        if al and al.get("text"):
+            alert_text = al["text"]; break
+    for f in reversed(flows):
+        if not f.result.get("event"):
+            continue
+        since = f.drop.get("drop_wall", f.t_start) if f.drop else f.t_start
+        if "alert_sent" in f.timings:
+            if wall - (f.t_start + f.timings["alert_sent"]) < 90:
+                return "alert", since, alert_text, n_ev
+            break
+        if not f.done:
+            return ("checkin" if any(k.startswith("checkin") for k in f.timings) else "event"), since, alert_text, n_ev
+    for f in flows:
+        if not f.done and not f.result.get("event"):
+            since = f.drop.get("drop_wall", f.t_start) if f.drop else f.t_start
+            return "candidate", since, alert_text, n_ev
+    return "watching", None, alert_text, n_ev
+
+
 # ----------------------------------------------------------------------------- main loop
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="remy run", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -465,11 +495,24 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--no-zones", action="store_true", help="ignore zones.json (e.g. when simulating with a clip from another room)")
     p.add_argument("--no-reconnect", action="store_true", help="exit when the stream drops instead of reconnecting")
     p.add_argument("--max-outage-s", type=float, default=600.0, help="give up reconnecting after this long without a frame")
+    p.add_argument("--web", type=int, default=8790, metavar="PORT", help="serve the local page (camera view, state, log) on 127.0.0.1:PORT")
+    p.add_argument("--no-web", action="store_true", help="do not serve the local page")
     args = p.parse_args(argv)
     cfg = load_config(); trig_cfg = {**cfg["score_v2"], **cfg["trigger"]}; mon = cfg["monitor"]
 
+    web = None if args.no_web else WebView()
+
     def log(msg):
-        print(f"[{now_str()}] {msg}", flush=True)
+        line = f"[{now_str()}] {msg}"
+        print(line, flush=True)
+        if web is not None:
+            web.line(line)
+
+    if web is not None:
+        try:
+            log(f"web view: {web.serve(args.web)}")
+        except OSError as e:
+            log(f"web view not started ({e}); use --web <port> or --no-web"); web = None
 
     cap = Capture(args.source, max_width=args.max_width, reconnect=not args.no_reconnect, max_outage_s=args.max_outage_s, log=log)
     is_file, src_fps = cap.is_file, cap.src_fps
@@ -484,6 +527,7 @@ def main(argv: list[str] | None = None) -> int:
     state = None; tracks = None; buffer = deque(maxlen=int(args.buffer_s * args.buffer_fps) + 5)
     last_buf = last_yolo = -1e9; last_drop_v = -1e9; last_cancelled_v = None; cooldown_until = -1e9
     flows: list[Flow] = []; floor_since = None; t0_wall = time.time(); i = 0; yolo_ms = []
+    last_dets: list = []; last_main = None
     started = datetime.now(); hb_last_date = heartbeat_start_state(started, int(hb_cfg.get('hour', 9))); hb_next_check = 0.0; wa_hb = None
     while True:
         ok, frame = cap.read()
@@ -507,7 +551,7 @@ def main(argv: list[str] | None = None) -> int:
         if state is None:
             zpath = ROOT / mon["zones_file"]
             zones = Zones(zpath, W, H) if (zpath.exists() and not args.no_zones) else None
-            state = State(zones, args.yolo_fps, H); state.buffer = buffer
+            state = State(zones, args.yolo_fps, H); state.buffer = buffer; state.web = web
             if cap.kind == "rtsp" and (cfg["alerts"].get("video") or {}).get("enabled", True):
                 try:
                     state.audio = MicStream(stream=1, keep_s=args.buffer_s + 10)
@@ -518,12 +562,17 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[{now_str()}] zones: {list(zones.polys) if zones else 'none (floor rule off)'}", flush=True)
         if t_v - last_buf >= 1 / args.buffer_fps - 1e-6:
             buffer.append((t_v, frame.copy(), wall)); last_buf = t_v
+            if web is not None:
+                st, since, alert_text, n_ev = web_status(flows, wall)
+                web.status(st, since, alert_text, n_ev)
+                web.frame(annotate(frame, last_dets, last_main, state.zones, st, None if since is None else wall - since))
         if t_v - last_yolo >= 1 / args.yolo_fps - 1e-6:
             last_yolo = t_v; ty = time.perf_counter()
             dets = yolo_detect(model, frame, cfg["yolo"], cfg["tracking"]); yolo_ms.append((time.perf_counter() - ty) * 1000)
+            last_dets = dets
             tracks.update(dets)
             main_det = max(dets, key=lambda d: (d["box"][2] - d["box"][0]) * (d["box"][3] - d["box"][1])) if dets else None
-            state.push(t_v, wall, main_det)
+            state.push(t_v, wall, main_det); last_main = main_det
             active = [f for f in flows if not f.done]
             # a flow that finished without an event only blocks the trigger for a couple of seconds
             for f in flows:
@@ -587,6 +636,8 @@ def main(argv: list[str] | None = None) -> int:
     cap.release()
     if state is not None and state.audio is not None:
         state.audio.close()
+    if web is not None:
+        web.close()
     for f in flows:
         f.join(timeout=240)
     print(f"[{now_str()}] done: {i} frames, YOLO {np.mean(yolo_ms) if yolo_ms else 0:.0f} ms/frame, {sum(f.result.get('event', False) for f in flows)} event(s), "
