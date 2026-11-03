@@ -341,7 +341,7 @@ class Flow(threading.Thread):
             for attempt in range(1, retries + 2):
                 self.mark(f"checkin{attempt}_start")
                 line = ("ask_floor" if self.kind == "floor_still" else "ask") if attempt == 1 else "ask_again"
-                r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded, line=line); rounds.append(r)
+                r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded, line=line, mic=self.state.audio); rounds.append(r)
                 self.mark(f"checkin{attempt}_done")
                 if r["transcript"].get("transcript"):
                     said = r["transcript"]["transcript"]
@@ -432,7 +432,7 @@ class Flow(threading.Thread):
                 if not self.state.down_now(self.cfg["monitor"]["low_ar_max"]):
                     self.log(f"{limit}s after the event: not down any more -> no re-check"); return
                 self.log(f"still down {limit}s after saying okay -> checking in again")
-                r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log, line="recheck")
+                r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log, line="recheck", mic=self.state.audio)
                 self.result.setdefault("checkin_rounds", []).append(r)
                 if r["status"] == "okay":
                     self.log("re-check: okay (no new alert)")
@@ -528,7 +528,7 @@ def main(argv: list[str] | None = None) -> int:
     last_buf = last_yolo = -1e9; last_drop_v = -1e9; last_cancelled_v = None; cooldown_until = -1e9
     flows: list[Flow] = []; floor_since = None; t0_wall = time.time(); i = 0; yolo_ms = []
     last_dets: list = []; last_main = None
-    started = datetime.now(); hb_last_date = heartbeat_start_state(started, int(hb_cfg.get('hour', 9))); hb_next_check = 0.0; wa_hb = None
+    started = datetime.now(); hb_last_date = heartbeat_start_state(started, int(hb_cfg.get('hour', 9))); hb_next_check = 0.0; wa_hb = None; audio_retry_at = 0.0
     while True:
         ok, frame = cap.read()
         if not ok:
@@ -615,6 +615,15 @@ def main(argv: list[str] | None = None) -> int:
                 else:
                     floor_since = None
         i += 1
+        # ---- the room audio stream: reopen it if the camera dropped it (the check-in records from it too)
+        if state is not None and state.audio is not None and not state.audio.alive and wall >= audio_retry_at:
+            audio_retry_at = wall + 15
+            log(f"room audio stream down ({state.audio.err or 'ended'}); reopening")
+            state.audio.close()
+            try:
+                state.audio = MicStream(stream=1, keep_s=args.buffer_s + 10)
+            except Exception as e:
+                log(f"room audio stream failed to reopen ({type(e).__name__}: {e})")
         # ---- daily heartbeat (checked twice a minute, sent once a day)
         if hb_on and wall >= hb_next_check:
             hb_next_check = wall + 30

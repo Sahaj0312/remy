@@ -76,11 +76,13 @@ def classify(transcript: str, cfg: dict, question: str, backend=None, heard_spee
 
 
 def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=print, backend=None, on_recorded=None,
-             line: str = "ask") -> dict:
+             line: str = "ask", mic: MicStream | None = None) -> dict:
     """Speak one of the question lines (ask, ask_again, ask_floor, recheck), record, transcribe, classify.
     Returns a dict with all timings. on_recorded(wav_path, rec_wall_start, record_result) is called right after
     the recording ends, before transcription, so the caller can cut the frames of that moment while they are
-    still in its buffer."""
+    still in its buffer. `mic` is an open MicStream to record from (the monitor's room-audio stream); it is
+    left open. Without one the round opens its own. The camera serves three RTSP sessions at a time, so a
+    round must not add a connection when one is already running."""
     from remy.camera.audio_out import speak
     lang = cfg["language"]
     question = question_text(cfg, line)
@@ -90,8 +92,11 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
         wav = prompt_path(line, lang)
     t0 = time.time()
     stop_on_silence = cfg.get("stop_on_silence", True)
-    mic = None
-    if stop_on_silence:
+    if mic is not None and not mic.alive:
+        log(f"check-in: the room audio stream is down ({mic.err or 'ended'}); opening the mic for this round")
+        mic = None
+    shared = mic is not None
+    if mic is None and stop_on_silence:
         try:
             mic = MicStream()                       # connect while the prompt plays
         except Exception as e:
@@ -100,19 +105,24 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
     log(f"check-in: spoke '{question}' on {sp['device']} ({sp['took_s']}s)")
     rec = rec_dir / f"checkin_{tag}_{datetime.now().strftime('%H%M%S')}.wav"
     rec_wall = time.time() + 0.5
+    r = None
     if mic is not None:
         try:
             # the stream lags the room by 0.2 to 0.45 s, so the prompt's tail still arrives after speak() returns
             r = record_until_silence(rec, cfg["record_s"], cfg.get("silence"), mic=mic, since_wall=rec_wall)
         finally:
-            mic.close()
-        how = (f"stopped {r['duration_s']}s in, speech at {r['speech_at_s']}s" if r.get("stopped_early")
-               else f"no answer heard in {r.get('duration_s', cfg['record_s'])}s" if r.get("speech_at_s") is None
-               else f"ran the full {r.get('duration_s')}s, speech at {r['speech_at_s']}s")
-        log(f"check-in: mic -> {rec.name}: {how} (peak {r.get('peak_db')} dB, {r['took_s']}s)")
-    else:
+            if not shared:
+                mic.close()
+        if r["ok"]:
+            speech = "no speech" if r.get("speech_at_s") is None else f"speech at {r['speech_at_s']}s"
+            how = f"stopped {r['duration_s']}s in, {speech}" if r.get("stopped_early") else f"ran the full {r.get('duration_s')}s, {speech}"
+            log(f"check-in: mic -> {rec.name}: {how} (peak {r.get('peak_db')} dB, {r['took_s']}s)")
+        else:
+            log(f"check-in: the mic stream gave nothing ({r['err']}); recording {cfg['record_s']}s the plain way")
+            r = None
+    if r is None:
         r = record_mic(cfg["record_s"], rec)
-        log(f"check-in: recorded {cfg['record_s']}s mic -> {rec.name} ({r['took_s']}s)")
+        log(f"check-in: recorded {cfg['record_s']}s mic -> {rec.name} ({r['took_s']}s{'' if r['ok'] else ', FAILED: ' + r['err']})")
         r.setdefault("duration_s", cfg["record_s"]); r.setdefault("speech_at_s", None)
     r["rec_wall"] = rec_wall
     if on_recorded is not None and r.get("ok"):

@@ -23,7 +23,9 @@ on home Wi-Fi and a MacBook on the same network.
 
 Streams: `rtsp://user:pass@IP:554/stream1` is 1920x1080 H.264 at about 15 fps with 8 kHz A-law audio;
 `stream2` is 1280x720. The monitor uses stream2 for video (scaled to 640 px wide) and stream1 for the
-microphone.
+microphone. The C200 serves **three RTSP sessions at a time**. The monitor holds two (video, and the room-audio
+buffer the check-in records from), so one is free for you: a recording, or VLC. A fourth connection is refused
+with `Operation not permitted`, and a check-in that had to open its own connection would hear nothing.
 
 ## Speaker: go2rtc
 

@@ -23,7 +23,9 @@ hackathon, and judges must be able to tell what that is. Everything in remy qual
      -t 2400 -c:v copy -c:a aac tapo/demo_$(date +%H%M).mp4
    ```
 
-   Keep the terminal time visible somewhere; it is how you line this up with the log.
+   Keep the terminal time visible somewhere; it is how you line this up with the log. This recording is the
+   camera's third and last RTSP session (the monitor holds two), so do not open VLC or another viewer while
+   it runs.
 6. Start the monitor in a second terminal: `remy run --source tapo --label demo`. Wait for the `zones:` line.
 7. A second phone or a friend filming you from the doorway gives the "room" shots (you walking in, the fall,
    the speaker asking). If you are alone, prop the phone on the desk pointing at the rug.
@@ -81,7 +83,7 @@ visible on screen.
 terminal and the phone side by side.
 
 > It stops listening two seconds after she stops talking, so a clear okay reaches the family about twenty
-> seconds after the fall. If she does not answer, it asks again, then sends an urgent message with a photo.
+> seconds after the fall. If she does not answer, it asks again, then sends an urgent message with the video of the fall.
 >
 > A help word skips the second question. The family hears she asked for help.
 >
@@ -112,9 +114,8 @@ lines, `SENSITIVITY.md`.
 **2:35 to 2:55, privacy and what is next.**
 
 > Nothing streams anywhere. The only things that leave the house are the five-second clip around a drop, a
-> two-second burst, and the fifteen seconds of audio after the question. Next: stop recording when she stops
-> talking, so the message lands in twenty seconds instead of thirty; a second camera for the bedroom; and
-> Glimmer as a backend so the triage can run on hardware I control.
+> two-second burst, and the few seconds of audio after the question, until she has answered. Next: a second
+> camera for the bedroom, and Glimmer as a backend so the triage can run on hardware I control.
 
 **2:55 to 3:00, close.** The repo on screen, the camera on the shelf.
 

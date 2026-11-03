@@ -60,8 +60,9 @@ class MicStream:
             time.sleep(0.05)
         return self.first_wall is not None
 
-    def chunks_since(self, since_wall: float):
-        """Yield chunks that arrived at or after since_wall, then keep yielding live ones."""
+    def chunks_since(self, since_wall: float, until_wall: float | None = None):
+        """Yield chunks that arrived at or after since_wall, then keep yielding live ones. Returns when the
+        stream ends, or at until_wall if the stream is up but nothing arrives (a stalled camera)."""
         seen = 0
         while True:
             items = list(self.buf)
@@ -69,7 +70,7 @@ class MicStream:
                 wall, x = items[seen]; seen += 1
                 if wall >= since_wall:
                     yield wall, x
-            if not self.alive:
+            if not self.alive or (until_wall is not None and time.time() >= until_wall):
                 return
             time.sleep(0.02)
             # the deque may have dropped old items; re-sync by wall time
@@ -106,12 +107,13 @@ def record_until_silence(dst: Path, max_s: float, params: dict | None = None, st
         if not mic.wait_ready():
             err = mic.err or "no audio from the camera"
         else:
-            for _, x in mic.chunks_since(since_wall if since_wall is not None else t0):
+            deadline = t0 + max_s + 8.0             # the prompt's tail plus the window; past it the stream has stalled
+            for _, x in mic.chunks_since(since_wall if since_wall is not None else t0, until_wall=deadline):
                 chunks.append(x)
                 if det.feed(x):
                     break
-            if mic.err and not chunks:
-                err = mic.err
+            if not chunks:
+                err = mic.err or ("no audio from the camera" if not mic.alive else "the mic stream gave nothing")
     except Exception as e:
         err = f"{type(e).__name__}: {e}"[:200]
     finally:
