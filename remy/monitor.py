@@ -72,7 +72,7 @@ class State:
         if det is not None:
             x1, y1, x2, y2 = det["box"]
             rec.update(box=det["box"], ar=(y2 - y1) / max(x2 - x1, 1e-6), cy=det["cy_px"] / self.H, cx=det["cx_px"] / (self.zones.w if self.zones else 1),
-                       body=max(y2 - y1, x2 - x1) / self.H, zone=self.zones.classify_box(det["box"]) if self.zones else None)
+                       body=max(y2 - y1, x2 - x1) / self.H, zone=self.zones.classify_box(det["box"], det.get("hip_px")) if self.zones else None)
         with self.lock:
             self.history.append(rec); self.t = t; self.wall = wall
 

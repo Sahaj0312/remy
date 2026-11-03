@@ -33,11 +33,14 @@ class Zones:
                 return name
         return None
 
-    def classify_box(self, box: list[float]) -> dict:
-        """Where is the person? Uses the box bottom-center (contact point) and the box center."""
+    def classify_box(self, box: list[float], mid: tuple[float, float] | None = None) -> dict:
+        """Where is the person? Uses the box bottom-center (contact point) and the body's centre: `mid`,
+        the hip midpoint from the pose model when the caller has it, else the box centre. The box centre
+        alone put a person sitting on the sofa with the feet up on the coffee table onto the rug."""
         x1, y1, x2, y2 = box
         foot = ((x1 + x2) / 2, y2)
-        mid = ((x1 + x2) / 2, (y1 + y2) / 2)
+        if mid is None:
+            mid = ((x1 + x2) / 2, (y1 + y2) / 2)
         zf, zm = self.zone_of(*foot), self.zone_of(*mid)
         on_floor = zf in FLOOR_LIKE and zm not in FURNITURE
         on_furniture = zf in FURNITURE or zm in FURNITURE

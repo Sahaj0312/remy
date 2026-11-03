@@ -39,3 +39,12 @@ def test_zones_scale_to_the_live_frame_size(zones_file):
     z = Zones(zones_file, 320, 240)                 # half the setup frame
     assert z.classify_box([50, 190, 150, 220])["on_floor"] is True
     assert z.classify_box([210, 110, 310, 160])["on_furniture"] is True
+
+
+def test_hips_on_the_sofa_with_the_legs_out_over_the_floor_is_furniture(zones_file):
+    """Nov 3: sitting on the sofa with the feet on the coffee table. The box centre and bottom were on the rug."""
+    z = Zones(zones_file, 640, 480)
+    box = [200, 250, 500, 420]                      # centre (350, 335) and bottom (350, 420) both on the floor polygon
+    assert z.classify_box(box)["on_floor"] is True
+    r = z.classify_box(box, mid=(450, 300))         # the hips are on the sofa
+    assert r["on_furniture"] is True and r["on_floor"] is False and r["mid_zone"] == "sofa"
