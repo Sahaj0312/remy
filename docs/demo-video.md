@@ -32,7 +32,7 @@ frame between them.
 | # | what you do | what should happen | caption for the video |
 |---|---|---|---|
 | A | walk in, sit on the sofa, lie down on it for 60 s, get up, walk around | nothing | "Sofa and bed are zones. Lying there is fine." |
-| B | walk to the rug, fall, stay down, answer "Yeah, I'm okay" clearly | calm WhatsApp ≈30 s after the fall | "A clear okay. Calm message, no photo." |
+| B | walk to the rug, fall, stay down, answer "Yeah, I'm okay" clearly | the recording ends 2 s after you stop talking; calm WhatsApp ≈20 s after the fall | "A clear okay. Calm message, no photo, twenty seconds." |
 | C | fall, stay down, say nothing | two prompts, then urgent WhatsApp with the snapshot ≈50 s | "No answer twice. Urgent, with a snapshot." |
 | D | fall, stay down, say "Help! Help me!" loudly toward the camera | urgent WhatsApp, reason "She asked for help." | "A help word escalates at once." |
 | E | sit down on the rug slowly (no drop), lie back, stay still 30 s | floor rule event after 20 s, then the check-in; answer "I'm fine" | "No visible drop. On the floor and still for 20 s: it still asks." |
@@ -76,8 +76,8 @@ visible on screen.
 **0:30 to 1:25, what it does.** Scenarios C, D, E, A in that order, each trimmed to 10 to 15 s with the
 terminal and the phone side by side.
 
-> If she does not answer, it asks again, then sends an urgent message with a photo. That is fifty seconds after
-> the fall.
+> It stops listening two seconds after she stops talking, so a clear okay reaches the family about twenty
+> seconds after the fall. If she does not answer, it asks again, then sends an urgent message with a photo.
 >
 > A help word skips the second question. The family hears she asked for help.
 >

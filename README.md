@@ -66,9 +66,11 @@ flowchart LR
    the sofa or bed does not.
 5. **Triage.** Muse Spark gets a 2.5 s burst around the drop plus the tracker numbers and writes the one-line note
    for the family ("Went down fast by the coffee table at 5:45pm and hasn't moved").
-6. **Check-in.** The camera speaker says "Nani, are you okay?". The camera mic records 15 s, Muse Voice Transcribe
-   turns it into text, Spark decides whether that text is a clear "I'm fine". Only a clear okay is reassuring.
-   Silence gets one more prompt; anything unclear escalates at once; a help word escalates without asking Spark.
+6. **Check-in.** The camera speaker says "Nani, are you okay?". The camera mic records until she has answered
+   (speech followed by two seconds of quiet), or for 15 s if nothing is said. Muse Voice Transcribe turns it into
+   text, Spark decides whether that text is a clear "I'm fine". Only a clear okay is reassuring. Silence gets one
+   more prompt; anything unclear escalates at once; a help word escalates without asking Spark; speech-level
+   sound that the transcriber could not turn into words counts as unclear, because she tried to answer.
 7. **Alert.** WhatsApp to every number in `family.json`. Calm text for an okay. Urgent text plus a snapshot
    otherwise. If she is still on the floor a minute after saying okay, it asks again.
 
@@ -154,13 +156,15 @@ Lying down on the sofa and walking around raised nothing. All alerts arrived on 
 | drop end → clip cut | 1.3 s |
 | SAM 3.1 upload + stream (50 frames) | 8 to 10 s |
 | prompt spoken on the camera | +3 s |
-| recording window | 15 s fixed |
+| recording | ends 2 s after she stops talking (a "yeah" at 3.7 s ends it at 5.9 s); 15 s if silent |
 | transcription | 2 s |
 | reply classification | 2 s |
 | Spark triage (runs in parallel) | 5 to 7 s, one 54 s outlier seen |
 
-So an "okay" message lands about 30 s after the fall and an urgent one after two silent rounds at about 50 s.
-SAM is the floor for confirmation; the fixed recording window is the next biggest piece.
+With the fixed 15 s window the "okay" message landed 31 s after the fall. On the real recordings the silence
+stop ends a "yeah" round at 4 to 6 s instead of 15 ([`eval/SILENCE_STOP.md`](eval/SILENCE_STOP.md)), which puts
+the okay message near 20 s; the live confirmation of that number is on the to-do list. Silent rounds still take
+the full 15 s, so an urgent after two of them stays near 50 s. SAM is the floor for confirmation.
 
 ### Cost
 
@@ -226,14 +230,14 @@ remy/            the package
   monitor.py     the live loop: capture, trigger, confirm, event flow (remy run)
   replay.py      re-score and print a recorded event folder (remy replay)
   cli.py         remy setup-zones | run | test-checkin | test-alert | replay | costs
-  camera/        capture.py (one source, reconnects), rtsp.py (ffmpeg frames/audio), audio_in.py (mic), audio_out.py (speak), go2rtc.py (speaker)
+  camera/        capture.py (one source, reconnects), rtsp.py (ffmpeg frames/audio), audio_in.py (mic), silence.py (stop when she has answered), audio_out.py (speak), go2rtc.py (speaker)
   vision/        yolo.py, tracking.py, sam.py, score.py (v1, v2, trigger), zones.py, zones_setup.py
   triage/        base.py (the interface), spark.py (Muse Spark 1.3), spark_open.py (Muse Spark Open via Fireworks)
   checkin/       tts.py (Kokoro), transcribe.py (Muse Voice Transcribe), classify + ask_once
   alerts/        whatsapp.py (Meta Cloud API or Twilio sandbox), heartbeat.py, webhook.py, media_server.py
   common.py, costs.py
 tests/           pytest: scorer on synthetic falls, linker, zones, reply rules, reconnect, heartbeat (`pip install -e ".[dev]" && pytest`)
-eval/            labels.csv, the batch scripts, committed tracks/scores/verdicts, REPORT.md, SENSITIVITY.md, HOLDOUT.md, TRIAGE_COMPARE.md
+eval/            labels.csv, the batch scripts, committed tracks/scores/verdicts, REPORT.md, SENSITIVITY.md, HOLDOUT.md, TRIAGE_COMPARE.md, SILENCE_STOP.md
 examples/        one recorded live event (GMDCSA24 clip, MIT) for `remy replay`
 docs/            hardware-setup.md
 infra/           go2rtc.template.yaml (filled from .env at run time)
@@ -247,7 +251,6 @@ experiments/     probes and the v1 live loop, each with a one-line note
 - **Hearing.** The camera mic is narrowband and far from the floor. In the live test one "help" was not heard at
   all and the second came back as "Hello?". The policy escalates on both, so the alert still went out, but the
   message said "no clear answer" instead of "asked for help".
-- **Fixed 15 s recording.** She says "yeah" in two seconds; the message still waits for the window to close.
 - **Latency floor.** SAM takes 8 to 10 s on a 50-frame clip. Nothing in the flow can be faster than that.
 - **One camera.** The bedroom is visible only through a doorway. Falls there are far and small.
 - **Night.** The eval has 16 night clips; the full live flow has not run in infrared yet.
@@ -260,7 +263,7 @@ experiments/     probes and the v1 live loop, each with a one-line note
 
 ## Roadmap
 
-1. Stop recording on silence after speech instead of a fixed 15 s; the okay message would land near 20 s.
+1. Confirm the silence stop on the camera with a spoken answer (built and checked offline; see the latency section).
 2. Fuzzy help-word matching and a mic range test, so "help" is heard from the floor.
 3. Permanent WhatsApp token, a real sender number, an approved utility template.
 4. The self-hosted version: SAM 3.1 and an open-weight judge (Glimmer or Spark Open) on one GPU you run, behind the
@@ -285,6 +288,8 @@ From the commit history:
   three correct alerts.
 - **Nov 1.** The scripts folder became this package with a `remy` command, the evaluation moved to `eval/`, and
   this README. Then a test suite, stream reconnect, the daily heartbeat and the threshold sensitivity sweep.
+  The recording now stops two seconds after she stops talking, the mic opens while the prompt plays, and speech
+  the transcriber cannot understand escalates instead of waiting for a second prompt.
 - **Nov 2.** The out-of-sample check, Muse Spark Open evaluated as an alternative triage backend with a clip-for-clip
   comparison against Spark 1.3, `remy replay` with a shipped example event, and the submission header above.
 
