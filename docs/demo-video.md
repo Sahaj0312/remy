@@ -11,7 +11,9 @@ hackathon, and judges must be able to tell what that is. Everything in remy qual
 3. Terminal: big font, dark theme, window wide enough that log lines do not wrap. Start screen recording
    (cmd+shift+5, record the terminal window only).
 4. Phone: open the WhatsApp chat with the test number, start iOS screen recording (Control Center). Keep it
-   running the whole session; it is cheaper to cut later than to miss a message arriving.
+   running the whole session; it is cheaper to cut later than to miss a message arriving. Tap each video when it
+   lands so the recording shows it playing with sound. Before the first scenario, send yourself one test video so
+   the path is proven on the day: `remy test-alert --video examples/event_gmdcsa_S1_Fall_12/clip.mp4 --text "video test"`.
 5. Record the camera's own view at full resolution for the whole session (the event clips are 640 px, 10 fps):
 
    ```sh
@@ -32,9 +34,9 @@ frame between them.
 | # | what you do | what should happen | caption for the video |
 |---|---|---|---|
 | A | walk in, sit on the sofa, lie down on it for 60 s, get up, walk around | nothing | "Sofa and bed are zones. Lying there is fine." |
-| B | walk to the rug, fall, stay down, answer "Yeah, I'm okay" clearly | the recording ends 2 s after you stop talking; calm WhatsApp ≈20 s after the fall | "A clear okay. Calm message, no photo, twenty seconds." |
-| C | fall, stay down, say nothing | two prompts, then urgent WhatsApp with the snapshot ≈50 s | "No answer twice. Urgent, with a snapshot." |
-| D | fall, stay down, say "Help! Help me!" loudly toward the camera | urgent WhatsApp, reason "She asked for help." | "A help word escalates at once." |
+| B | walk to the rug, fall, stay down, answer "Yeah, I'm okay" clearly | the recording ends 2 s after you stop talking; calm WhatsApp ≈20 s after the fall, a video of the fall and of you saying it | "A clear okay, twenty seconds. The family sees the fall and hears her." |
+| C | fall, stay down, say nothing | two prompts, then urgent WhatsApp ≈50 s with the fall video and "did not respond when asked if she was okay" | "No answer twice. Urgent, with the fall." |
+| D | fall, stay down, say "Help! Help me!" loudly toward the camera | urgent WhatsApp, reason "She asked for help.", video of the fall and of you saying it | "A help word escalates at once, and the family hears it." |
 | E | sit down on the rug slowly (no drop), lie back, stay still 30 s | floor rule event after 20 s, then the check-in; answer "I'm fine" | "No visible drop. On the floor and still for 20 s: it still asks." |
 | F | optional, terminal only: while it runs, `pgrep -f "ffmpeg.*stream2" \| xargs kill` | "stream lost, reconnecting... stream back after 8s" | "A dropped camera reconnects on its own." |
 
