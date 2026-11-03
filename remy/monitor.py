@@ -95,6 +95,13 @@ class State:
         r = self.latest()
         return bool(r and r["present"] and r["ar"] <= low_ar_max and not (r.get("zone") or {}).get("on_furniture"))
 
+    def on_furniture_since(self, t_v: float, max_s: float = 3.0) -> tuple[int, int]:
+        """Of the YOLO records from stream time t_v on (at most max_s of them): how many put the body on the
+        sofa or bed, and how many saw a body at all. The drop path asks this: a fast sit-down ends on furniture."""
+        with self.lock:
+            rs = [r for r in self.history if r["present"] and t_v <= r["t"] <= t_v + max_s]
+        return sum(1 for r in rs if (r.get("zone") or {}).get("on_furniture")), len(rs)
+
 
 # ----------------------------------------------------------------------------- event flow
 class Flow(threading.Thread):
@@ -230,6 +237,11 @@ class Flow(threading.Thread):
         if self.person_got_up(d["drop_v"]):
             self.log(f"SAM 3.1 {'confirms' if score['flag'] else 'rejects'} the drop, but the person is already up -> no event")
             return False
+        if self.state.zones is not None:
+            n_f, n = self.state.on_furniture_since(d["drop_v"], 8.0)
+            if n and n_f * 2 >= n:
+                self.log(f"SAM 3.1 {'confirms' if score['flag'] else 'rejects'} the drop, but the body is on the sofa or bed ({n_f}/{n} frames) -> no event")
+                return False
         if not score["flag"]:
             self.log(f"SAM 3.1: not a fall (best={ {k: (score.get('best') or {}).get(k) for k in ('drop_rel','drop_speed_rel_max','ar_post')} }) -> no event")
             return False
@@ -528,7 +540,7 @@ def main(argv: list[str] | None = None) -> int:
     last_buf = last_yolo = -1e9; last_drop_v = -1e9; last_cancelled_v = None; cooldown_until = -1e9
     flows: list[Flow] = []; floor_since = None; t0_wall = time.time(); i = 0; yolo_ms = []
     last_dets: list = []; last_main = None
-    started = datetime.now(); hb_last_date = heartbeat_start_state(started, int(hb_cfg.get('hour', 9))); hb_next_check = 0.0; wa_hb = None; audio_retry_at = 0.0
+    started = datetime.now(); hb_last_date = heartbeat_start_state(started, int(hb_cfg.get('hour', 9))); hb_next_check = 0.0; wa_hb = None; audio_retry_at = 0.0; furniture_log_at = 0.0
     while True:
         ok, frame = cap.read()
         if not ok:
@@ -588,6 +600,13 @@ def main(argv: list[str] | None = None) -> int:
                     b = res["best"]; drop_v = t_v - (tr["objects"][res["object_id"]][-1]["t"] - b["end_t"])
                     if drop_v <= last_drop_v + 0.5 and last_cancelled_v is None:
                         res["flag"] = False
+                if res["flag"] and state.zones is not None:
+                    n_f, n = state.on_furniture_since(drop_v)
+                    if n and n_f * 2 >= n:               # a sit-down or a flop onto the sofa or bed, not a fall
+                        res["flag"] = False; last_drop_v = max(last_drop_v, drop_v)
+                        if wall >= furniture_log_at:
+                            furniture_log_at = wall + 10
+                            log(f"candidate drop ends on the sofa or bed ({n_f}/{n} frames) -> no SAM call")
                 if res["flag"] and active and any(abs(fa.drop["drop_v"] - drop_v) < 6.0 for fa in active if fa.drop):
                     res["flag"] = False      # same drop the running flow is already checking
                 if res["flag"]:
