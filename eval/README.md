@@ -32,6 +32,7 @@ verdicts, and the generated `REPORT.md`. Everything here imports the `remy` pack
 | `holdout.py` | out-of-sample check: thresholds picked on one half, scored on the other, five splits → `HOLDOUT.md` (free) |
 | `triage_compare.py` | the triage backends on the flagged clips and on 24 fixed replies → `TRIAGE_COMPARE.md` |
 | `silence_stop.py` | where the silence stop would cut the real check-in recordings (local, private) → `SILENCE_STOP.md` |
+| `sam_latency.py` | SAM latency vs frames: regression over the eval runs, plus `--controlled` (one clip, five variants, ~$0.15) → `SAM_LATENCY.md` |
 | `make_gifs.py` | annotated GIFs for a clip (needs `pip install -e ".[eval]"`) |
 | `run_all.sh` | the whole chain, in order |
 

@@ -154,7 +154,7 @@ Lying down on the sofa and walking around raised nothing. All alerts arrived on 
 | step | typical |
 |---|---|
 | drop end → clip cut | 1.3 s |
-| SAM 3.1 upload + stream (50 frames) | 8 to 10 s |
+| SAM 3.1 upload + stream (35 to 50 frames) | 5.5 to 9.5 s: about 4 s fixed plus 0.1 s per frame ([`eval/SAM_LATENCY.md`](eval/SAM_LATENCY.md)) |
 | prompt spoken on the camera | +3 s |
 | recording | ends 2 s after she stops talking (a "yeah" at 3.7 s ends it at 5.9 s); 15 s if silent |
 | transcription | 2 s |
@@ -164,7 +164,9 @@ Lying down on the sofa and walking around raised nothing. All alerts arrived on 
 With the fixed 15 s window the "okay" message landed 31 s after the fall. On the real recordings the silence
 stop ends a "yeah" round at 4 to 6 s instead of 15 ([`eval/SILENCE_STOP.md`](eval/SILENCE_STOP.md)), which puts
 the okay message near 20 s; the live confirmation of that number is on the to-do list. Silent rounds still take
-the full 15 s, so an urgent after two of them stays near 50 s. SAM is the floor for confirmation.
+the full 15 s, so an urgent after two of them stays near 50 s. SAM is the floor for confirmation, and sending
+less video does not move it: a controlled run of the same clip at 5 fps, shorter, or at 480 px saves about a
+second each, inside the 6 to 12 s run-to-run noise. The only large cut left there is running SAM yourself.
 
 ### Cost
 
@@ -237,7 +239,7 @@ remy/            the package
   alerts/        whatsapp.py (Meta Cloud API or Twilio sandbox), heartbeat.py, webhook.py, media_server.py
   common.py, costs.py
 tests/           pytest: scorer on synthetic falls, linker, zones, reply rules, reconnect, heartbeat (`pip install -e ".[dev]" && pytest`)
-eval/            labels.csv, the batch scripts, committed tracks/scores/verdicts, REPORT.md, SENSITIVITY.md, HOLDOUT.md, TRIAGE_COMPARE.md, SILENCE_STOP.md
+eval/            labels.csv, the batch scripts, committed tracks/scores/verdicts, REPORT.md, SENSITIVITY.md, HOLDOUT.md, TRIAGE_COMPARE.md, SILENCE_STOP.md, SAM_LATENCY.md
 examples/        one recorded live event (GMDCSA24 clip, MIT) for `remy replay`
 docs/            hardware-setup.md
 infra/           go2rtc.template.yaml (filled from .env at run time)
@@ -251,7 +253,8 @@ experiments/     probes and the v1 live loop, each with a one-line note
 - **Hearing.** The camera mic is narrowband and far from the floor. In the live test one "help" was not heard at
   all and the second came back as "Hello?". The policy escalates on both, so the alert still went out, but the
   message said "no clear answer" instead of "asked for help".
-- **Latency floor.** SAM takes 8 to 10 s on a 50-frame clip. Nothing in the flow can be faster than that.
+- **Latency floor.** SAM takes 5.5 to 9.5 s on the live clip, most of it fixed cost; a smaller clip does not help.
+  Nothing in the flow can be faster than that without running SAM locally.
 - **One camera.** The bedroom is visible only through a doorway. Falls there are far and small.
 - **Night.** The eval has 16 night clips; the full live flow has not run in infrared yet.
 - **WhatsApp test number.** Recipients must message the number first, the window is 24 h, and the temporary token
