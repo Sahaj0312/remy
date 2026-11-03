@@ -78,6 +78,12 @@ class MicStream:
                 seen = sum(1 for w, _ in items2 if w < (items[seen - 1][0] if seen else since_wall)) + (1 if seen else 0)
                 seen = min(seen, len(items2))
 
+    def slice(self, w0: float, w1: float, offset_s: float = 0.0) -> np.ndarray:
+        """Samples whose chunks arrived between wall times w0 and w1 (shifted by offset_s): the room's sound
+        for a clip cut from the frame buffer over the same wall-clock span."""
+        parts = [x for wall, x in list(self.buf) if w0 + offset_s <= wall < w1 + offset_s]
+        return np.concatenate(parts) if parts else np.zeros(0, np.float32)
+
     def close(self):
         self.au.close()
 

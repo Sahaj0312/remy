@@ -32,7 +32,9 @@ import numpy as np
 
 from remy import costs
 from remy.alerts.heartbeat import heartbeat_due, heartbeat_start_state, heartbeat_text
+from remy.camera.audio_in import MicStream
 from remy.camera.capture import Capture
+from remy.camera.clips import concat_clips, freeze_clip, write_clip
 from remy.common import EVENTS, ROOT, load_config, redact, sam_cost_usd, video_info, write_json
 from remy.vision.score import score_track
 from remy.vision.tracking import OnlineTracks
@@ -42,26 +44,6 @@ from remy.vision.zones import Zones
 
 def now_str() -> str:
     return datetime.now().strftime("%H:%M:%S.%f")[:-3]
-
-
-# ----------------------------------------------------------------------------- clip buffer
-def resample(frames, fps):
-    if len(frames) < 2:
-        return frames
-    ts = np.array([t for t, _ in frames]); out = []; g = frames[0][0]
-    while g <= frames[-1][0] + 1e-6:
-        out.append((g, frames[int(np.argmin(np.abs(ts - g)))][1])); g += 1 / fps
-    return out
-
-
-def write_clip(frames, fps, dst: Path):
-    frames = resample(frames, fps); h, w = frames[0][1].shape[:2]
-    proc = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}", "-r", f"{fps:g}",
-                             "-i", "-", "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p",
-                             "-movflags", "+faststart", str(dst)], stdin=subprocess.PIPE)
-    for _, fr in frames:
-        proc.stdin.write(fr.tobytes())
-    proc.stdin.close(); proc.wait()
 
 
 # ----------------------------------------------------------------------------- shared state
@@ -74,6 +56,7 @@ class State:
         self.buffer: deque | None = None; self.t = 0.0; self.wall = time.time(); self.t0_wall = time.time()
         self.cooldown_until_wall = 0.0      # set by a flow when it raises an event; the main loop holds the trigger until then
         self.last_event_t = None            # stream time of the last raised event, for de-duplicating one fall
+        self.audio: MicStream | None = None # rolling room audio over the same span as the frame buffer (camera sources only)
 
     def reset(self):
         """After a camera reconnect: forget the short-term history, the event bookkeeping stays."""
@@ -156,8 +139,38 @@ class Flow(threading.Thread):
 
     def clip_from_buffer(self, start_t, end_t=None):
         with self.state.lock:
-            fr = [(t, f) for (t, f) in self.state.buffer if t >= start_t and (end_t is None or t <= end_t)]
+            fr = [(t, f) for (t, f, _w) in self.state.buffer if t >= start_t and (end_t is None or t <= end_t)]
         return fr
+
+    def clip_from_buffer_wall(self, w0, w1):
+        """Frames whose wall time lies in [w0, w1], as [(t, frame)]; the span's wall limits for the audio buffer."""
+        with self.state.lock:
+            fr = [(t, f, w) for (t, f, w) in self.state.buffer if w0 <= w <= w1]
+        return [(t, f) for t, f, _ in fr], (fr[0][2], fr[-1][2]) if fr else (None, None)
+
+    def room_audio(self, w0, w1):
+        au = self.state.audio
+        if au is None or w0 is None:
+            return None
+        off = float((self.cfg["alerts"].get("video") or {}).get("audio_offset_s", 0.0))
+        x = au.slice(w0, w1, off)
+        return x if len(x) else None
+
+    def fall_with_sound(self, frames):
+        """The fall clip for the family: the same frames as clip.mp4 plus the room's sound. Written in the
+        background so SAM is not delayed; the alert waits for it."""
+        if not frames:
+            return
+        with self.state.lock:
+            walls = [w for (_t, _f, w) in self.state.buffer if frames[0][0] <= _t <= frames[-1][0]]
+        w0, w1 = (walls[0], walls[-1] + 0.1) if walls else (None, None)
+
+        def work():
+            try:
+                write_clip(frames, self.args.buffer_fps, self.dir / "fall_with_sound.mp4", self.room_audio(w0, w1))
+            except Exception as e:
+                self.log(f"fall clip with sound failed: {type(e).__name__}: {e}")
+        th = threading.Thread(target=work, daemon=True); th.start(); self._fall_thread = th
 
     # ---- main
     def run(self):
@@ -184,6 +197,7 @@ class Flow(threading.Thread):
             time.sleep(0.05)
         frames = self.clip_from_buffer(d["drop_v"] - self.args.pre_s)
         clip = self.dir / "clip.mp4"; write_clip(frames, self.args.buffer_fps, clip); self.mark("clip_written")
+        self.fall_with_sound(frames)
         cv2.imwrite(str(self.dir / "snapshot.jpg"), self.snapshot)
         info = video_info(clip)
         self.log(f"clip {info['n_frames']} frames ({info['n_frames']/info['fps']:.1f}s) written, SAM 3.1 upload starting while YOLO watches for a get-up")
@@ -241,7 +255,8 @@ class Flow(threading.Thread):
             from remy.triage import get_backend
             clip = self.dir / "clip.mp4"
             if not clip.exists():        # floor-still: cut the last 6 s from the buffer
-                write_clip(self.clip_from_buffer(self.state.t - 6.0), self.args.buffer_fps, clip)
+                fr = self.clip_from_buffer(self.state.t - 6.0)
+                write_clip(fr, self.args.buffer_fps, clip); self.fall_with_sound(fr)
             info = video_info(clip)
             best = self.result.get("score") or {"start_i": max(0, info["n_frames"] - int(3 * info["fps"])), "end_i": info["n_frames"] - 1,
                                                 "drop_rel": 0.0, "drop_speed_rel_max": 0.0, "time_to_floor_s": 0.0, "shape_ok": True,
@@ -287,6 +302,33 @@ class Flow(threading.Thread):
         from remy.checkin import ask_once
         ck = self.cfg["checkin"]; wa = WhatsApp(dry_run=self.args.alerts_dry_run)
         said, outcome, rounds = None, None, []
+        self.answer_clips: list[Path] = []
+        vcfg = self.cfg["alerts"].get("video") or {}
+
+        def on_recorded(wav: Path, rec_wall: float, r: dict):
+            """Cut the frames of her answer while they are still in the buffer: from answer_lead_s before the
+            first speech to the end of the recording, with the recording's audio over the same span."""
+            if r.get("speech_at_s") is None or not vcfg.get("enabled", True):
+                return
+            import wave as _wave
+            lead = float(vcfg.get("answer_lead_s", 1.0))
+            a0 = max(0.0, r["speech_at_s"] - lead); a1 = float(r["duration_s"])
+            with _wave.open(str(wav)) as w:
+                rate = w.getframerate(); x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
+            audio = x[int(a0 * rate): int(a1 * rate)]
+            frames, _ = self.clip_from_buffer_wall(rec_wall + a0, rec_wall + a1)
+            dst = self.dir / f"answer_{wav.stem.split('_')[1]}.mp4"
+            if frames:
+                write_clip(frames, self.args.buffer_fps, dst, audio, rate)
+            else:                                   # the moment has scrolled out of the buffer (file sources): hold the last frame
+                with self.state.lock:
+                    last = self.state.buffer[-1][1] if self.state.buffer else None
+                if last is None:
+                    return
+                freeze_clip(last, audio, dst, rate, self.args.buffer_fps)
+            self.answer_clips.append(dst)
+            self.log(f"answer clip: {dst.name} ({a1 - a0:.1f}s from {a0:.1f}s into the recording)")
+
         if self.args.no_checkin:
             self.log("check-in skipped (--no-checkin)")
             outcome = "skipped"
@@ -294,7 +336,7 @@ class Flow(threading.Thread):
             retries = ck.get("retries_no_answer", 1)
             for attempt in range(1, retries + 2):
                 self.mark(f"checkin{attempt}_start")
-                r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log); rounds.append(r)
+                r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded); rounds.append(r)
                 self.mark(f"checkin{attempt}_done")
                 if r["transcript"].get("transcript"):
                     said = r["transcript"]["transcript"]
@@ -313,24 +355,26 @@ class Flow(threading.Thread):
         # what the watcher knows now beats what the clip showed
         if self.got_up_at is not None:
             summary += f" She got back up about {int(self.state.t - self.event_t)}s after the fall."
-        elif self.state.down_now(self.cfg["monitor"]["low_ar_max"]):
+        elif self.state.down_now(self.cfg["monitor"]["low_ar_max"]) and self.state.t - self.event_t >= 5:
             summary += f" Still down {int(self.state.t - self.event_t)}s after the fall."
         snap = self.dir / "snapshot.jpg"
+        video = self.alert_video() if vcfg.get("enabled", True) and outcome != "skipped" else None
         if outcome == "okay":
-            resp = wa.calm(summary, said, self.when); self.mark("alert_sent")
+            resp = wa.calm(summary, said, self.when, video=video); self.mark("alert_sent")
             self.log(f"ALERT calm -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: she says she's okay")
             self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text}
             self.recheck_after_okay(wa, snap)
         elif outcome == "got_up":
-            resp = wa.calm(summary + " She got back up on her own.", said, self.when); self.mark("alert_sent")
+            resp = wa.calm(summary + " She got back up on her own.", said, self.when, video=video); self.mark("alert_sent")
             self.log(f"ALERT calm -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: got up")
             self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text}
         elif outcome == "skipped":
             self.result["alert"] = None
         else:
-            reason = {"needs_help": "She asked for help.", "no_answer": "No answer to two check-ins.",
-                      "unclear": "She answered but not clearly."}.get(outcome, outcome)
-            resp = wa.urgent(summary, said, self.when, snap, reason); self.mark("alert_sent")
+            name = self.cfg["alerts"]["person_name"]
+            reason = {"needs_help": "She asked for help.", "no_answer": f"{name} did not respond when asked if she was okay.",
+                      "unclear": "She answered, but not clearly."}.get(outcome, outcome)
+            resp = wa.urgent(summary, said, self.when, snap, reason, video=video); self.mark("alert_sent")
             self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
             self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text}
         self.save()
@@ -339,11 +383,32 @@ class Flow(threading.Thread):
         while time.time() - t0 < self.cfg["monitor"]["still_down_s"] + 5 and self.got_up_at is None and self.still_down_at is None:
             time.sleep(0.5)
 
+    def alert_video(self) -> Path | None:
+        """fall_with_sound.mp4 (or the silent clip) followed by her answer(s), as one MP4 for WhatsApp."""
+        th = getattr(self, "_fall_thread", None)
+        if th is not None:
+            th.join(timeout=20)
+        fall = self.dir / "fall_with_sound.mp4"
+        if not fall.exists():
+            fall = self.dir / "clip.mp4"
+        parts = ([fall] if fall.exists() else []) + list(self.answer_clips)
+        if not parts:
+            return None
+        try:
+            t0 = time.time()
+            out = concat_clips(parts, self.dir / "alert.mp4")
+            self.log(f"alert video: {' + '.join(p.name for p in parts)} -> {out.name} ({out.stat().st_size / 1e3:.0f} KB, {time.time() - t0:.1f}s)")
+            return out
+        except Exception as e:
+            self.log(f"alert video failed: {type(e).__name__}: {e}")
+            return None
+
     def recheck_after_okay(self, wa, snap):
         from remy.checkin import ask_once
         ck = self.cfg["checkin"]; limit = ck["recheck_after_s"]
         while self.got_up_at is None:
-            if self.state.t - self.event_t >= limit:
+            # stream time drives this; the wall clock is the guard for when the stream has stopped (end of a file)
+            if self.state.t - self.event_t >= limit or time.time() - self.event_wall >= limit + 10:
                 if not self.state.down_now(self.cfg["monitor"]["low_ar_max"]):
                     self.log(f"{limit}s after the event: not down any more -> no re-check"); return
                 self.log(f"still down {limit}s after saying okay -> checking in again")
@@ -427,10 +492,16 @@ def main(argv: list[str] | None = None) -> int:
             zpath = ROOT / mon["zones_file"]
             zones = Zones(zpath, W, H) if (zpath.exists() and not args.no_zones) else None
             state = State(zones, args.yolo_fps, H); state.buffer = buffer
+            if cap.kind == "rtsp" and (cfg["alerts"].get("video") or {}).get("enabled", True):
+                try:
+                    state.audio = MicStream(stream=1, keep_s=args.buffer_s + 10)
+                    log("room audio buffer on (camera mic, in memory only)")
+                except Exception as e:
+                    log(f"room audio buffer failed to start ({type(e).__name__}); clips will be silent")
             tracks = OnlineTracks(args.yolo_fps, H, W, cfg["tracking"]["max_gap_s"], cfg["tracking"]["min_link_score"], keep_s=8.0)
             print(f"[{now_str()}] zones: {list(zones.polys) if zones else 'none (floor rule off)'}", flush=True)
         if t_v - last_buf >= 1 / args.buffer_fps - 1e-6:
-            buffer.append((t_v, frame.copy())); last_buf = t_v
+            buffer.append((t_v, frame.copy(), wall)); last_buf = t_v
         if t_v - last_yolo >= 1 / args.yolo_fps - 1e-6:
             last_yolo = t_v; ty = time.perf_counter()
             dets = yolo_detect(model, frame, cfg["yolo"], cfg["tracking"]); yolo_ms.append((time.perf_counter() - ty) * 1000)
@@ -498,6 +569,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.duration and t_v >= args.duration:
             break
     cap.release()
+    if state is not None and state.audio is not None:
+        state.audio.close()
     for f in flows:
         f.join(timeout=240)
     print(f"[{now_str()}] done: {i} frames, YOLO {np.mean(yolo_ms) if yolo_ms else 0:.0f} ms/frame, {sum(f.result.get('event', False) for f in flows)} event(s), "

@@ -57,7 +57,8 @@
     "monitor.reconnect": "a dropped camera stream is reopened with back-off (2, 4, 8 ... 60 s); `remy run --max-outage-s` sets when to give up and exit so a supervisor can restart",
     "spark_open": "Muse Spark Open on a partner endpoint, OpenAI-compatible; the burst goes as JPEG frames at frames_fps. Not used unless triage.backend or reply_backend says spark_open. Any OpenAI-compatible host works: change base_url, model and api_key_env.",
     "checkin.stop_on_silence": "the mic recording ends once speech (>= speech_db for speech_min_s, or one chunk >= loud_db) is followed by silence_s below silence_db, never before min_s; with no speech it runs to record_s. Levels are dBFS from the Tapo mic: gated silence ~-72, rustle -50 to -42, speech from the floor -35 to -20.",
-    "checkin.escalate_on_unheard_speech": "if speech-level sound was heard but the transcript is empty, the reply counts as unclear (she tried to answer, we could not understand) and escalates at once instead of a second prompt"
+    "checkin.escalate_on_unheard_speech": "if speech-level sound was heard but the transcript is empty, the reply counts as unclear (she tried to answer, we could not understand) and escalates at once instead of a second prompt",
+    "alerts.video": "every alert carries one MP4: the fall clip with the room's sound, then her answer (frames + the check-in recording, from answer_lead_s before her first word) when she spoke; a silent fall gets the fall alone. audio_offset_s shifts the room audio against the frames if they drift (seconds, + delays the sound). Off = photo for urgent, text for calm, as before."
   },
   "tracking": {
     "max_gap_s": 1.0,
@@ -164,6 +165,11 @@
     "heartbeat": {
       "enabled": true,
       "hour": 9
+    },
+    "video": {
+      "enabled": true,
+      "audio_offset_s": 0.0,
+      "answer_lead_s": 1.0
     }
   }
 }

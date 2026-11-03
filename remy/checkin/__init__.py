@@ -60,8 +60,10 @@ def classify(transcript: str, cfg: dict, question: str, backend=None, heard_spee
     return out
 
 
-def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=print, backend=None) -> dict:
-    """Speak the prompt, record, transcribe, classify. Returns a dict with all timings."""
+def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=print, backend=None, on_recorded=None) -> dict:
+    """Speak the prompt, record, transcribe, classify. Returns a dict with all timings.
+    on_recorded(wav_path, rec_wall_start, record_result) is called right after the recording ends, before
+    transcription, so the caller can cut the frames of that moment while they are still in its buffer."""
     from remy.camera.audio_out import speak
     lang = cfg["language"]
     question = question_text(cfg)
@@ -79,10 +81,11 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
     sp = speak(wav, audio_out, wait=True)
     log(f"check-in: spoke '{question}' on {sp['device']} ({sp['took_s']}s)")
     rec = rec_dir / f"checkin_{tag}_{datetime.now().strftime('%H%M%S')}.wav"
+    rec_wall = time.time() + 0.5
     if mic is not None:
         try:
             # the stream lags the room by 0.2 to 0.45 s, so the prompt's tail still arrives after speak() returns
-            r = record_until_silence(rec, cfg["record_s"], cfg.get("silence"), mic=mic, since_wall=time.time() + 0.5)
+            r = record_until_silence(rec, cfg["record_s"], cfg.get("silence"), mic=mic, since_wall=rec_wall)
         finally:
             mic.close()
         how = (f"stopped {r['duration_s']}s in, speech at {r['speech_at_s']}s" if r.get("stopped_early")
@@ -92,6 +95,13 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
     else:
         r = record_mic(cfg["record_s"], rec)
         log(f"check-in: recorded {cfg['record_s']}s mic -> {rec.name} ({r['took_s']}s)")
+        r.setdefault("duration_s", cfg["record_s"]); r.setdefault("speech_at_s", None)
+    r["rec_wall"] = rec_wall
+    if on_recorded is not None and r.get("ok"):
+        try:
+            on_recorded(rec, rec_wall, r)
+        except Exception as e:
+            log(f"check-in: answer clip failed: {type(e).__name__}: {e}")
     tr = transcribe_wav(rec) if r["ok"] else {"transcript": "", "error": r["err"], "latency_s": 0}
     log(f"check-in: Muse Voice Transcribe ({tr.get('latency_s')}s): {tr.get('transcript')!r}")
     cl = classify(tr.get("transcript", ""), cfg, question, backend, heard_speech=r.get("speech_at_s") is not None)

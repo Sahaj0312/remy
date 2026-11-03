@@ -161,27 +161,45 @@ class WhatsApp:
         resp = None if self.dry else self._post("messages", body)
         self._log("image", to, body, resp); return resp or {"dry": True}
 
+    def send_video(self, to: str, path: Path, caption: str) -> dict:
+        """An MP4 (H.264 + AAC, under 16 MB) as a video message with the alert text as its caption."""
+        if self.channel == "twilio":
+            url = None if self.dry else publish_file(path)
+            resp = None if self.dry else self._twilio(to, caption, url)
+            self._log("twilio-video", to, {"file": str(path), "url": url, "caption": caption}, resp); return resp or {"dry": True}
+        media_id = self.upload_media(path)
+        body = {"messaging_product": "whatsapp", "to": to, "type": "video",
+                "video": ({"id": media_id} if media_id else {"id": "dry"}) | {"caption": caption[:1024]}}
+        resp = None if self.dry else self._post("messages", body)
+        self._log("video", to, body, resp); return resp or {"dry": True}
+
     # ---- the two alert shapes
-    def calm(self, summary: str, said: str | None, when: str) -> list[dict]:
+    def _send_alert(self, text: str, video: Path | None, snapshot: Path | None) -> list[dict]:
+        out = []
+        for r in self.recipients():
+            if video and Path(video).exists():
+                out.append(self.send_video(r["number"], Path(video), text))
+            elif snapshot and Path(snapshot).exists():
+                out.append(self.send_image(r["number"], Path(snapshot), text))
+            else:
+                out.append(self.send_text(r["number"], text))
+        return out
+
+    def calm(self, summary: str, said: str | None, when: str, video: Path | None = None) -> list[dict]:
         name = self.cfg["person_name"]
         text = f"{self.cfg['calm_prefix']} {name} had a fall at {when} but says she's okay.\n{summary}"
         if said:
             text += f'\nShe said: "{said}"'
         self.last_text = text
-        return [self.send_text(r["number"], text) for r in self.recipients()]
+        return self._send_alert(text, video, None)
 
-    def urgent(self, summary: str, said: str | None, when: str, snapshot: Path | None, reason: str) -> list[dict]:
+    def urgent(self, summary: str, said: str | None, when: str, snapshot: Path | None, reason: str, video: Path | None = None) -> list[dict]:
         name = self.cfg["person_name"]
-        text = (f"{self.cfg['urgent_prefix']} {name} may need help. Fall detected at {when}. {reason}\n{summary}")
-        text += f'\nShe said: "{said}"' if said else "\nShe did not answer the check-in."
+        text = f"{self.cfg['urgent_prefix']} {name} may need help. Fall detected at {when}. {reason}\n{summary}"
+        if said:
+            text += f'\nShe said: "{said}"'
         self.last_text = text
-        out = []
-        for r in self.recipients():
-            if snapshot and snapshot.exists():
-                out.append(self.send_image(r["number"], snapshot, text))
-            else:
-                out.append(self.send_text(r["number"], text))
-        return out
+        return self._send_alert(text, video, snapshot)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -189,18 +207,21 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--test", action="store_true", help="send the hello_world template to every family number")
     p.add_argument("--text", help="send this text (and use it as the image caption)")
     p.add_argument("--image", help="send this image file with --text as caption")
+    p.add_argument("--video", help="send this MP4 with --text as caption")
     p.add_argument("--dry-run", action="store_true", help="log what would be sent, send nothing")
     a = p.parse_args(argv)
-    if not (a.test or a.text or a.image):
+    if not (a.test or a.text or a.image or a.video):
         p.print_help(); return 2
     wa = WhatsApp(dry_run=a.dry_run)
     for r in wa.recipients():
         if a.test:
             print("template ->", r["name"], wa.send_template(r["number"]))
-        if a.text:
+        if a.text and not (a.image or a.video):
             print("text ->", r["name"], wa.send_text(r["number"], a.text))
         if a.image:
             print("image ->", r["name"], wa.send_image(r["number"], Path(a.image), a.text or "test"))
+        if a.video:
+            print("video ->", r["name"], wa.send_video(r["number"], Path(a.video), a.text or "test"))
     return 0
 
 
