@@ -43,8 +43,10 @@ class Zones:
             mid = ((x1 + x2) / 2, (y1 + y2) / 2)
         zf, zm = self.zone_of(*foot), self.zone_of(*mid)
         on_floor = zf in FLOOR_LIKE and zm not in FURNITURE
-        on_furniture = zf in FURNITURE or zm in FURNITURE
-        return {"foot_zone": zf, "mid_zone": zm, "on_floor": bool(on_floor), "on_furniture": bool(on_furniture)}
+        on_furniture = zf in FURNITURE or zm in FURNITURE          # either point: the cautious reading, for the still-down watcher
+        body_on_furniture = zm in FURNITURE                        # the hips only: the drop path, where a body lying on the
+        return {"foot_zone": zf, "mid_zone": zm, "on_floor": bool(on_floor), "on_furniture": bool(on_furniture),  # floor next to the sofa
+                "body_on_furniture": bool(body_on_furniture)}      # has its box bottom on the sofa polygon
 
     def draw(self, img):
         colors = {"floor": (80, 200, 80), "rug": (80, 200, 80), "sofa": (40, 160, 255), "bed": (230, 120, 40)}

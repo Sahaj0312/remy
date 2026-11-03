@@ -62,10 +62,10 @@ the clock on the alert. The speaker is 8 kHz, so pick a voice with clear mids ra
 and the sofa and bed polygons must cover where a person lying down is fine. Add prompts with
 `--prompts floor,rug,bed,sofa,mattress` if a piece of furniture is missing. The rules that use the zones:
 
-- a fall is confirmed only if the body ends up outside sofa/bed polygons. The body's position is the hip
-  midpoint from the pose model (the box centre when the hips are not seen) and the bottom of the box, so feet
-  up on a coffee table do not put a person on the rug. If the sofa faces a table, add `coffee table` to the
-  sofa zone anyway: `remy setup-zones --prompts "coffee table"` and copy its polygon into the sofa list;
+- a drop is a fall only if the hips end up outside the sofa/bed polygons (the hip midpoint from the pose
+  model, or the box centre when the hips are not seen). Feet up on a coffee table do not put a person on the
+  rug, and a body lying on the floor next to the sofa is not on it. Do not add tables to the furniture zones:
+  a body lying beside one touches its polygon;
 - the floor rule raises an event with no visible drop when someone lies still on floor/rug for 20 s.
 
 Each prompt is one SAM image request (about $0.0025).

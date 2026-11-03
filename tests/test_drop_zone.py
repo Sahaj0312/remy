@@ -42,3 +42,12 @@ def test_only_records_after_the_drop_count(tmp_path):
     s.push(3.0, 0.0, None)
     assert s.on_furniture_since(2.0) == (0, 5)
     assert s.on_furniture_since(2.0, max_s=0.1) == (0, 1)
+
+
+def test_lying_on_the_floor_with_the_box_bottom_on_the_sofa_polygon_is_not_furniture(tmp_path):
+    """The 13:46 fall: hips on the floor, the bottom of the box just inside the sofa polygon."""
+    s = State(zones(tmp_path), 5.0, 480)
+    for k in range(5):
+        s.push(10.0 + k / 5, 0.0, det([300, 260, 520, 325], hip=[350, 300]))
+    assert s.latest()["zone"]["on_furniture"] is True            # the cautious reading, for the still-down watcher
+    assert s.on_furniture_since(10.0) == (0, 5)                   # the drop path looks at the hips only

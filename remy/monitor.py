@@ -96,11 +96,12 @@ class State:
         return bool(r and r["present"] and r["ar"] <= low_ar_max and not (r.get("zone") or {}).get("on_furniture"))
 
     def on_furniture_since(self, t_v: float, max_s: float = 3.0) -> tuple[int, int]:
-        """Of the YOLO records from stream time t_v on (at most max_s of them): how many put the body on the
-        sofa or bed, and how many saw a body at all. The drop path asks this: a fast sit-down ends on furniture."""
+        """Of the YOLO records from stream time t_v on (at most max_s of them): how many put the hips on the
+        sofa or bed, and how many saw a body at all. The drop path asks this: a fast sit-down ends on furniture.
+        The hips only: a body lying on the floor next to the sofa has its box bottom on the sofa polygon."""
         with self.lock:
             rs = [r for r in self.history if r["present"] and t_v <= r["t"] <= t_v + max_s]
-        return sum(1 for r in rs if (r.get("zone") or {}).get("on_furniture")), len(rs)
+        return sum(1 for r in rs if (r.get("zone") or {}).get("body_on_furniture")), len(rs)
 
 
 # ----------------------------------------------------------------------------- event flow
@@ -602,7 +603,9 @@ def main(argv: list[str] | None = None) -> int:
                         res["flag"] = False
                 if res["flag"] and state.zones is not None:
                     n_f, n = state.on_furniture_since(drop_v)
-                    if n and n_f * 2 >= n:               # a sit-down or a flop onto the sofa or bed, not a fall
+                    if n < 3 and t_v - drop_v < 1.0:
+                        res["flag"] = False              # too early to tell where the body ended: look again next tick
+                    elif n and n_f * 2 >= n:             # a sit-down or a flop onto the sofa or bed, not a fall
                         res["flag"] = False; last_drop_v = max(last_drop_v, drop_v)
                         if wall >= furniture_log_at:
                             furniture_log_at = wall + 10
