@@ -22,6 +22,22 @@ Frames per clip 18 to 137, median 67. Linear fit of each timing against frame co
 
 The stream time grows with frames; the first frame does not. The batch ran three clips at once, so the absolute numbers are higher than a single live call.
 
+## 2. One fall clip, five variants, 3 sequential calls each
+
+The live simulation's clip (`examples/event_gmdcsa_S1_Fall_12/clip.mp4`, 35 frames at 10 fps, 640 px), re-encoded
+at 5 fps, shortened by half a second, and scaled to 480 px. Calls one at a time, variants interleaved.
+
+| variant | frames | total, median (min to max) | upload | first frame | stream | fall confirmed |
+|---|---|---|---|---|---|---|
+| 35 frames, 10 fps, 640 px (the live clip) | 35 | 7.1 s (6.8 to 12.3) | 1.8 s | 1.5 s | 5.3 s | 3/3 |
+| 18 frames, 5 fps, 640 px | 18 | 6.0 s (5.8 to 9.8) | 2.5 s | 1.8 s | 3.8 s | 3/3 |
+| 30 frames, 10 fps, 640 px | 30 | 8.4 s (7.3 to 11.2) | 2.1 s | 2.7 s | 6.3 s | 3/3 |
+| 15 frames, 5 fps, 640 px | 15 | 6.8 s (5.8 to 8.8) | 2.3 s | 2.2 s | 4.5 s | 3/3 |
+| 35 frames, 10 fps, 480 px | 35 | 6.3 s (6.1 to 7.0) | 2.1 s | 1.7 s | 4.2 s | 3/3 |
+
+The fourteen live events so far (35 to 64 frames) took 5.4 to 9.5 s each, with no visible dependence on frame
+count inside that range.
+
 ## Reading
 
-A live call is about 4 s of fixed cost (2 s upload, 2 s to the first frame) plus roughly 0.1 s per frame of streaming. Halving the frames (5 fps) or the width (480 px) each save about a second on a 7 s median, and run-to-run variance is 6 to 12 s for the same clip. Every variant still confirmed the fall. Verdict: the live clip stays at 10 fps and 640 px; the frame count is not the lever. The only large cut left is to run SAM yourself, with no upload and no queue.
+A live call is about 4 s of fixed cost (2 s upload, 2 s to the first frame) plus roughly 0.1 s per frame of streaming. Halving the frames (5 fps) or the width (480 px) each save about a second on a 7 s median, and run-to-run variance is 6 to 12 s for the same clip. Every variant still confirmed the fall, with the same drop measurement to two decimals at 10 fps and a slightly smaller one at 5 fps. Verdict: the live clip stays at 10 fps and 640 px, because the thresholds, the sensitivity sweep and the held-out check were all done at that rate and the gain is inside the noise. The frame count is not the lever. The only large cut left is to run SAM yourself, with no upload and no queue.
