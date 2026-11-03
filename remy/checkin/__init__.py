@@ -3,8 +3,12 @@ camera microphone for record_s seconds, transcribe with Muse Voice Transcribe, c
 
   okay        a clear statement of being fine, in any wording or language (judged by the triage backend)
   needs_help  a help word (config checkin.help_words) or a statement of being hurt / unable to get up
-  unclear     words that do not answer the question (TV, a question back, mumbling)
+  unclear     words that do not answer the question (TV, a question back, mumbling), or speech-level sound
+              the transcriber could not turn into words (she tried to answer; we could not understand)
   no_answer   nothing was heard
+
+The recording stops on its own once she has answered (checkin.stop_on_silence; remy.camera.silence), so a
+quick "yeah" no longer waits out the full window; silence runs to checkin.record_s and gets one more prompt.
 
   remy test-checkin --make-prompts            # (re)generate audio/checkin_<lang>.wav for every language in config
   remy test-checkin --classify "I'm fine"     # classification only
@@ -18,7 +22,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from remy.camera.audio_in import record_mic
+from remy.camera.audio_in import MicStream, record_mic, record_until_silence
 from remy.checkin.transcribe import transcribe_wav
 from remy.checkin.tts import make_prompts, prompt_path
 from remy.common import EVENTS, load_config
@@ -37,10 +41,14 @@ def _backend(backend=None):
     return backend
 
 
-def classify(transcript: str, cfg: dict, question: str, backend=None) -> dict:
-    """Rules first (empty -> no_answer, help word -> needs_help), then the triage backend."""
+def classify(transcript: str, cfg: dict, question: str, backend=None, heard_speech: bool = False) -> dict:
+    """Rules first (empty -> no_answer, or unclear if speech-level sound was heard; help word -> needs_help),
+    then the triage backend."""
     text = (transcript or "").strip()
     if not text:
+        if heard_speech and cfg.get("escalate_on_unheard_speech", True):
+            return {"status": "unclear", "quote": "", "reason": "speech-level sound heard but no words understood", "rule": True,
+                    "latency_s": 0.0, "cost_usd": 0.0}
         return {"status": "no_answer", "quote": "", "reason": "empty transcript", "rule": True, "latency_s": 0.0, "cost_usd": 0.0}
     low = text.lower()
     for w in cfg["help_words"]:
@@ -61,14 +69,32 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
     if not wav.exists():
         make_prompts(cfg)
     t0 = time.time()
+    stop_on_silence = cfg.get("stop_on_silence", True)
+    mic = None
+    if stop_on_silence:
+        try:
+            mic = MicStream()                       # connect while the prompt plays
+        except Exception as e:
+            log(f"check-in: mic stream failed to open ({type(e).__name__}); falling back to a fixed recording")
     sp = speak(wav, audio_out, wait=True)
     log(f"check-in: spoke '{question}' on {sp['device']} ({sp['took_s']}s)")
     rec = rec_dir / f"checkin_{tag}_{datetime.now().strftime('%H%M%S')}.wav"
-    r = record_mic(cfg["record_s"], rec)
-    log(f"check-in: recorded {cfg['record_s']}s mic -> {rec.name} ({r['took_s']}s)")
+    if mic is not None:
+        try:
+            # the stream lags the room by 0.2 to 0.45 s, so the prompt's tail still arrives after speak() returns
+            r = record_until_silence(rec, cfg["record_s"], cfg.get("silence"), mic=mic, since_wall=time.time() + 0.5)
+        finally:
+            mic.close()
+        how = (f"stopped {r['duration_s']}s in, speech at {r['speech_at_s']}s" if r.get("stopped_early")
+               else f"no answer heard in {r.get('duration_s', cfg['record_s'])}s" if r.get("speech_at_s") is None
+               else f"ran the full {r.get('duration_s')}s, speech at {r['speech_at_s']}s")
+        log(f"check-in: mic -> {rec.name}: {how} (peak {r.get('peak_db')} dB, {r['took_s']}s)")
+    else:
+        r = record_mic(cfg["record_s"], rec)
+        log(f"check-in: recorded {cfg['record_s']}s mic -> {rec.name} ({r['took_s']}s)")
     tr = transcribe_wav(rec) if r["ok"] else {"transcript": "", "error": r["err"], "latency_s": 0}
     log(f"check-in: Muse Voice Transcribe ({tr.get('latency_s')}s): {tr.get('transcript')!r}")
-    cl = classify(tr.get("transcript", ""), cfg, question, backend)
+    cl = classify(tr.get("transcript", ""), cfg, question, backend, heard_speech=r.get("speech_at_s") is not None)
     log(f"check-in: classified {cl['status']} ({'rule' if cl.get('rule') else cl.get('backend', 'model')}, {cl.get('latency_s')}s): {cl.get('reason')}")
     return {"question": question, "speak": sp, "record": r, "wav": str(rec), "transcript": tr, "classification": cl,
             "status": cl["status"], "total_s": round(time.time() - t0, 2)}

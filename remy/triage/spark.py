@@ -165,6 +165,8 @@ people. Reply with JSON only.
 - "needs_help": they ask for help, say they are hurt, cannot get up, or are in pain (e.g. "help", "bachao", "madad", "I can't get up").
 - "unclear": words were heard but do not answer the question (TV, unrelated speech, a question back, mumbling).
 - "no_answer": nothing meaningful was said.
+Punctuation and capitalisation come from the transcriber and are unreliable: judge the words, not a question mark.
+A bare affirmative in reply to this question ("yeah", "yes", "okay", "fine", "haan", "theek") means okay.
 Return {"status": "...", "quote": "the words that decided it, or empty", "reason": "one short sentence"}."""
 
 CLASSIFY_SCHEMA = {"type": "object",

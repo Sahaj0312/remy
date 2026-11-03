@@ -55,7 +55,9 @@
     "yolo.model": "weights file at the project root (ultralytics downloads it on first use)",
     "alerts.heartbeat": "once a day at `hour` (local time) the family gets a short 'Remy is watching' message with uptime, events in the last 24 h and camera reconnects. A monitor started after that hour waits for the next day, so restarts never message anyone. Off for file sources.",
     "monitor.reconnect": "a dropped camera stream is reopened with back-off (2, 4, 8 ... 60 s); `remy run --max-outage-s` sets when to give up and exit so a supervisor can restart",
-    "spark_open": "Muse Spark Open on a partner endpoint, OpenAI-compatible; the burst goes as JPEG frames at frames_fps. Not used unless triage.backend or reply_backend says spark_open. Any OpenAI-compatible host works: change base_url, model and api_key_env."
+    "spark_open": "Muse Spark Open on a partner endpoint, OpenAI-compatible; the burst goes as JPEG frames at frames_fps. Not used unless triage.backend or reply_backend says spark_open. Any OpenAI-compatible host works: change base_url, model and api_key_env.",
+    "checkin.stop_on_silence": "the mic recording ends once speech (>= speech_db for speech_min_s, or one chunk >= loud_db) is followed by silence_s below silence_db, never before min_s; with no speech it runs to record_s. Levels are dBFS from the Tapo mic: gated silence ~-72, rustle -50 to -42, speech from the floor -35 to -20.",
+    "checkin.escalate_on_unheard_speech": "if speech-level sound was heard but the transcript is empty, the reply counts as unclear (she tried to answer, we could not understand) and escalates at once instead of a second prompt"
   },
   "tracking": {
     "max_gap_s": 1.0,
@@ -115,6 +117,16 @@
     "speed": 0.95,
     "lead_in_s": 1.0,
     "record_s": 15,
+    "stop_on_silence": true,
+    "silence": {
+      "speech_db": -40,
+      "loud_db": -30,
+      "silence_db": -47,
+      "speech_min_s": 0.2,
+      "silence_s": 2.0,
+      "min_s": 4.0
+    },
+    "escalate_on_unheard_speech": true,
     "help_words": [
       "help",
       "bachao",
