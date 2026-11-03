@@ -10,7 +10,9 @@ camera microphone for record_s seconds, transcribe with Muse Voice Transcribe, c
 The recording stops on its own once she has answered (checkin.stop_on_silence; remy.camera.silence), so a
 quick "yeah" no longer waits out the full window; silence runs to checkin.record_s and gets one more prompt.
 
-  remy test-checkin --make-prompts            # (re)generate audio/checkin_<lang>.wav for every language in config
+  remy test-checkin --make-prompts            # generate every spoken line in config (checkin.lines) with Kokoro
+  remy test-checkin --import ask.wav --as ask # replace one line with a better recording (ElevenLabs etc.)
+  remy test-checkin --say ask                 # play one line on the camera (or --audio-out laptop)
   remy test-checkin --classify "I'm fine"     # classification only
   remy test-checkin --run --audio-out laptop  # full round: speak, record, transcribe, classify
 """
@@ -24,14 +26,27 @@ from pathlib import Path
 
 from remy.camera.audio_in import MicStream, record_mic, record_until_silence
 from remy.checkin.transcribe import transcribe_wav
-from remy.checkin.tts import make_prompts, prompt_path
+from remy.checkin.tts import LINE_KEYS, import_prompt, line_text, make_prompts, prompt_path
 from remy.common import EVENTS, load_config
 
-__all__ = ["ask_once", "classify", "make_prompts", "prompt_path", "record_mic", "transcribe_wav", "question_text"]
+__all__ = ["ask_once", "classify", "make_prompts", "prompt_path", "record_mic", "transcribe_wav", "question_text", "say_line"]
 
 
-def question_text(cfg: dict) -> str:
-    return cfg["prompts"][cfg["language"]].replace("{name}", cfg["name"])
+def question_text(cfg: dict, key: str = "ask") -> str:
+    return line_text(cfg, key)
+
+
+def say_line(cfg: dict, key: str, audio_out: str | None, log=print, wait: bool = True) -> dict:
+    """Play one spoken line (checkin.lines) on the camera or laptop; generates it with Kokoro if missing."""
+    from remy.camera.audio_out import speak
+    lang = cfg["language"]
+    wav = prompt_path(key, lang)
+    if not wav.exists():
+        make_prompts(cfg, [key])
+        wav = prompt_path(key, lang)
+    sp = speak(wav, audio_out, wait=wait)
+    log(f"check-in: said {key} ({line_text(cfg, key)!r}) on {sp['device']} ({sp['took_s']}s)")
+    return sp
 
 
 def _backend(backend=None):
@@ -60,16 +75,19 @@ def classify(transcript: str, cfg: dict, question: str, backend=None, heard_spee
     return out
 
 
-def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=print, backend=None, on_recorded=None) -> dict:
-    """Speak the prompt, record, transcribe, classify. Returns a dict with all timings.
-    on_recorded(wav_path, rec_wall_start, record_result) is called right after the recording ends, before
-    transcription, so the caller can cut the frames of that moment while they are still in its buffer."""
+def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=print, backend=None, on_recorded=None,
+             line: str = "ask") -> dict:
+    """Speak one of the question lines (ask, ask_again, ask_floor, recheck), record, transcribe, classify.
+    Returns a dict with all timings. on_recorded(wav_path, rec_wall_start, record_result) is called right after
+    the recording ends, before transcription, so the caller can cut the frames of that moment while they are
+    still in its buffer."""
     from remy.camera.audio_out import speak
     lang = cfg["language"]
-    question = question_text(cfg)
-    wav = prompt_path(lang)
+    question = question_text(cfg, line)
+    wav = prompt_path(line, lang)
     if not wav.exists():
-        make_prompts(cfg)
+        make_prompts(cfg, [line])
+        wav = prompt_path(line, lang)
     t0 = time.time()
     stop_on_silence = cfg.get("stop_on_silence", True)
     mic = None
@@ -112,16 +130,26 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="remy test-checkin", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--make-prompts", action="store_true", help="(re)generate the prompt wavs with Kokoro")
+    p.add_argument("--make-prompts", action="store_true", help="generate every line in config checkin.lines with Kokoro")
+    p.add_argument("--keep-imported", action="store_true", help="with --make-prompts: do not overwrite lines that already have a file")
+    p.add_argument("--import", dest="import_file", metavar="FILE", help="a recording to use for one line (any format)")
+    p.add_argument("--as", dest="as_key", metavar="KEY", help=f"which line --import replaces: {', '.join(LINE_KEYS)}")
+    p.add_argument("--say", metavar="KEY", help="play one line and exit")
     p.add_argument("--classify", metavar="TEXT", help="classify this transcript and exit")
     p.add_argument("--run", action="store_true", help="one full round: speak, record, transcribe, classify")
     p.add_argument("--audio-out", default=None, help="camera | laptop (default: config audio.output)")
     a = p.parse_args(argv)
-    if not (a.make_prompts or a.classify is not None or a.run):
+    if not (a.make_prompts or a.import_file or a.say or a.classify is not None or a.run):
         p.print_help(); return 2
     cfg = load_config()["checkin"]
     if a.make_prompts:
-        make_prompts(cfg)
+        make_prompts(cfg, force=not a.keep_imported)
+    if a.import_file:
+        if not a.as_key:
+            raise SystemExit("--import needs --as KEY")
+        import_prompt(Path(a.import_file), a.as_key, cfg)
+    if a.say:
+        say_line(cfg, a.say, a.audio_out)
     if a.classify is not None:
         print(json.dumps(classify(a.classify, cfg, question_text(cfg)), ensure_ascii=False))
     if a.run:

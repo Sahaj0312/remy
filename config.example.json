@@ -46,7 +46,7 @@
     "trigger": "looser DROP-only thresholds for the always-on YOLO stage that decides when to call SAM",
     "spark": "burst_before_s/after_s bound the 10 fps burst around the drop sent as a video file; frames_fps is used only with --frames. max_output_tokens includes reasoning tokens.",
     "audio.output": "camera (Tapo speaker via go2rtc) or laptop (afplay); one-line switch",
-    "checkin": "language picks the prompt and Kokoro voice; help_words force needs_help before Spark; recheck_after_s = still-down time after an 'okay' that triggers another check-in",
+    "checkin": "language picks the Kokoro voice and the file suffix; lines are the spoken texts ({name} filled in): ask (first question), ask_again (no answer), ask_floor (the floor rule), recheck (still down a minute after an okay), ack_okay and ack_sent (what she hears after the alert goes out). `remy test-checkin --make-prompts` renders them with Kokoro into audio/<key>_<lang>.wav; `--import FILE --as KEY` replaces one with a better recording. help_words force needs_help before Spark; recheck_after_s = still-down time after an 'okay' that triggers another check-in",
     "monitor": "still_down_s: seconds down after a confirmed drop before the event upgrades; floor_still_s: seconds on floor/rug barely moving (no drop needed); still_move_max_bl: centroid movement over 2 s in body lengths that still counts as 'barely moving'; zones_file: zones.json at the project root, written by `remy setup-zones`",
     "alerts.family": "placeholder; real numbers live in family.json at the project root (gitignored) with the same shape. With a WhatsApp test number each recipient must be on the app's allow-list and must message the number first (24 h window).",
     "alerts.channel": "whatsapp (Meta Cloud API; .env WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID) or twilio (WhatsApp sandbox; .env TWILIO_*)",
@@ -109,8 +109,13 @@
   "checkin": {
     "language": "en",
     "name": "Nani",
-    "prompts": {
-      "en": "{name}, are you okay?"
+    "lines": {
+      "ask": "{name}, are you okay?",
+      "ask_again": "{name}, I can't hear you. Can you say something? Are you okay?",
+      "ask_floor": "{name}, I can see you're on the floor. Are you okay?",
+      "recheck": "{name}, you're still on the floor. Are you sure you're alright?",
+      "ack_okay": "Okay. I've let the family know. Take your time getting up.",
+      "ack_sent": "{name}, I've sent a message to the family. Stay where you are. They know."
     },
     "voices": {
       "en": "af_heart"

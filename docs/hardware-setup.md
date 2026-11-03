@@ -41,9 +41,17 @@ The camera microphone cannot hear its own speaker, so a recording made while the
 
 ## Check-in voice: Kokoro
 
-Prompts are generated locally with [Kokoro](https://github.com/thewh1teagle/kokoro-onnx). Download
-`kokoro-v1.0.onnx` and `voices-v1.0.bin` into `tools/kokoro/`, install `espeak-ng` (`brew install espeak-ng`),
-then run `remy test-checkin --make-prompts`. Edit the text, name and voice under `checkin` in `config.json`.
+The spoken lines (the question, the second question, the floor-rule question, the re-check, and the two
+acknowledgements) are listed under `checkin.lines` in `config.json` with `{name}` filled in. Kokoro
+([kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx)) renders them locally: download `kokoro-v1.0.onnx` and
+`voices-v1.0.bin` into `tools/kokoro/`, install `espeak-ng` (`brew install espeak-ng`), then run
+`remy test-checkin --make-prompts`.
+
+Any line can be replaced with a recording from a better voice (ElevenLabs, a family member):
+`remy test-checkin --import recording.mp3 --as ask`. The import makes it mono 22.05 kHz, normalises loudness and
+adds the one-second lead-in the camera needs, so record the words only. `remy test-checkin --say ask` plays a line
+through the camera so you can judge it in the room. Keep each line under about four seconds: the question starts
+the clock on the alert. The speaker is 8 kHz, so pick a voice with clear mids rather than a breathy one.
 
 ## Zones
 

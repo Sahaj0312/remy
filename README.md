@@ -66,7 +66,8 @@ flowchart LR
    the sofa or bed does not.
 5. **Triage.** Muse Spark gets a 2.5 s burst around the drop plus the tracker numbers and writes the one-line note
    for the family ("Went down fast by the coffee table at 5:45pm and hasn't moved").
-6. **Check-in.** The camera speaker says "Nani, are you okay?". The camera mic records until she has answered
+6. **Check-in.** The camera speaker says "Nani, are you okay?" (a second, different line if she did not answer, and
+   "I can see you're on the floor" for the floor rule). The camera mic records until she has answered
    (speech followed by two seconds of quiet), or for 15 s if nothing is said. Muse Voice Transcribe turns it into
    text, Spark decides whether that text is a clear "I'm fine". Only a clear okay is reassuring. Silence gets one
    more prompt; anything unclear escalates at once; a help word escalates without asking Spark; speech-level
@@ -74,7 +75,8 @@ flowchart LR
 7. **Alert.** WhatsApp to every number in `family.json`, as one short video with the message as its caption:
    the five seconds of the fall with the room's sound, then her answer with her face, when she spoke. Calm
    wording for an okay, urgent otherwise. If she said nothing, the video is the fall alone and the message says
-   she did not respond when asked. If she is still on the floor a minute after saying okay, it asks again.
+   she did not respond when asked. After the message is out the camera tells her so ("I've let the family know").
+   If she is still on the floor a minute after saying okay, it asks again.
 
 Every event writes a folder under `events/` with the clip, snapshot, SAM track, score, triage, transcripts and a
 timestamped log. A dropped camera stream is reopened with back-off instead of ending the run, and once a day the
@@ -209,7 +211,8 @@ Download the go2rtc binary into `tools/go2rtc/go2rtc` and the Kokoro model files
 (see [docs/hardware-setup.md](docs/hardware-setup.md)), then:
 
 ```sh
-remy test-checkin --make-prompts        # Kokoro writes audio/checkin_en.wav
+remy test-checkin --make-prompts        # Kokoro renders every spoken line into audio/<line>_en.wav
+remy test-checkin --import ask.wav --as ask   # swap one line for a better recording (ElevenLabs etc.)
 remy setup-zones --stream 2             # floor / rug / sofa / bed -> zones.json, check zones_overlay.jpg
 remy test-alert --dry-run --test        # alert path without sending; drop --dry-run to send
 remy test-checkin --run                 # one spoken check-in round on the camera

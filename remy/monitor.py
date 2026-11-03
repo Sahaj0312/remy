@@ -336,7 +336,8 @@ class Flow(threading.Thread):
             retries = ck.get("retries_no_answer", 1)
             for attempt in range(1, retries + 2):
                 self.mark(f"checkin{attempt}_start")
-                r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded); rounds.append(r)
+                line = ("ask_floor" if self.kind == "floor_still" else "ask") if attempt == 1 else "ask_again"
+                r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded, line=line); rounds.append(r)
                 self.mark(f"checkin{attempt}_done")
                 if r["transcript"].get("transcript"):
                     said = r["transcript"]["transcript"]
@@ -363,6 +364,7 @@ class Flow(threading.Thread):
             resp = wa.calm(summary, said, self.when, video=video); self.mark("alert_sent")
             self.log(f"ALERT calm -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: she says she's okay")
             self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text}
+            self.say_after("ack_okay")
             self.recheck_after_okay(wa, snap)
         elif outcome == "got_up":
             resp = wa.calm(summary + " She got back up on her own.", said, self.when, video=video); self.mark("alert_sent")
@@ -377,11 +379,25 @@ class Flow(threading.Thread):
             resp = wa.urgent(summary, said, self.when, snap, reason, video=video); self.mark("alert_sent")
             self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
             self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text}
+            self.say_after("ack_sent")
         self.save()
         # keep the watcher alive a while for the still-down line, then finish
         t0 = time.time()
         while time.time() - t0 < self.cfg["monitor"]["still_down_s"] + 5 and self.got_up_at is None and self.still_down_at is None:
             time.sleep(0.5)
+
+    def say_after(self, key: str):
+        """Tell her what just happened (ack_okay / ack_sent), after the alert is out, without holding anything up."""
+        if self.args.no_checkin or not (self.cfg["checkin"].get("lines") or {}).get(key):
+            return
+        from remy.checkin import say_line
+
+        def work():
+            try:
+                say_line(self.cfg["checkin"], key, self.args.audio_out, log=self.log)
+            except Exception as e:
+                self.log(f"could not say {key}: {type(e).__name__}: {e}")
+        threading.Thread(target=work, daemon=True).start()
 
     def alert_video(self) -> Path | None:
         """fall_with_sound.mp4 (or the silent clip) followed by her answer(s), as one MP4 for WhatsApp."""
@@ -412,7 +428,7 @@ class Flow(threading.Thread):
                 if not self.state.down_now(self.cfg["monitor"]["low_ar_max"]):
                     self.log(f"{limit}s after the event: not down any more -> no re-check"); return
                 self.log(f"still down {limit}s after saying okay -> checking in again")
-                r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log)
+                r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log, line="recheck")
                 self.result.setdefault("checkin_rounds", []).append(r)
                 if r["status"] == "okay":
                     self.log("re-check: okay (no new alert)")
