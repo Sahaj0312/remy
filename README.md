@@ -204,7 +204,8 @@ $0.0014. A false candidate that SAM rejects costs $0.01. YOLO, tracking, scoring
 - Audio is recorded only for the 15 s after the prompt and sent for transcription. The microphone is otherwise
   not read.
 - The family gets one short video per alert: the fall with the room's sound, and her answer. Nothing else from
-  the buffers is kept or sent.
+  the buffers is kept or sent. A caution, sent when SAM fails, carries the clip of a drop nobody has confirmed, so the
+  family can judge it. This is the one case where they see video of something that may not be a fall.
 - Events, clips and recordings stay in `events/` on the machine. Keys, phone numbers, the camera's zones and the
   real config are gitignored; the repository holds `.env.example`, `config.example.json` and a placeholder number.
 - What Meta keeps from API calls is governed by the Meta Model API terms, not by this project.
@@ -295,6 +296,38 @@ infra/           go2rtc.template.yaml (filled from .env at run time)
 experiments/     probes and the v1 live loop, each with a one-line note
 ```
 
+## When something breaks
+
+A system like this fails quietly unless it is built not to. The rule: the family hears what is known, and nothing
+claims a message went out when it did not.
+
+| what fails | what happens | how it was checked |
+|---|---|---|
+| SAM 3.1 refuses or errors, before a verdict | A caution with the clip, if the person is still down and not on the furniture: "could not confirm it, because fall tracking may be temporarily down. Please check on Nani." One per 10 minutes during an outage, and a message when tracking is back. | real API with a refused key |
+| SAM 3.1 hangs | Counts as down after 45 s, then the same caution. The floor rule is free again. | a local server that never answers |
+| The whole Meta API is down and she stays on the floor | The caution, then the floor rule after 20 s of stillness asks her and sends the urgent alert with a plain note. | real API with a refused key, a clip held on its last frame |
+| Muse Spark's note fails | The alert goes out with a plain "Possible fall detected" note. | same run |
+| Transcription or classification fails | Speech with no words: "She answered, but not clearly." An error: urgent, "The check-in could not finish." Each call has a 30 s limit. | tests |
+| A voice file or the camera credentials are missing | Urgent: "The check-in could not finish, so we do not know if Nani is okay." | clean clone |
+| The camera speaker or mic fails | Urgent, and the reason says so, not "did not respond". | tests |
+| WhatsApp refuses the video | The words go out alone, with two retries over 20 s. | tests |
+| WhatsApp refuses everything | The log says `ALERT FAILED`, and the camera does not tell her "they know". | real API with an expired token |
+| The WhatsApp token has expired at startup | `remy run` refuses to start. | real API with an expired token |
+| The camera drops | It reconnects on its own. The family hears at 2 minutes, and again when it is back or when the monitor gives up at 10. | tests, with a scripted stream |
+
+These gaps remain:
+
+- **The home internet is down.** Nothing can reach the family. Messages are not queued, so the only sign is the
+  missing morning heartbeat. The camera can still ask the question, because the speaker is on the local network.
+- **The laptop is off, or the process dies.** The same: the missing heartbeat is the signal. Running as a service is
+  on the roadmap.
+- **WhatsApp accepts a message, then drops it.** It answers HTTP 200 and delivers nothing outside the 24 h window on
+  the test number, and it did the same on Nov 4 for a video in a QuickTime container. Only a webhook would show this,
+  and none runs by default. Alert videos are written as standard MP4.
+- **During a SAM outage, a fall can look like nothing.** The caution comes only on a drop the local trigger saw, and
+  the floor rule needs zones and 20 s of stillness on the floor. "Tracking is back" waits for the next candidate drop,
+  because a test call would cost money.
+
 ## Limitations and known misses
 
 - **Falls that look like lying down.** From sitting on the floor, onto a bed, from a bed: 7 of the 8 eval misses.
@@ -356,7 +389,8 @@ From the commit history:
 - **Nov 4.** A clean-clone test showed that a confirmed fall could end with no alert: an error in the check-in, such
   as a missing voice file or missing camera credentials, stopped the event in silence. Now a failed check-in sends the
   urgent alert and says it could not finish. Added `remy run --reply`, so anyone with a Meta key can run the full flow
-  and all three outcomes with no camera.
+  and all three outcomes with no camera. An audit of every outside dependency then found more quiet failures, now
+  fixed: see [When something breaks](#when-something-breaks).
 
 ## Data and licenses
 

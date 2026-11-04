@@ -40,8 +40,12 @@ Build for Your World
 > Deterministic stages sit between the models: a local YOLO pose trigger decides when to call SAM, a rule on the SAM
 > track decides whether it was a fall, help words short-circuit the classifier, and a floor-zone rule raises an event
 > with no visible drop. Evaluation: 100 public clips (32/40 falls, 1/60 false alarms in-sample; 80% out-of-sample),
-> a threshold sensitivity sweep, an 86-test suite, and four staged scenarios on the real camera on the last day
+> a threshold sensitivity sweep, a 111-test suite, and four staged scenarios on the real camera on the last day
 > (sofa quiet; a clear okay at 27 s; a silent fall urgent at 57 s; a shout urgent at 20 s with the audio).
+>
+> Failure handling is designed and tested, not assumed: if SAM is down the family gets a caution with the clip, and
+> the floor rule still asks her; a refused WhatsApp message falls back to text and is never reported as sent. The
+> README lists each failure, how it was checked, and the gaps that remain.
 >
 > **Bonus categories:** Best Agentic Use-Case (the system detects, confirms, asks, listens, decides, escalates and
 > re-checks on its own, end to end, with no person in the loop); Most Viral Project on X; Community Vote.
