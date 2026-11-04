@@ -9,7 +9,7 @@ https://github.com/Sahaj0312/remy
 
 ## 2. Demo video URL
 
-(YouTube unlisted, 2:50 to 2:55, English voice-over with burned-in captions)
+https://www.youtube.com/watch?v=-QB-1Ta3tzI
 
 ## 3. Track
 
@@ -64,7 +64,7 @@ https://x.com/Sahaj0312/status/2118091025969217754
 
 ## Before the freeze
 
-- [ ] Video uploaded, link in README and form, plays without login.
+- [ ] Video uploaded and linked in the README. Paste it into the form and check it plays without login.
 - [x] `docs/demo.gif` committed (the README placeholder).
 - [x] X post up, URL in the form text above. Paste it into the form.
 - [ ] $150 Meta credits claimed (each participant, by Nov 4 9 PM ET).
