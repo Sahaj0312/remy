@@ -195,11 +195,27 @@ class Flow(threading.Thread):
                 self.log(f"floor-zone rule: on {self.drop['zone']} , low (ar {self.drop['ar']:.2f}), moved {self.drop['move']:.2f} body lengths "
                          f"in 2 s, for {self.drop['for_s']:.0f}s -> EVENT without a drop")
             self.raise_event()
-        except Exception as e:
+        except (Exception, SystemExit) as e:     # SystemExit too: a missing credential or voice file must not end this in silence
             self.log(f"flow error: {type(e).__name__}: {e}")
             self.result["error"] = repr(e)
+            self.last_resort_alert()
         finally:
             self.save(); self.done = True
+
+    def last_resort_alert(self):
+        """An event was raised and something broke before the family heard: tell them anyway, with text only."""
+        if not self.result.get("event") or "alert" in self.result:
+            return
+        try:
+            from remy.alerts import WhatsApp
+            wa = WhatsApp(dry_run=self.args.alerts_dry_run)
+            when = getattr(self, "when", "just now")
+            reason = "The system hit an error before it could finish checking on her."
+            resp = wa.urgent(f"Possible fall detected at {when}.", self.result.get("said"), when, None, reason)
+            self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
+            self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text, "last_resort": True}
+        except (Exception, SystemExit) as e:
+            self.log(f"ALERT FAILED, the family was not told: {type(e).__name__}: {e}")
 
     def confirm_drop(self) -> bool:
         d = self.drop
@@ -287,7 +303,7 @@ class Flow(threading.Thread):
             self.result["triage_backend"] = backend.label
             self.log(f"{backend.label} triage ({self.timings['spark_total_s']}s incl. burst cut): urgency={self.triage['urgency']} "
                      f"lying_still={self.triage['is_lying_still']} :: {self.triage['summary_for_family']}")
-        except Exception as e:
+        except (Exception, SystemExit) as e:
             self.log(f"triage failed: {type(e).__name__}: {e}")
             self.triage = {"urgency": "unknown", "summary_for_family": "", "what_happened": "", "is_lying_still": None}
 
@@ -354,7 +370,15 @@ class Flow(threading.Thread):
             for attempt in range(1, retries + 2):
                 self.mark(f"checkin{attempt}_start")
                 line = ("ask_floor" if self.kind == "floor_still" else "ask") if attempt == 1 else "ask_again"
-                r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded, line=line, mic=self.state.audio); rounds.append(r)
+                try:
+                    r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded, line=line,
+                                 mic=self.state.audio)
+                except (Exception, SystemExit) as e:
+                    self.log(f"check-in failed: {type(e).__name__}: {e} -> escalating")
+                    self.result["checkin_error"] = f"{type(e).__name__}: {e}"[:300]
+                    outcome = "checkin_failed"
+                    break
+                rounds.append(r)
                 self.mark(f"checkin{attempt}_done")
                 if r["transcript"].get("transcript"):
                     said = r["transcript"]["transcript"]
@@ -392,7 +416,8 @@ class Flow(threading.Thread):
         else:
             name = self.cfg["alerts"]["person_name"]
             reason = {"needs_help": "She asked for help.", "no_answer": f"{name} did not respond when asked if she was okay.",
-                      "unclear": "She answered, but not clearly."}.get(outcome, outcome)
+                      "unclear": "She answered, but not clearly.",
+                      "checkin_failed": f"The check-in could not finish, so we do not know if {name} is okay."}.get(outcome, outcome)
             resp = wa.urgent(summary, said, self.when, snap, reason, video=video); self.mark("alert_sent")
             self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
             self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text}
@@ -412,7 +437,7 @@ class Flow(threading.Thread):
         def work():
             try:
                 say_line(self.cfg["checkin"], key, self.args.audio_out, log=self.log)
-            except Exception as e:
+            except (Exception, SystemExit) as e:
                 self.log(f"could not say {key}: {type(e).__name__}: {e}")
         threading.Thread(target=work, daemon=True).start()
 
@@ -445,7 +470,11 @@ class Flow(threading.Thread):
                 if not self.state.down_now(self.cfg["monitor"]["low_ar_max"]):
                     self.log(f"{limit}s after the event: not down any more -> no re-check"); return
                 self.log(f"still down {limit}s after saying okay -> checking in again")
-                r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log, line="recheck", mic=self.state.audio)
+                try:
+                    r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log, line="recheck", mic=self.state.audio)
+                except (Exception, SystemExit) as e:
+                    self.log(f"re-check failed: {type(e).__name__}: {e} -> escalating")
+                    r = {"status": "checkin_failed", "transcript": {}}
                 self.result.setdefault("checkin_rounds", []).append(r)
                 if r["status"] == "okay":
                     self.log("re-check: okay (no new alert)")
