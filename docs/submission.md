@@ -48,7 +48,7 @@ Build for Your World
 > README lists each failure, how it was checked, and the gaps that remain.
 >
 > **Bonus categories:** Best Agentic Use-Case (the system detects, confirms, asks, listens, decides, escalates and
-> re-checks on its own, end to end, with no person in the loop); Most Viral Project on X; Community Vote.
+> re-checks on its own, end to end, with no person in the loop); Community Vote.
 >
 > **Keyless verification for judges:** `remy replay examples/event_gmdcsa_S1_Fall_12` replays a recorded event and
 > re-scores its stored SAM track; `python eval/score_tracks.py --tracker sam --scorer v2` reproduces the eval from
@@ -60,26 +60,12 @@ Build for Your World
 
 ## 6. X post URL
 
-Post before the deadline, paste the URL. Draft:
-
-> My grandmother lives alone most of the day. So during the @Meta AI hackathon I built remy: a $30 camera notices a
-> fall, SAM 3.1 confirms it, the camera asks "Are you okay?", Muse Spark listens, and the family gets a
-> WhatsApp with what she said. 30 s from fall to message. Open source.
->
-> [video] github.com/Sahaj0312/remy
-
-Second post in the thread, for the technical crowd:
-
-> Under the hood: YOLO pose at 5 fps on a laptop → fast drop cuts a 5 s clip → SAM 3.1 tracks the person → a rule
-> in body lengths confirms the fall → Muse Spark writes the family note → Muse Voice Transcribe hears the reply →
-> Muse Spark judges it. 32/40 falls, 1/60 false alarms on 100 public clips, 80% out of sample,
-> ~$0.02 per event.
+No X post for this project. Leave the field empty.
 
 ## Before the freeze
 
 - [ ] Video uploaded, link in README and form, plays without login.
 - [x] `docs/demo.gif` committed (the README placeholder).
-- [ ] X post up, URL in the form.
 - [ ] $150 Meta credits claimed (each participant, by Nov 4 9 PM ET).
 - [x] Fresh clone: `pip install -e . && pytest && remy replay examples/event_gmdcsa_S1_Fall_12` passes (Nov 4).
 - [ ] No secrets in the tree: `git grep -E "LLM_|EAA|fw_" HEAD -- ":!docs/submission.md"` is empty.
