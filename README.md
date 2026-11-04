@@ -193,7 +193,7 @@ second each, inside the 6 to 12 s run-to-run noise. The only large cut left ther
 
 ### Cost
 
-Everything so far, two evaluation rounds, the backend comparison and all live tests included, is $4.36 of API calls. One live event costs
+Everything so far, two evaluation rounds, the backend comparison and all live tests included, is $4.38 of API calls. One live event costs
 about $0.02: SAM $0.010 (50-frame minimum), Spark triage $0.003, two transcriptions $0.0015, one classification
 $0.0014. A false candidate that SAM rejects costs $0.01. YOLO, tracking, scoring and TTS run locally.
 

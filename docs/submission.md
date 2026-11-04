@@ -74,9 +74,9 @@ Second post in the thread, for the technical crowd:
 ## Before the freeze
 
 - [ ] Video uploaded, link in README and form, plays without login.
-- [ ] `docs/demo.gif` committed (the README placeholder).
+- [x] `docs/demo.gif` committed (the README placeholder).
 - [ ] X post up, URL in the form.
 - [ ] $150 Meta credits claimed (each participant, by Nov 4 9 PM ET).
-- [ ] Fresh clone: `pip install -e . && pytest && remy replay examples/event_gmdcsa_S1_Fall_12` passes.
-- [ ] No secrets in the tree: `git grep -E "LLM_|EAA|fw_" HEAD` is empty.
+- [x] Fresh clone: `pip install -e . && pytest && remy replay examples/event_gmdcsa_S1_Fall_12` passes (Nov 4).
+- [ ] No secrets in the tree: `git grep -E "LLM_|EAA|fw_" HEAD -- ":!docs/submission.md"` is empty.
 - [ ] Last push before 6:00 PM PT Wednesday.
