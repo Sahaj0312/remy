@@ -48,7 +48,7 @@ Build for Your World
 > README lists each failure, how it was checked, and the gaps that remain.
 >
 > **Bonus categories:** Best Agentic Use-Case (the system detects, confirms, asks, listens, decides, escalates and
-> re-checks on its own, end to end, with no person in the loop); Community Vote.
+> re-checks on its own, end to end, with no person in the loop); Most Viral Project on X; Community Vote.
 >
 > **Keyless verification for judges:** `remy replay examples/event_gmdcsa_S1_Fall_12` replays a recorded event and
 > re-scores its stored SAM track; `python eval/score_tracks.py --tracker sam --scorer v2` reproduces the eval from
@@ -60,12 +60,13 @@ Build for Your World
 
 ## 6. X post URL
 
-No X post for this project. Leave the field empty.
+https://x.com/Sahaj0312/status/2118091025969217754
 
 ## Before the freeze
 
 - [ ] Video uploaded, link in README and form, plays without login.
 - [x] `docs/demo.gif` committed (the README placeholder).
+- [x] X post up, URL in the form text above. Paste it into the form.
 - [ ] $150 Meta credits claimed (each participant, by Nov 4 9 PM ET).
 - [x] Fresh clone: `pip install -e . && pytest && remy replay examples/event_gmdcsa_S1_Fall_12` passes (Nov 4).
 - [ ] No secrets in the tree: `git grep -E "LLM_|EAA|fw_" HEAD -- ":!docs/submission.md"` is empty.

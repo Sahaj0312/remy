@@ -18,7 +18,7 @@ Transcribe write the note, hear the reply and judge it. Evaluated on 100 public 
   Fireworks) was evaluated as a drop-in alternative for the triage stage, clip for clip against Spark 1.3, in
   [`eval/TRIAGE_COMPARE.md`](eval/TRIAGE_COMPARE.md); it is not in the default pipeline.
 - **Bonus categories targeted:** Best Agentic Use-Case (it detects, confirms, asks, listens, decides, escalates
-  and re-checks without a person in the loop) · Community Vote.
+  and re-checks without a person in the loop) · [Most Viral Project on X](https://x.com/Sahaj0312/status/2118091025969217754) · Community Vote.
 - **3-minute demo video:** link to come.
 - **Keyless verification:** `remy replay examples/event_gmdcsa_S1_Fall_12` replays a recorded live event and
   re-scores its stored SAM track; `python eval/score_tracks.py --tracker sam --scorer v2` reproduces the eval
