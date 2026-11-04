@@ -12,7 +12,7 @@ Every step is timestamped in events/<id>/log.txt and event.json. A dropped strea
 (remy.camera.capture) and a daily heartbeat tells the family the monitor is alive (config alerts.heartbeat).
 
   remy run --source tapo
-  remy run --source eval/clips/gmdcsa_S1_Fall_12.mp4 --realtime --no-zones --audio-out laptop --alerts-dry-run
+  remy run --source examples/clips/gmdcsa_S1_Fall_12.mp4 --realtime --no-zones --reply examples/replies/okay.wav
   remy run --source 0 --no-api                       # laptop webcam, YOLO trigger only, no API calls
 """
 from __future__ import annotations
@@ -35,7 +35,7 @@ from remy.alerts.heartbeat import heartbeat_due, heartbeat_start_state, heartbea
 from remy.camera.audio_in import MicStream
 from remy.camera.capture import Capture
 from remy.camera.clips import concat_clips, freeze_clip, write_clip
-from remy.common import EVENTS, ROOT, load_config, redact, sam_cost_usd, video_info, write_json
+from remy.common import EVENTS, ROOT, api_key, env_get, load_config, redact, sam_cost_usd, video_info, write_json
 from remy.vision.score import score_track
 from remy.vision.tracking import OnlineTracks
 from remy.vision.yolo import detect as yolo_detect, load_model
@@ -372,7 +372,7 @@ class Flow(threading.Thread):
                 line = ("ask_floor" if self.kind == "floor_still" else "ask") if attempt == 1 else "ask_again"
                 try:
                     r = ask_once(ck, self.args.audio_out, self.dir, f"r{attempt}", log=self.log, on_recorded=on_recorded, line=line,
-                                 mic=self.state.audio)
+                                 mic=self.state.audio, reply=self.args.reply)
                 except (Exception, SystemExit) as e:
                     self.log(f"check-in failed: {type(e).__name__}: {e} -> escalating")
                     self.result["checkin_error"] = f"{type(e).__name__}: {e}"[:300]
@@ -471,7 +471,8 @@ class Flow(threading.Thread):
                     self.log(f"{limit}s after the event: not down any more -> no re-check"); return
                 self.log(f"still down {limit}s after saying okay -> checking in again")
                 try:
-                    r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log, line="recheck", mic=self.state.audio)
+                    r = ask_once(ck, self.args.audio_out, self.dir, "recheck", log=self.log, line="recheck", mic=self.state.audio,
+                                 reply=self.args.reply)
                 except (Exception, SystemExit) as e:
                     self.log(f"re-check failed: {type(e).__name__}: {e} -> escalating")
                     r = {"status": "checkin_failed", "transcript": {}}
@@ -532,6 +533,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--no-checkin", action="store_true")
     p.add_argument("--audio-out", default=None, help="camera | laptop (default: config audio.output)")
     p.add_argument("--alerts-dry-run", action="store_true")
+    p.add_argument("--reply", metavar="WAV", help="video-file sources only: use this recording as her answer, not a microphone. "
+                                                  "Implies --alerts-dry-run and, unless set, --audio-out laptop")
     p.add_argument("--label", default="live")
     p.add_argument("--save-candidates", action="store_true")
     p.add_argument("--no-zones", action="store_true", help="ignore zones.json (e.g. when simulating with a clip from another room)")
@@ -540,6 +543,21 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--web", type=int, default=8790, metavar="PORT", help="serve the local page (camera view, state, log) on 127.0.0.1:PORT")
     p.add_argument("--no-web", action="store_true", help="do not serve the local page")
     args = p.parse_args(argv)
+    if args.reply:
+        # a canned "I'm okay" must never stand in for a real person, or reach a real family
+        if not Path(args.source).is_file():
+            p.error("--reply works only with a video file as --source")
+        if not Path(args.reply).is_file():
+            p.error(f"--reply: no such file: {args.reply}")
+        args.reply = Path(args.reply); args.alerts_dry_run = True; args.audio_out = args.audio_out or "laptop"
+    if not args.no_api:                          # find a missing credential now, not after a fall
+        api_key()
+        if not args.alerts_dry_run:
+            from remy.alerts import WhatsApp
+            try:
+                WhatsApp()
+            except SystemExit as e:
+                p.error(f"{e} To run without sending, add --alerts-dry-run.")
     cfg = load_config(); trig_cfg = {**cfg["score_v2"], **cfg["trigger"]}; mon = cfg["monitor"]
 
     web = None if args.no_web else WebView()
@@ -556,6 +574,8 @@ def main(argv: list[str] | None = None) -> int:
         except OSError as e:
             log(f"web view not started ({e}); use --web <port> or --no-web"); web = None
 
+    if Path(args.source).is_file() and not args.reply and not args.no_checkin and not env_get("TAPO_IP", required=False):
+        log("no camera set up, so the check-in cannot listen and will escalate; to answer from a file add --reply examples/replies/okay.wav")
     cap = Capture(args.source, max_width=args.max_width, reconnect=not args.no_reconnect, max_outage_s=args.max_outage_s, log=log)
     is_file, src_fps = cap.is_file, cap.src_fps
     model = load_model(cfg["yolo"]); EVENTS.mkdir(exist_ok=True)

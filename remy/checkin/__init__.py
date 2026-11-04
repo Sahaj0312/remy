@@ -24,7 +24,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from remy.camera.audio_in import MicStream, record_mic, record_until_silence
+from remy.camera.audio_in import MicStream, record_mic, record_until_silence, reply_from_file
 from remy.checkin.transcribe import transcribe_wav
 from remy.checkin.tts import LINE_KEYS, import_prompt, line_text, make_prompts, prompt_path
 from remy.common import EVENTS, load_config
@@ -76,13 +76,14 @@ def classify(transcript: str, cfg: dict, question: str, backend=None, heard_spee
 
 
 def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=print, backend=None, on_recorded=None,
-             line: str = "ask", mic: MicStream | None = None) -> dict:
+             line: str = "ask", mic: MicStream | None = None, reply: Path | None = None) -> dict:
     """Speak one of the question lines (ask, ask_again, ask_floor, recheck), record, transcribe, classify.
     Returns a dict with all timings. on_recorded(wav_path, rec_wall_start, record_result) is called right after
     the recording ends, before transcription, so the caller can cut the frames of that moment while they are
     still in its buffer. `mic` is an open MicStream to record from (the monitor's room-audio stream); it is
     left open. Without one the round opens its own. The camera serves three RTSP sessions at a time, so a
-    round must not add a connection when one is already running."""
+    round must not add a connection when one is already running. `reply` is a recorded answer to use instead of
+    any microphone (remy run --reply); the camera is not touched."""
     from remy.camera.audio_out import speak
     lang = cfg["language"]
     question = question_text(cfg, line)
@@ -92,21 +93,27 @@ def ask_once(cfg: dict, audio_out: str | None, rec_dir: Path, tag: str, log=prin
         wav = prompt_path(line, lang)
     t0 = time.time()
     stop_on_silence = cfg.get("stop_on_silence", True)
-    if mic is not None and not mic.alive:
+    if reply is not None:
+        mic = None
+    elif mic is not None and not mic.alive:
         log(f"check-in: the room audio stream is down ({mic.err or 'ended'}); opening the mic for this round")
         mic = None
     shared = mic is not None
-    if mic is None and stop_on_silence:
+    if reply is None and mic is None and stop_on_silence:
         try:
             mic = MicStream()                       # connect while the prompt plays
         except Exception as e:
             log(f"check-in: mic stream failed to open ({type(e).__name__}); falling back to a fixed recording")
     sp = speak(wav, audio_out, wait=True)
-    log(f"check-in: spoke '{question}' on {sp['device']} ({sp['took_s']}s)")
+    log(f"check-in: spoke '{question}' on {sp['device']} ({sp['took_s']}s)" + ("" if sp.get("ok", True) else f", FAILED: {sp.get('detail')}"))
     rec = rec_dir / f"checkin_{tag}_{datetime.now().strftime('%H%M%S')}.wav"
     rec_wall = time.time() + 0.5
     r = None
-    if mic is not None:
+    if reply is not None:
+        r = reply_from_file(reply, rec, cfg["record_s"], cfg.get("silence"))
+        speech = "no speech" if r.get("speech_at_s") is None else f"speech at {r['speech_at_s']}s"
+        log(f"check-in: reply from {reply.name}, not a microphone -> {rec.name}: {r['duration_s']}s, {speech}" + ("" if r["ok"] else f", FAILED: {r['err']}"))
+    elif mic is not None:
         try:
             # the stream lags the room by 0.2 to 0.45 s, so the prompt's tail still arrives after speak() returns
             r = record_until_silence(rec, cfg["record_s"], cfg.get("silence"), mic=mic, since_wall=rec_wall)

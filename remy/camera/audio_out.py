@@ -1,6 +1,7 @@
 """Speak a wav on the configured output device: "camera" (Tapo speaker via go2rtc) or "laptop" (afplay)."""
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 import time
@@ -24,7 +25,13 @@ def speak(wav: Path, device: str | None = None, wait: bool = True) -> dict:
             time.sleep(dur + 0.5)
         return {"device": "camera", "ok": ok, "detail": msg, "took_s": round(time.time() - t0, 2)}
     cmd = cfg.get("laptop_cmd", "afplay")
-    p = subprocess.Popen([cmd, str(wav)])
+    argv = [cmd, str(wav)]
+    if not shutil.which(cmd):                    # afplay is Mac only
+        cmd = "ffplay"
+        argv = [cmd, "-nodisp", "-autoexit", "-loglevel", "quiet", str(wav)]
+        if not shutil.which(cmd):
+            return {"device": "laptop", "ok": False, "detail": "no audio player found (afplay, ffplay)", "took_s": 0.0}
+    p = subprocess.Popen(argv)
     if wait:
         p.wait()
     return {"device": "laptop", "ok": True, "detail": cmd, "took_s": round(time.time() - t0, 2)}

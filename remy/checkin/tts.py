@@ -12,9 +12,10 @@ from pathlib import Path
 
 import numpy as np
 
-from remy.common import AUDIO_DIR, TOOLS
+from remy.common import AUDIO_DIR, ROOT, TOOLS
 
 KOKORO_DIR = TOOLS / "kokoro"
+SHIPPED_VOICE_DIR = ROOT / "examples" / "voice"     # the default English lines (Kokoro), so a fresh clone can speak
 LINE_KEYS = ("ask", "ask_again", "ask_floor", "recheck", "ack_okay", "ack_sent")
 
 
@@ -31,11 +32,15 @@ def line_text(cfg: dict, key: str = "ask", lang: str | None = None) -> str:
 
 
 def prompt_path(key: str = "ask", lang: str = "en") -> Path:
-    """audio/<key>_<lang>.wav; the first-round question also accepts the older audio/checkin_<lang>.wav."""
+    """audio/<key>_<lang>.wav; the first-round question also accepts the older audio/checkin_<lang>.wav. With
+    no local file, the line shipped in examples/voice/. Returns the audio/ path if neither exists."""
     p = AUDIO_DIR / f"{key}_{lang}.wav"
-    if key == "ask" and not p.exists() and (AUDIO_DIR / f"checkin_{lang}.wav").exists():
+    if p.exists():
+        return p
+    if key == "ask" and (AUDIO_DIR / f"checkin_{lang}.wav").exists():
         return AUDIO_DIR / f"checkin_{lang}.wav"
-    return p
+    shipped = SHIPPED_VOICE_DIR / f"{key}_{lang}.wav"
+    return shipped if shipped.exists() else p
 
 
 def available_keys(cfg: dict) -> list[str]:

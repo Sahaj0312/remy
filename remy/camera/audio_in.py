@@ -89,6 +89,27 @@ class MicStream:
         self.au.close()
 
 
+def reply_from_file(src: Path, dst: Path, max_s: float, params: dict | None = None, rate: int = 16000) -> dict:
+    """A recorded answer in place of the camera mic (remy run --reply): the same format, the same silence stop
+    and the same result keys as record_until_silence, so the rest of the check-in runs as it does live."""
+    t0 = time.time()
+    det = SilenceStop(0.05, **{**(params or {}), "max_s": max_s})
+    p = subprocess.run(["ffmpeg", "-v", "error", "-i", str(src), "-f", "s16le", "-ac", "1", "-ar", str(rate), "-"], capture_output=True, timeout=60)
+    if p.returncode != 0:
+        return {"ok": False, "took_s": round(time.time() - t0, 2), "err": p.stderr.decode(errors="replace").strip()[:200], **det.summary()}
+    pcm = np.frombuffer(p.stdout, np.int16)
+    hop, end = int(rate * 0.05), 0
+    for i in range(0, len(pcm) - hop + 1, hop):
+        end = i + hop
+        if det.feed(pcm[i:end].astype(np.float32) / 32768):
+            break
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(dst), "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate); w.writeframes(pcm[:end].tobytes())
+    ok = det.t >= 1.0
+    return {"ok": ok, "took_s": round(time.time() - t0, 2), "err": "" if ok else "the reply file is under 1 s", **det.summary()}
+
+
 def record_until_silence(dst: Path, max_s: float, params: dict | None = None, stream: int = 1, rate: int = 16000,
                          mic: MicStream | None = None, since_wall: float | None = None) -> dict:
     """Record from the camera mic and stop once speech has been followed by silence (see remy.camera.silence).
