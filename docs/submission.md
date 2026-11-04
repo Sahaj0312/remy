@@ -40,7 +40,7 @@ Build for Your World
 > Deterministic stages sit between the models: a local YOLO pose trigger decides when to call SAM, a rule on the SAM
 > track decides whether it was a fall, help words short-circuit the classifier, and a floor-zone rule raises an event
 > with no visible drop. Evaluation: 100 public clips (32/40 falls, 1/60 false alarms in-sample; 80% out-of-sample),
-> a threshold sensitivity sweep, a 67-test suite, and four staged scenarios on the real camera on the last day
+> a threshold sensitivity sweep, an 86-test suite, and four staged scenarios on the real camera on the last day
 > (sofa quiet; a clear okay at 27 s; a silent fall urgent at 57 s; a shout urgent at 20 s with the audio).
 >
 > **Bonus categories:** Best Agentic Use-Case (the system detects, confirms, asks, listens, decides, escalates and
@@ -49,6 +49,10 @@ Build for Your World
 > **Keyless verification for judges:** `remy replay examples/event_gmdcsa_S1_Fall_12` replays a recorded event and
 > re-scores its stored SAM track; `python eval/score_tracks.py --tracker sam --scorer v2` reproduces the eval from
 > the committed tracks.
+>
+> **Full flow with only a Meta API key, no camera or WhatsApp:** `remy run --source
+> examples/clips/gmdcsa_S1_Fall_12.mp4 --realtime --no-zones --reply examples/replies/okay.wav` runs every live model
+> call. Swap in `help.wav` or `silent.wav` to see the other outcomes.
 
 ## 6. X post URL
 

@@ -47,7 +47,8 @@ The spoken lines (the question, the second question, the floor-rule question, th
 acknowledgements) are listed under `checkin.lines` in `config.json` with `{name}` filled in. Kokoro
 ([kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx)) renders them locally: download `kokoro-v1.0.onnx` and
 `voices-v1.0.bin` into `tools/kokoro/`, install `espeak-ng` (`brew install espeak-ng`), then run
-`remy test-checkin --make-prompts`.
+`remy test-checkin --make-prompts`. The default English lines ship in `examples/voice/`, so this step is needed only
+if you change the words or the language. A file in `audio/` overrides the shipped line.
 
 Any line can be replaced with a recording from a better voice (ElevenLabs, a family member):
 `remy test-checkin --import recording.mp3 --as ask`. The import makes it mono 22.05 kHz, normalises loudness and

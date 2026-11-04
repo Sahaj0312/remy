@@ -23,6 +23,8 @@ Transcribe write the note, hear the reply and judge it. Evaluated on 100 public 
 - **Keyless verification:** `remy replay examples/event_gmdcsa_S1_Fall_12` replays a recorded live event and
   re-scores its stored SAM track; `python eval/score_tracks.py --tracker sam --scorer v2` reproduces the eval
   from the committed tracks. Neither needs an API key.
+- **No camera, no WhatsApp, only a Meta API key:** `remy run --reply` runs the full live flow on a shipped clip and
+  a sample answer, so you can watch all three outcomes end to end. See [Quickstart](#without-the-camera-or-whatsapp).
 
 ![demo](docs/demo.gif)
 
@@ -191,7 +193,7 @@ second each, inside the 6 to 12 s run-to-run noise. The only large cut left ther
 
 ### Cost
 
-Everything so far, two evaluation rounds, the backend comparison and all live tests included, is $4.17 of API calls. One live event costs
+Everything so far, two evaluation rounds, the backend comparison and all live tests included, is $4.36 of API calls. One live event costs
 about $0.02: SAM $0.010 (50-frame minimum), Spark triage $0.003, two transcriptions $0.0015, one classification
 $0.0014. A false candidate that SAM rejects costs $0.01. YOLO, tracking, scoring and TTS run locally.
 
@@ -228,7 +230,7 @@ Download the go2rtc binary into `tools/go2rtc/go2rtc` and the Kokoro model files
 (see [docs/hardware-setup.md](docs/hardware-setup.md)), then:
 
 ```sh
-remy test-checkin --make-prompts        # Kokoro renders every spoken line into audio/<line>_en.wav
+remy test-checkin --make-prompts        # optional: Kokoro renders your own lines into audio/ (default lines ship in examples/voice/)
 remy test-checkin --import ask.wav --as ask   # swap one line for a better recording (ElevenLabs etc.)
 remy setup-zones --stream 2             # floor / rug / sofa / bed -> zones.json, check zones_overlay.jpg
 remy test-alert --dry-run --test        # alert path without sending; drop --dry-run to send
@@ -236,10 +238,33 @@ remy test-checkin --run                 # one spoken check-in round on the camer
 remy run --source tapo                  # watch; a local page at http://127.0.0.1:8790 shows the camera, state and log
 ```
 
-To try it without a camera, simulate with a clip from the eval set (`--no-zones` because the room differs):
+### Without the camera or WhatsApp
+
+Install as above and set `META_API_KEY`. No other setup is needed. The clip is a public one, so `--no-zones` turns
+off the room zones, which belong to a different room:
 
 ```sh
-remy run --source eval/clips/gmdcsa_S1_Fall_12.mp4 --realtime --no-zones --audio-out laptop --alerts-dry-run
+remy run --source examples/clips/gmdcsa_S1_Fall_12.mp4 --realtime --no-zones --reply examples/replies/okay.wav
+```
+
+YOLO spots the drop, SAM 3.1 confirms it, Muse Spark writes the note, your laptop speaks the question, Muse Voice
+Transcribe reads the reply file, and Muse Spark classifies it. Change the file to see each outcome. These are the
+results from a clean clone on Nov 4, at about 1.5 cents a run:
+
+| `--reply` | heard | outcome |
+|---|---|---|
+| `okay.wav` | "Yes, I'm okay. I'm fine." | calm; a re-check about a minute later, because the clip ends with the person down |
+| `help.wav` | "Help me, I can't get up." | urgent: "She asked for help." |
+| `silent.wav` | nothing, on both questions | urgent: "Nani did not respond when asked if she was okay." |
+
+The message and video are saved in `events/<time>_<label>_drop/` (`event.json`, `alert.mp4`). `--reply` never sends
+a real message and is refused on a live source, so a canned "okay" cannot stand in for a real person.
+
+The sample replies are clean synthetic speech and skip the camera microphone, so these runs test the decisions, not
+the hearing. On the real camera a shouted "help" came through with no words (see [Limitations](#limitations-and-known-misses)).
+The reply also arrives instantly, so use the [latency table](#latency) for real timings.
+
+```sh
 remy run --source 0 --no-api            # laptop webcam, YOLO trigger only, no API calls, no cost
 remy replay examples/event_gmdcsa_S1_Fall_12   # a recorded event, re-scored and printed, no key needed
 remy costs                              # the running API ledger
@@ -264,7 +289,7 @@ remy/            the package
   common.py, costs.py
 tests/           pytest: scorer on synthetic falls, linker, zones, reply rules, reconnect, heartbeat (`pip install -e ".[dev]" && pytest`)
 eval/            labels.csv, the batch scripts, committed tracks/scores/verdicts, REPORT.md, SENSITIVITY.md, HOLDOUT.md, TRIAGE_COMPARE.md, SILENCE_STOP.md, SAM_LATENCY.md
-examples/        one recorded live event (GMDCSA24 clip, MIT) for `remy replay`
+examples/        a public clip, one recorded event, the voice lines and sample replies for running with no hardware
 docs/            hardware-setup.md
 infra/           go2rtc.template.yaml (filled from .env at run time)
 experiments/     probes and the v1 live loop, each with a one-line note
@@ -327,6 +352,11 @@ From the commit history:
   the monitor's own microphone stream; and the drop path never looked at the zones, so a fast sit-down became an
   event twice. The zone rule now places a person by the hips from the pose model, and a drop that ends on the
   sofa or bed makes no SAM call. Then the four scenarios above.
+
+- **Nov 4.** A clean-clone test showed that a confirmed fall could end with no alert: an error in the check-in, such
+  as a missing voice file or missing camera credentials, stopped the event in silence. Now a failed check-in sends the
+  urgent alert and says it could not finish. Added `remy run --reply`, so anyone with a Meta key can run the full flow
+  and all three outcomes with no camera.
 
 ## Data and licenses
 

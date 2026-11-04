@@ -557,7 +557,7 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 WhatsApp()
             except SystemExit as e:
-                p.error(f"{e} To run without sending, add --alerts-dry-run.")
+                p.error(f"{e}. To run without sending, add --alerts-dry-run.")
     cfg = load_config(); trig_cfg = {**cfg["score_v2"], **cfg["trigger"]}; mon = cfg["monitor"]
 
     web = None if args.no_web else WebView()
