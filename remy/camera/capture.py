@@ -25,7 +25,7 @@ def kind_of(source: str) -> str:
 
 class Capture:
     def __init__(self, source: str, max_width: int = 640, reconnect: bool = True, max_outage_s: float = 600.0,
-                 backoff_max_s: float = 60.0, log=print):
+                 backoff_max_s: float = 60.0, log=print, on_outage=None, outage_notice_s: float = 120.0):
         self.source = source
         self.kind = kind_of(source)
         self.max_width = max_width
@@ -33,6 +33,8 @@ class Capture:
         self.max_outage_s = max_outage_s
         self.backoff_max_s = backoff_max_s
         self.log = log
+        self.on_outage = on_outage          # on_outage(kind, seconds): "down" once, then "back" or "gave_up"
+        self.outage_notice_s = outage_notice_s
         self.reconnects = 0
         self._reconnected = False
         self._sleep = time.sleep          # swapped in tests
@@ -84,14 +86,28 @@ class Capture:
             return False, None
         return self._reconnect_loop()
 
+    def _notify(self, kind: str, seconds: float) -> None:
+        if self.on_outage is None:
+            return
+        try:
+            self.on_outage(kind, seconds)
+        except (Exception, SystemExit) as e:     # telling the family must never stop the reconnect
+            self.log(f"camera notice failed: {type(e).__name__}: {str(e)[:120]}")
+
     def _reconnect_loop(self):
         t_lost = self._now()
         delay = 2.0
+        told = False
         self.log(f"stream lost, reconnecting (will give up after {self.max_outage_s:.0f}s)")
         while True:
             self._close_reader()
-            if self._now() - t_lost >= self.max_outage_s:
+            down_s = self._now() - t_lost
+            if not told and down_s >= self.outage_notice_s:
+                told = True
+                self._notify("down", down_s)
+            if down_s >= self.max_outage_s:
                 self.log(f"stream still down after {self.max_outage_s:.0f}s; giving up")
+                self._notify("gave_up", down_s)
                 return False, None
             self._sleep(delay)
             try:
@@ -104,6 +120,8 @@ class Capture:
                 self.reconnects += 1
                 self._reconnected = True
                 self.log(f"stream back after {self._now() - t_lost:.0f}s (reconnect #{self.reconnects})")
+                if told:
+                    self._notify("back", self._now() - t_lost)
                 return True, frame
             delay = min(delay * 2, self.backoff_max_s)
 

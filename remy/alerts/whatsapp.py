@@ -74,6 +74,15 @@ def publish_file(path: Path) -> str | None:
     return f"{base}/{name}"
 
 
+RETRY_WAITS_S = (5, 15)              # after a failed send: wait, then try the text alone again
+
+
+def delivered(responses: list[dict]) -> bool:
+    """True if the service accepted the message for every recipient (a dry run counts). HTTP 200 means accepted:
+    WhatsApp can still drop a message later, for example outside the 24 h window, and only a webhook would show it."""
+    return bool(responses) and all(r.get("dry") or (isinstance(r.get("_http"), int) and 200 <= r["_http"] < 300) for r in responses)
+
+
 class WhatsApp:
     def __init__(self, dry_run: bool = False):
         self.cfg = load_config()["alerts"]
@@ -174,16 +183,45 @@ class WhatsApp:
         self._log("video", to, body, resp); return resp or {"dry": True}
 
     # ---- the two alert shapes
+    @staticmethod
+    def _attempt(send, *a) -> dict:
+        try:
+            return send(*a)
+        except Exception as e:                   # no network, a timeout: the same as a refused message
+            return {"_http": None, "error": f"{type(e).__name__}: {e}"[:200]}
+
     def _send_alert(self, text: str, video: Path | None, snapshot: Path | None) -> list[dict]:
+        """With the video or photo if that works; otherwise the words alone, which are what must get through."""
         out = []
         for r in self.recipients():
+            resp = None
             if video and Path(video).exists():
-                out.append(self.send_video(r["number"], Path(video), text))
+                resp = self._attempt(self.send_video, r["number"], Path(video), text)
             elif snapshot and Path(snapshot).exists():
-                out.append(self.send_image(r["number"], Path(snapshot), text))
-            else:
-                out.append(self.send_text(r["number"], text))
+                resp = self._attempt(self.send_image, r["number"], Path(snapshot), text)
+            if resp is None or not delivered([resp]):
+                for wait in (0, *RETRY_WAITS_S):
+                    time.sleep(wait)
+                    resp = self._attempt(self.send_text, r["number"], text)
+                    if delivered([resp]):
+                        break
+            out.append(resp)
         return out
+
+    def token_problem(self) -> str | None:
+        """Why the token cannot send, or None. Only a clear refusal counts: a network blip must not stop a start."""
+        if self.dry or self.channel == "twilio":
+            return None
+        try:
+            r = requests.get(f"{GRAPH}/{self.phone_id}", params={"fields": "id"}, headers={"Authorization": f"Bearer {self.token}"}, timeout=10)
+        except requests.RequestException:
+            return None
+        return "WHATSAPP_TOKEN was refused (expired or invalid), so no alert could be sent" if r.status_code == 401 else None
+
+    def notice(self, text: str, video: Path | None = None, snapshot: Path | None = None) -> list[dict]:
+        """A message about the system itself (a caution, a recovery), not about a confirmed fall."""
+        self.last_text = text
+        return self._send_alert(text, video, snapshot)
 
     def calm(self, summary: str, said: str | None, when: str, video: Path | None = None) -> list[dict]:
         name = self.cfg["person_name"]

@@ -58,6 +58,9 @@
     "spark_open": "Muse Spark Open on a partner endpoint, OpenAI-compatible; the burst goes as JPEG frames at frames_fps. Not used unless triage.backend or reply_backend says spark_open. Any OpenAI-compatible host works: change base_url, model and api_key_env.",
     "checkin.stop_on_silence": "the mic recording ends once speech (>= speech_db for speech_min_s, or one chunk >= loud_db) is followed by silence_s below silence_db, never before min_s; with no speech it runs to record_s. Levels are dBFS from the Tapo mic: gated silence ~-72, rustle -50 to -42, speech from the floor -35 to -20.",
     "checkin.escalate_on_unheard_speech": "if speech-level sound was heard but the transcript is empty, the reply counts as unclear (she tried to answer, we could not understand) and escalates at once instead of a second prompt",
+    "alerts.caution_every_s": "if SAM fails before a drop gets a verdict and the person is still down off the furniture, the family gets a caution with the clip; at most one per this many seconds during an outage",
+    "monitor.sam_deadline_s": "a SAM call slower than this counts as down (live calls take 5 to 14 s)",
+    "monitor.camera_notice_s": "tell the family once the camera has been gone this long, and again when it is back or the monitor gives up",
     "alerts.video": "every alert carries one MP4: the fall clip with the room's sound, then her answer (frames + the check-in recording, from answer_lead_s before her first word) when she spoke; a silent fall gets the fall alone. audio_offset_s shifts the room audio against the frames if they drift (seconds, + delays the sound). Off = photo for urgent, text for calm, as before."
   },
   "tracking": {
@@ -153,12 +156,16 @@
     "still_move_max_bl": 0.08,
     "low_ar_max": 1.6,
     "getup_confirm_ticks": 3,
+    "sam_deadline_s": 45,
+    "camera_notice_s": 120,
     "zones_file": "zones.json"
   },
   "alerts": {
     "enabled": true,
     "channel": "whatsapp",
     "person_name": "Nani",
+    "caution_prefix": "\u26a0\ufe0f Caution:",
+    "caution_every_s": 600,
     "family": [
       {
         "name": "example",

@@ -35,6 +35,7 @@ from remy.alerts.heartbeat import heartbeat_due, heartbeat_start_state, heartbea
 from remy.camera.audio_in import MicStream
 from remy.camera.capture import Capture
 from remy.camera.clips import concat_clips, freeze_clip, write_clip
+from remy.alerts.whatsapp import delivered
 from remy.common import EVENTS, ROOT, api_key, env_get, load_config, redact, sam_cost_usd, video_info, write_json
 from remy.vision.score import score_track
 from remy.vision.tracking import OnlineTracks
@@ -56,6 +57,8 @@ class State:
         self.history: deque = deque(maxlen=int(60 * yolo_fps))     # per YOLO tick
         self.buffer: deque | None = None; self.t = 0.0; self.wall = time.time(); self.t0_wall = time.time()
         self.cooldown_until_wall = 0.0      # set by a flow when it raises an event; the main loop holds the trigger until then
+        self.caution_wall = 0.0             # when the family last got a caution, so an outage does not flood them
+        self.tracking_down = False          # they were told tracking is down and have not yet heard it is back
         self.last_event_t = None            # stream time of the last raised event, for de-duplicating one fall
         self.audio: MicStream | None = None # rolling room audio over the same span as the frame buffer (camera sources only)
         self.web: WebView | None = None     # the local page, when --web is on
@@ -199,6 +202,7 @@ class Flow(threading.Thread):
             self.log(f"flow error: {type(e).__name__}: {e}")
             self.result["error"] = repr(e)
             self.last_resort_alert()
+            self.caution_alert()
         finally:
             self.save(); self.done = True
 
@@ -212,10 +216,86 @@ class Flow(threading.Thread):
             when = getattr(self, "when", "just now")
             reason = "The system hit an error before it could finish checking on her."
             resp = wa.urgent(f"Possible fall detected at {when}.", self.result.get("said"), when, None, reason)
-            self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
-            self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text, "last_resort": True}
+            ok = self.note_alert("urgent", resp, wa, reason)
+            self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text, "last_resort": True, "delivered": ok}
         except (Exception, SystemExit) as e:
             self.log(f"ALERT FAILED, the family was not told: {type(e).__name__}: {e}")
+
+    def note_alert(self, kind: str, resp: list[dict], wa, why: str) -> bool:
+        """Log what really happened to a message. Returns True if it was accepted for everyone."""
+        ok = delivered(resp)
+        if ok:
+            self.log(f"ALERT {kind} -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {why}")
+        else:
+            errs = "; ".join(str((r.get("error") or {}).get("message", r.get("error")) if isinstance(r.get("error"), dict) else r.get("error"))[:120] for r in resp) or "no recipients"
+            self.log(f"ALERT FAILED, the family was not told ({errs}). It was {kind}: {why}")
+        return ok
+
+    def caution_alert(self):
+        """Something failed before this drop got a verdict, most likely SAM. It cannot be called a fall and it
+        cannot be called nothing, so the family hears what is known and sees the clip. The checks that need no
+        model still apply, and an outage gets at most one message per alerts.caution_every_s."""
+        if self.kind != "drop" or self.result.get("event") or not self.drop:
+            return
+        try:
+            st, d = self.state, self.drop
+            last_ev = st.last_event_t
+            if last_ev is not None and abs(d["drop_v"] - last_ev) < 20.0:
+                self.log("no verdict on this drop, but an event was already raised for it -> no caution"); return
+            if self.person_got_up(d["drop_v"]):
+                self.log("no verdict on this drop, but the person is already up -> no caution"); return
+            if st.zones is not None:
+                n_f, n = st.on_furniture_since(d["drop_v"], 8.0)
+                if n and n_f * 2 >= n:
+                    self.log(f"no verdict on this drop, but the body is on the sofa or bed ({n_f}/{n} frames) -> no caution"); return
+            alerts = self.cfg["alerts"]
+            if time.time() - st.caution_wall < float(alerts.get("caution_every_s", 600)):
+                self.log("no verdict on this drop; the family had a caution recently -> no second one yet"); return
+            st.caution_wall = time.time()
+            from remy.alerts import WhatsApp
+            wa = WhatsApp(dry_run=self.args.alerts_dry_run)
+            th = getattr(self, "_fall_thread", None)
+            if th is not None:
+                th.join(timeout=20)
+            video = next((p for p in (self.dir / "fall_with_sound.mp4", self.dir / "clip.mp4") if p.exists()), None)
+            resp = wa.notice(caution_text(alerts.get("caution_prefix", "\u26a0\ufe0f Caution:"), alerts["person_name"],
+                                          datetime.fromtimestamp(d.get("drop_wall", time.time())).strftime("%-I:%M%p").lower(), st.zones is not None),
+                             video=video, snapshot=self.dir / "snapshot.jpg")
+            ok = self.note_alert("caution", resp, wa, "no verdict on this drop, the family was asked to check")
+            self.result["alert"] = {"kind": "caution", "responses": resp, "text": wa.last_text, "delivered": ok}
+            if ok:
+                st.tracking_down = True
+            else:
+                st.caution_wall = 0.0            # it did not go out, so the next drop should try again
+        except (Exception, SystemExit) as e:
+            self.log(f"ALERT FAILED, the caution was not sent: {type(e).__name__}: {e}")
+
+    def tracking_recovered(self):
+        """The first good SAM call after a caution: close the loop with the family, once."""
+        if not self.state.tracking_down:
+            return
+        self.state.tracking_down = False
+        self.log("SAM 3.1 answered again after an outage")
+
+        def work():
+            try:
+                from remy.alerts import WhatsApp
+                wa = WhatsApp(dry_run=self.args.alerts_dry_run)
+                self.note_alert("notice", wa.notice(f"\u2705 Fall tracking is working again. Remy is back to normal for {self.cfg['alerts']['person_name']}."), wa, "tracking is back")
+            except (Exception, SystemExit) as e:
+                self.log(f"could not send the recovery notice: {type(e).__name__}: {e}")
+        threading.Thread(target=work, daemon=True).start()
+
+    def call_sam(self, clip: Path):
+        """SAM 3.1 with a deadline. A live call takes 5 to 14 s; past the deadline it counts as down, because a
+        hung call would hold the caution back and, while this flow runs, keep the floor rule from starting."""
+        from remy.vision import sam
+        deadline = float(self.cfg["monitor"].get("sam_deadline_s", 45))
+
+        async def run_sam():
+            async with sam.make_client(timeout=deadline) as api:
+                return await sam.segment_video(api, clip, "one_bit", False)
+        return asyncio.run(asyncio.wait_for(run_sam(), deadline))
 
     def confirm_drop(self) -> bool:
         d = self.drop
@@ -232,12 +312,9 @@ class Flow(threading.Thread):
         if self.args.no_api:
             self.log("[dry run] SAM skipped"); self.result.update(dry_run=True); return False
         from remy.vision import sam
-
-        async def run_sam():
-            async with sam.make_client(timeout=600) as api:
-                return await sam.segment_video(api, clip, "one_bit", False)
         self.mark("sam_call_start")
-        result, st = asyncio.run(run_sam())
+        result, st = self.call_sam(clip)
+        self.tracking_recovered()
         self.timings["sam_upload_s"] = round(st["upload_s"], 2); self.timings["sam_total_s"] = round(st["total_s"], 2); self.mark("sam_done")
         self.cost += sam_cost_usd(info["n_frames"]); costs.add("sam-live", sam_cost_usd(info["n_frames"]), self.dir.name)
         frames_t, meta, objects = sam.result_to_frames(result, info["n_frames"], info["fps"], info["width"], info["height"], use_masks=False)
@@ -403,14 +480,15 @@ class Flow(threading.Thread):
         video = self.alert_video() if vcfg.get("enabled", True) and outcome != "skipped" else None
         if outcome == "okay":
             resp = wa.calm(summary, said, self.when, video=video); self.mark("alert_sent")
-            self.log(f"ALERT calm -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: she says she's okay")
-            self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text}
-            self.say_after("ack_okay")
+            ok = self.note_alert("calm", resp, wa, "she says she's okay")
+            self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text, "delivered": ok}
+            if ok:                                   # "I've let the family know" must be true
+                self.say_after("ack_okay")
             self.recheck_after_okay(wa, snap)
         elif outcome == "got_up":
             resp = wa.calm(summary + " She got back up on her own.", said, self.when, video=video); self.mark("alert_sent")
-            self.log(f"ALERT calm -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: got up")
-            self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text}
+            ok = self.note_alert("calm", resp, wa, "got up")
+            self.result["alert"] = {"kind": "calm", "responses": resp, "text": wa.last_text, "delivered": ok}
         elif outcome == "skipped":
             self.result["alert"] = None
         else:
@@ -418,10 +496,13 @@ class Flow(threading.Thread):
             reason = {"needs_help": "She asked for help.", "no_answer": f"{name} did not respond when asked if she was okay.",
                       "unclear": "She answered, but not clearly.",
                       "checkin_failed": f"The check-in could not finish, so we do not know if {name} is okay."}.get(outcome, outcome)
+            if outcome == "no_answer" and any(not (r.get("speak") or {}).get("ok", True) or not (r.get("record") or {}).get("ok", True) for r in rounds):
+                reason = "The camera's speaker or microphone failed, so she may not have been asked or heard."
             resp = wa.urgent(summary, said, self.when, snap, reason, video=video); self.mark("alert_sent")
-            self.log(f"ALERT urgent -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
-            self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text}
-            self.say_after("ack_sent")
+            ok = self.note_alert("urgent", resp, wa, reason)
+            self.result["alert"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text, "delivered": ok}
+            if ok:                                   # "I've sent a message to the family" must be true
+                self.say_after("ack_sent")
         self.save()
         # keep the watcher alive a while for the still-down line, then finish
         t0 = time.time()
@@ -483,10 +564,23 @@ class Flow(threading.Thread):
                     reason = "Still on the floor a minute after saying she was okay; " + (
                         "asked for help." if r["status"] == "needs_help" else "no clear answer this time.")
                     resp = wa.urgent(self.summary_text(), r["transcript"].get("transcript") or self.result.get("said"), self.when, snap, reason)
-                    self.log(f"ALERT urgent (re-check) -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}: {reason}")
-                    self.result["alert_recheck"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text}
+                    ok = self.note_alert("urgent (re-check)", resp, wa, reason)
+                    self.result["alert_recheck"] = {"kind": "urgent", "reason": reason, "responses": resp, "text": wa.last_text, "delivered": ok}
                 return
             time.sleep(0.5)
+
+
+# ----------------------------------------------------------------------------- messages about the system itself
+def caution_text(prefix: str, name: str, when: str, has_floor_rule: bool) -> str:
+    still = " Until it is back, Remy may miss a fall" + (", but it will still ask her if she stays on the floor." if has_floor_rule else ".")
+    return f"{prefix} Remy saw a possible fall at {when} but could not confirm it, because fall tracking may be temporarily down. Please check on {name}.{still}"
+
+
+def camera_notice_text(kind: str, name: str, seconds: float, prefix: str = "\u26a0\ufe0f Caution:") -> str:
+    mins = max(1, round(seconds / 60))
+    return {"down": f"{prefix} Remy lost the camera {mins} min ago and is trying to reconnect. It cannot see {name} until then.",
+            "back": f"\u2705 The camera is back after {mins} min. Remy is watching {name} again.",
+            "gave_up": f"{prefix} Remy has stopped watching {name}. The camera has been down for {mins} min, so it needs a restart."}[kind]
 
 
 # ----------------------------------------------------------------------------- the page's view of the flows
@@ -555,9 +649,11 @@ def main(argv: list[str] | None = None) -> int:
         if not args.alerts_dry_run:
             from remy.alerts import WhatsApp
             try:
-                WhatsApp()
+                problem = WhatsApp().token_problem()
             except SystemExit as e:
-                p.error(f"{e}. To run without sending, add --alerts-dry-run.")
+                problem = str(e)
+            if problem:
+                p.error(f"{problem}. To run without sending, add --alerts-dry-run.")
     cfg = load_config(); trig_cfg = {**cfg["score_v2"], **cfg["trigger"]}; mon = cfg["monitor"]
 
     web = None if args.no_web else WebView()
@@ -576,7 +672,24 @@ def main(argv: list[str] | None = None) -> int:
 
     if Path(args.source).is_file() and not args.reply and not args.no_checkin and not env_get("TAPO_IP", required=False):
         log("no camera set up, so the check-in cannot listen and will escalate; to answer from a file add --reply examples/replies/okay.wav")
-    cap = Capture(args.source, max_width=args.max_width, reconnect=not args.no_reconnect, max_outage_s=args.max_outage_s, log=log)
+    def camera_notice(kind: str, seconds: float):
+        """Tell the family about a long camera outage. "gave_up" is sent before the process exits; the others do
+        not hold up the reconnect."""
+        def send():
+            try:
+                from remy.alerts import WhatsApp
+                wa = WhatsApp(dry_run=args.alerts_dry_run)
+                resp = wa.notice(camera_notice_text(kind, cfg["alerts"]["person_name"], seconds, cfg["alerts"].get("caution_prefix", "\u26a0\ufe0f Caution:")))
+                log(f"camera notice ({kind}) -> {len(resp)} recipient(s){' [dry run]' if wa.dry else ''}" if delivered(resp) else f"ALERT FAILED, the camera notice ({kind}) was not sent")
+            except (Exception, SystemExit) as e:
+                log(f"ALERT FAILED, the camera notice ({kind}) was not sent: {type(e).__name__}: {e}")
+        if kind == "gave_up":
+            send()
+        else:
+            threading.Thread(target=send, daemon=True).start()
+
+    cap = Capture(args.source, max_width=args.max_width, reconnect=not args.no_reconnect, max_outage_s=args.max_outage_s, log=log,
+                  on_outage=camera_notice, outage_notice_s=float(mon.get("camera_notice_s", 120)))
     is_file, src_fps = cap.is_file, cap.src_fps
     model = load_model(cfg["yolo"]); EVENTS.mkdir(exist_ok=True)
     hb_cfg = cfg["alerts"].get("heartbeat") or {}
@@ -708,7 +821,8 @@ def main(argv: list[str] | None = None) -> int:
                     n_ev = sum(1 for f in flows if f.result.get("event") and wall - getattr(f, "event_wall", 0) < 86400)
                     text = heartbeat_text(cfg["alerts"]["person_name"], started, now, n_ev, cap.reconnects)
                     resp = [wa_hb.send_text(r["number"], text) for r in wa_hb.recipients()]
-                    log(f"heartbeat -> {len(resp)} recipient(s){' [dry run]' if wa_hb.dry else ''}: {text}")
+                    log(f"heartbeat -> {len(resp)} recipient(s){' [dry run]' if wa_hb.dry else ''}: {text}" if delivered(resp)
+                        else f"heartbeat FAILED, nothing reached the family: {text}")
                 except Exception as e:
                     log(f"heartbeat failed: {type(e).__name__}: {e}")
         if args.duration and t_v >= args.duration:

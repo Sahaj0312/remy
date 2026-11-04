@@ -28,7 +28,7 @@ class FakeWhatsApp:
             raise RuntimeError("the network is down")
         FakeWhatsApp.sent.append((kind, a))
         self.last_text = str(a)
-        return [{"ok": True}]
+        return [{"_http": 200}]
 
     def urgent(self, summary, said, when, snapshot, reason, video=None):
         return self._send("urgent", reason, summary)

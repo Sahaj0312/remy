@@ -52,7 +52,7 @@ def say_line(cfg: dict, key: str, audio_out: str | None, log=print, wait: bool =
 def _backend(backend=None):
     if backend is None:
         from remy.triage import get_backend
-        backend = get_backend(load_config(), role="reply", timeout=60)
+        backend = get_backend(load_config(), role="reply", timeout=30)
     return backend
 
 

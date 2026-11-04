@@ -19,7 +19,7 @@ def transcribe_wav(wav: Path, mode: str = "ENDPOINTING", session_prefix: str = "
     resp = requests.post(f"{META_BASE_URL}/asr/transcribe", params={"sessionId": f"{session_prefix}-{wav.stem}"},
                          headers={"Authorization": f"Bearer {api_key()}", "Accept": "application/json"},
                          files={"request": (None, json.dumps(settings), "application/json"),
-                                "audio": (wav.name, wav.read_bytes(), "audio/wav")}, timeout=120)
+                                "audio": (wav.name, wav.read_bytes(), "audio/wav")}, timeout=30)
     lat = time.perf_counter() - t0
     if resp.status_code != 200:
         return {"transcript": "", "error": f"{resp.status_code} {resp.text[:200]}", "latency_s": round(lat, 2)}
